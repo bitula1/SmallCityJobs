@@ -49,7 +49,8 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--<ChangeLog>
 	</ChangeLog>-->
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
-	<ExternalLink Type="" Url="" />
+	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
+	<ExternalLink Type="Discord" Url="https://discord.gg/FAW5QR53KJ" />	
 	<!--Supported values Public, Private, Unlisted-->
 	<AccessLevel Value="Public" />
 </Publish>
