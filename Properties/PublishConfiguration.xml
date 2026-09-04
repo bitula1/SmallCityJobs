@@ -1,0 +1,55 @@
+﻿<Publish>
+	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
+	<ModId Value="157424" />
+	<!--Name of the mod to display to players-->
+	<DisplayName Value="Small City Jobs" />
+	<!--Short description of the mod-->
+	<ShortDescription Value="Progressive job seeking for small cities" />
+	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
+	<!--LongDescription Value="Bitulas mod" /-->
+	<LongDescription>
+Please report bugs in the discussion section/forum.
+
+In the original game, 100 open jobs matching a citizen's education level or lower are required for a 100% chance that the citizen will apply for a job. With only one suitable open position, the chance is just 1%, and the citizen may instead become a student and travel to an outside connection to study.
+
+This mod changes that behaviour progressively. For cities with a population below a configurable milestone, the application chance is 100%. As the population grows, the required number of available jobs gradually increases in configurable increments, eventually reaching the vanilla behaviour.
+
+**Both Milestone and Increment can be configured in the game options.**
+
+**Default settings:** 100 population / 10%
+
+### Additional features
+
+- Displays a citizen's work hours in the Selected Info panel.
+- Displays the household's resource purchases from the previous month in the Household Info panel.
+- Added PrioritizeAdultEmployment checkbox in options. This prevents employed adults from deciding to leave their job to study. Vanilla behaviour is restored progressively as the city grows.
+- Added a "Looking for work" message for followed citizens, including the number of suitable positions and positions matching their education level.
+- Added AcceptLowerJobs checkbox in options. This reduces the vanilla penalty for accepting jobs below a citizen's education level in smaller cities. Vanilla behaviour is restored progressively as the city grows.
+- Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
+	</LongDescription>
+	<!--Thumbnail-->
+	<Thumbnail Value="Properties/smalljob.png" />
+	<!--Screenshot, can be set multiple times-->
+	<Screenshot Value="Properties/lifepath.png" />
+	<Screenshot Value="Properties/options.png" />
+	<!--Tag, can be set multiple times-->
+	<Tag Value="Code Mod" />
+	<!--Link to the forum post where the mod can be discussed-->
+	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
+	<!--Version of the mod-->
+	<ModVersion Value="1.2" />
+	<!--Recommended version of the base game to use the mod-->
+	<GameVersion Value="1.6.*" />
+	<!--Dependency for the mod, can be set multiple times-->
+	<Dependency Id="" />
+	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
+	<RequiredDLC Value="" />
+	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
+	<ChangeLog Value="Added AcceptLowerJobs option, fixed available-workplace double counting, and added more information to the Looking for work message." />
+	<!--<ChangeLog>
+	</ChangeLog>-->
+	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
+	<ExternalLink Type="" Url="" />
+	<!--Supported values Public, Private, Unlisted-->
+	<AccessLevel Value="Public" />
+</Publish>
