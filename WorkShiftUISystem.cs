@@ -23,10 +23,6 @@ namespace BitulaMod
         private ValueBinding<uint> m_LastDayResourceCostBinding;
         private ValueBinding<bool> m_IsHouseholdSelectedBinding;
         private EntityQuery m_EconomyParameterQuery;
-        private PrefabSystem m_PrefabSystem;
-        private LifePathEventSystem m_LifePathEventSystem;
-        private EntityQuery m_FollowedCitizenQuery;
-        private bool m_TestLifePathEventSent = false;
 
 
         protected override void OnCreate()
@@ -51,17 +47,6 @@ namespace BitulaMod
             m_IsHouseholdSelectedBinding = new ValueBinding<bool>("BitulaMod", "isHouseholdSelected", false);
 
             AddBinding(m_IsHouseholdSelectedBinding);
-
-            m_PrefabSystem =
-    World.GetOrCreateSystemManaged<PrefabSystem>();
-
-            m_LifePathEventSystem =
-                World.GetOrCreateSystemManaged<LifePathEventSystem>();
-
-            m_FollowedCitizenQuery = GetEntityQuery(
-                ComponentType.ReadOnly<Citizen>(),
-                ComponentType.ReadOnly<Followed>()
-            );
 
             Mod.log.Info("WorkShiftUISystem created successfully");
 
@@ -202,51 +187,6 @@ namespace BitulaMod
             m_WorkHoursBinding.Update(workHours);
         }
 
-        private void updateCitizenEvents()
-        {
-            if (m_TestLifePathEventSent)
-                return;
-
-            NativeArray<Entity> followedCitizens =
-                m_FollowedCitizenQuery.ToEntityArray(Allocator.Temp);
-
-            if (followedCitizens.Length == 0)
-            {
-                followedCitizens.Dispose();
-                return;
-            }
-
-            Entity citizenEntity = followedCitizens[0];
-
-            followedCitizens.Dispose();
-
-            Entity eventPrefab =
-                m_PrefabSystem.GetEntity(Mod.StartedLookingForWorkPrefab);
-
-            if (eventPrefab == Entity.Null ||
-                !EntityManager.Exists(eventPrefab) ||
-                !EntityManager.HasComponent<LifePathEventData>(eventPrefab))
-            {
-                Mod.log.Warn("StartedLookingForWork prefab is not ready");
-                return;
-            }
-
-            NativeQueue<LifePathEventCreationData> queue =
-                m_LifePathEventSystem.GetQueue(out JobHandle deps);
-
-            deps.Complete();
-
-            queue.Enqueue(new LifePathEventCreationData
-            {
-                m_EventPrefab = eventPrefab,
-                m_Sender = citizenEntity,
-                m_Target = Entity.Null
-            });
-
-            m_TestLifePathEventSent = true;
-
-            Mod.log.Info(
-                $"StartedLookingForWork chirp enqueued for {citizenEntity}");
+        
         }
-    }
     }

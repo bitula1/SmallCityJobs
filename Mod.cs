@@ -14,7 +14,6 @@ namespace BitulaMod
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Setting m_Setting;
         public static Setting Settings { get; private set; }
-        public static TriggerPrefab StartedLookingForWorkPrefab { get; private set; }
 
         public void OnLoad(UpdateSystem updateSystem)
         {
@@ -28,37 +27,6 @@ namespace BitulaMod
             m_Setting.RegisterInOptionsUI();
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
            
-
-            PrefabSystem prefabSystem =
-    World.DefaultGameObjectInjectionWorld
-        .GetOrCreateSystemManaged<PrefabSystem>();
-
-            StartedLookingForWorkPrefab = new TriggerPrefab
-            {
-                name = "BitulaMod_StartedLookingForWork"
-            };
-
-            Game.Prefabs.LifePathEvent lifePathComponent =
-                StartedLookingForWorkPrefab
-                    .AddOrGetComponent<Game.Prefabs.LifePathEvent>();
-
-            lifePathComponent.m_EventType = (LifePathEventType)21;
-
-            lifePathComponent.m_IsChirp = true;
-
-            RandomLocalization randomLocalization =
-                StartedLookingForWorkPrefab
-                    .AddOrGetComponent<RandomLocalization>();
-
-            randomLocalization.m_LocalizationID =
-                "BitulaMod.LIFEPATH_STARTED_LOOKING_FOR_WORK";
-
-            bool added =
-                prefabSystem.AddPrefab(StartedLookingForWorkPrefab);
-
-            log.Info($"Custom LifePath prefab added: {added}");
-
-
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);

@@ -240,7 +240,12 @@ namespace BitulaMod
 							int num = this.m_AvailableWorkspacesByLevel[educationLevel];
                             if (num <= 0 || m_CustomEventData.FailedJobApplication(num, ref random))
 							{
-								this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
+                                Entity citizenEntity = nativeArray[i];
+                                if (num <= 0)
+                                    m_CustomEventData.Send(citizenEntity, CustomEventType.NoJobsAvailable);
+								else
+                                    m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntLikeAnyJobs);
+                                this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
 									m_Seeker = Entity.Null,
 									m_LastJobSeekFrameIndex = this.m_SimulationFrame

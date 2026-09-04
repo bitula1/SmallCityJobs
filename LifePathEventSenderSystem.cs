@@ -120,10 +120,12 @@ namespace BitulaMod
                 template = key;
             }
 
-            string parameterText = string.Format(
-                template,
-                parameters[0],
-                parameters[1]);
+            string parameterText;
+
+            if (parameters.Length > 0)
+                parameterText = string.Format(template, parameters);
+            else
+                parameterText = template;
 
             m_NameSystem.SetCustomName(
                 parameterEntity,

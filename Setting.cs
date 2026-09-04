@@ -66,6 +66,8 @@ namespace BitulaMod
         {
 
             indexCounts["BitulaMod.LIFEPATH_StartedLookingForWork"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_NoJobsAvailable"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_DoesntLikeAnyJobs"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -78,6 +80,8 @@ namespace BitulaMod
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptLowerJobs)), "Accept lower jobs" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
+                { "BitulaMod.LIFEPATH_NoJobsAvailable:0", "There are no open job positions in this city." },
+                { "BitulaMod.LIFEPATH_DoesntLikeAnyJobs:0", "I don't like any of the open job positions." },
                 { "BitulaMod.LIFEPATH_LINK_StartedLookingForWork:0", "I found {0} suitable positions of which {1} matches my education level." }
 
             };

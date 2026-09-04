@@ -26,6 +26,8 @@ This mod changes that behaviour progressively. For cities with a population belo
 - Added a "Looking for work" message for followed citizens, including the number of suitable positions and positions matching their education level.
 - Added AcceptLowerJobs checkbox in options. This reduces the vanilla penalty for accepting jobs below a citizen's education level in smaller cities. Vanilla behaviour is restored progressively as the city grows.
 - Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
+- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
+- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/smalljob.png" />
@@ -37,7 +39,7 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.2" />
+	<ModVersion Value="1.3" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -45,9 +47,11 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
 	<RequiredDLC Value="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-	<ChangeLog Value="Added AcceptLowerJobs option, fixed available-workplace double counting, and added more information to the Looking for work message." />
-	<!--<ChangeLog>
-	</ChangeLog>-->
+	<!--<ChangeLog Value="Added ." />-->
+	<ChangeLog>
+- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
+- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
+	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
 	<ExternalLink Type="Discord" Url="https://discord.gg/FAW5QR53KJ" />	
