@@ -65,12 +65,15 @@ namespace BitulaMod
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
 
+            indexCounts["BitulaMod.LIFEPATH_DebugMessage"] = 1;
             indexCounts["BitulaMod.LIFEPATH_StartedLookingForWork"] = 1;
             indexCounts["BitulaMod.LIFEPATH_DoesntLikeAnyJobs"] = 1;
             indexCounts["BitulaMod.LIFEPATH_NoJobsAvailable"] = 1;
             indexCounts["BitulaMod.LIFEPATH_StartedLookingForAnotherJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_TooFewBetterJobs"] = 1;
             indexCounts["BitulaMod.LIFEPATH_DoesntWantBetterJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_WorkplaceGone"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -82,14 +85,18 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritizes employment over further education for adults in small cities. This effect gradually decreases as the population grows and eventually returns to the original education behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptLowerJobs)), "Accept lower jobs" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
+                { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
+                { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_StartedLookingForWork", "I found {0} suitable positions of which {1} matches my education level." },
-                { "BitulaMod.LIFEPATH_NoJobsAvailable:0", "There are no open job positions in this city." },
+                { "BitulaMod.LIFEPATH_NoJobsAvailable:0", "There are no suitable open job positions in this city." },
                 { "BitulaMod.LIFEPATH_DoesntLikeAnyJobs:0", "I don't like any of the open job positions." },                
                 { "BitulaMod.LIFEPATH_StartedLookingForAnotherJob:0", "I started looking for a better job. {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_StartedLookingForAnotherJob", "I found {0} suitable positions." },
                 { "BitulaMod.LIFEPATH_TooFewBetterJobs:0", "These are too few, so it's not worth looking for another job." },
                 { "BitulaMod.LIFEPATH_DoesntWantBetterJob:0", "Some of these are better jobs, but I don't want to change jobs right now." },
+                { "BitulaMod.LIFEPATH_WorkplaceGone:0", "Looks like my workplace is gone. I'll need to look for another job soon." },
+                { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
 
             };
         }

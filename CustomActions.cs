@@ -12,6 +12,9 @@ namespace BitulaMod
         DoesntLikeAnyJobs = 102,
         StartedLookingForAnotherJob = 103,
         TooFewBetterJobs = 104,
-        DoesntWantBetterJob = 105
+        DoesntWantBetterJob = 105,
+        WorkplaceGone = 106,
+        EmployerGone = 107,
+        DebugMessage = 200
     }
 }

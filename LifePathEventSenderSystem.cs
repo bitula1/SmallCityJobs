@@ -24,6 +24,7 @@ namespace BitulaMod
         private JobHandle m_ProducerDependency;
         private NameSystem m_NameSystem;
         private LocalizationManager m_LocaleManager;
+        private readonly Dictionary<Entity, string> m_LastCitizenEvents = new();
 
         protected override void OnCreate() {
             base.OnCreate();
@@ -125,7 +126,16 @@ namespace BitulaMod
             if (parameters.Length > 0)
                 parameterText = string.Format(template, parameters);
             else
-                parameterText = template;
+                parameterText = template;                        
+
+            if (cevent.m_EventType != CustomEventType.DebugMessage) {
+                string eventKey = $"{cevent.m_EventType}:{parameterText}";
+                if (m_LastCitizenEvents.TryGetValue(cevent.m_Citizen, out string lastEvent) &&
+                    lastEvent == eventKey)
+                    return;
+
+                m_LastCitizenEvents[cevent.m_Citizen] = eventKey;
+            }
 
             m_NameSystem.SetCustomName(
                 parameterEntity,
@@ -137,11 +147,6 @@ namespace BitulaMod
                 m_Sender = cevent.m_Citizen,
                 m_Target = parameterEntity
             });
-
-            string parameterName = m_NameSystem.GetRenderedLabelName(parameterEntity);
-
-            Mod.log.Info(
-                $"Parameter entity: {parameterEntity}, name: {parameterName}");
 
             string citizenName =
                 m_NameSystem.GetRenderedLabelName(cevent.m_Citizen);

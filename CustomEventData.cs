@@ -1,7 +1,9 @@
-﻿using Game.Citizens;
+﻿using Game.Buildings;
+using Game.Citizens;
 using Game.City;
 using Game.Companies;
 using Game.Objects;
+using Game.UI.Menu;
 using System.Security.Cryptography;
 using Unity.Collections;
 using Unity.Entities;
@@ -12,13 +14,15 @@ namespace BitulaMod
 {
     public struct CustomEventData
     {
-        public int m_JobSeekerMilestone;
-        public int m_JobSeekerFailureIncrement;
-        public bool m_AcceptLowerJobs;
-        public ComponentLookup<Population> m_Population;
-        public ComponentLookup<Followed> m_Followed;
-        public Entity m_City;
+        private int m_JobSeekerMilestone;
+        private int m_JobSeekerFailureIncrement;
+        private bool m_AcceptLowerJobs;
+        private Entity m_City;
         private FixedString64Bytes m_Parameters;
+        private ComponentLookup<Population> m_Population;
+        private ComponentLookup<Followed> m_Followed;
+        private ComponentLookup<Building> m_Buildings;
+        private ComponentLookup<CompanyData> m_CompanyDatas;
 
         private NativeQueue<CustomEvent>.ParallelWriter m_CustomEventQueue;
 
@@ -34,6 +38,8 @@ namespace BitulaMod
                 m_Population = state.GetComponentLookup<Population>(true),
                 m_Followed = state.GetComponentLookup<Followed>(true),
                 m_City = cityQuery.GetSingletonEntity(),
+                m_Buildings = state.GetComponentLookup<Building>(true),
+                m_CompanyDatas = state.GetComponentLookup<CompanyData>(true),
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
                 m_AcceptLowerJobs = Mod.Settings.AcceptLowerJobs,
@@ -46,6 +52,10 @@ namespace BitulaMod
                 m_Parameters.Append(',');
             }
 
+            m_Parameters.Append(parameter);
+        }
+
+        public void AddParameter(FixedString64Bytes parameter) {
             m_Parameters.Append(parameter);
         }
 
@@ -72,6 +82,14 @@ namespace BitulaMod
         public bool IsFollowed(Entity citizen)
         {
             return m_Followed.HasComponent(citizen);
+        }
+
+        public bool IsCompany(Entity workplace) {
+            return m_CompanyDatas.HasComponent(workplace);
+        }
+
+        public bool HasBuilding(Entity workplace) {
+            return m_Buildings.HasComponent(workplace);
         }
 
         public bool FailedJobApplication(int numJobs, ref Unity.Mathematics.Random random)

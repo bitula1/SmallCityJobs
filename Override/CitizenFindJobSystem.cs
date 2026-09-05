@@ -269,7 +269,20 @@ namespace BitulaMod
 							nativeArray2[i] = citizen;
 							NativeArray<Worker> nativeArray4 = chunk.GetNativeArray<Worker>(ref this.m_WorkerType);
 							int num2 = (int)(this.m_OutsideConnections.HasComponent(nativeArray4[i].m_Workplace) ? 0 : nativeArray4[i].m_Level);
-							if (num2 >= educationLevel)
+                            Entity workplace = nativeArray4[i].m_Workplace;
+                            Entity citizenEntity = nativeArray[i];
+							if (m_CustomEventData.IsFollowed(citizenEntity)) {
+								if (m_CustomEventData.IsCompany(workplace)) {
+									if (!m_PropertyRenters.TryGetComponent(workplace, out PropertyRenter renter) ||
+										renter.m_Property == Entity.Null) {
+										m_CustomEventData.Send(citizenEntity, CustomEventType.EmployerGone);
+									}
+								} else if (!m_CustomEventData.HasBuilding(workplace) &&
+										   !m_OutsideConnections.HasComponent(workplace)) {
+									m_CustomEventData.Send(citizenEntity, CustomEventType.WorkplaceGone);
+								}
+							}
+                            if (num2 >= educationLevel)
 							{
 								goto IL_0463;
 							}
@@ -281,7 +294,7 @@ namespace BitulaMod
 									num3 += this.m_AvailableWorkspacesByLevel[k];
 								}
 							}
-                            Entity citizenEntity = nativeArray[i];
+                            
                             m_CustomEventData.AddParameter(num3);
 							m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
 							
