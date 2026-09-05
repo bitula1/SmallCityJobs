@@ -114,7 +114,7 @@ namespace BitulaMod
 
             string[] parameters = cevent.m_Param.ToString().Split(',');
 
-            string key = $"BitulaMod.LIFEPATH_LINK_{cevent.m_EventType}:0";
+            string key = $"BitulaMod.LIFEPATH_LINK_{cevent.m_EventType}";
 
             if (!m_LocaleManager.activeDictionary.TryGetValue(key, out string template)) {
                 template = key;

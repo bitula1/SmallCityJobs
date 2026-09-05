@@ -281,9 +281,19 @@ namespace BitulaMod
 									num3 += this.m_AvailableWorkspacesByLevel[k];
 								}
 							}
+                            Entity citizenEntity = nativeArray[i];
+                            m_CustomEventData.AddParameter(num3);
+							m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+							
 							if (num3 <= 100 || num3 < random.NextInt(500))
 							{
-								this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
+                                if (num3 != 0) 
+									if (num3 <= 100)
+										m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
+									else
+										m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntWantBetterJob);
+
+                                this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
 									m_Seeker = Entity.Null,
 									m_LastJobSeekFrameIndex = this.m_SimulationFrame

@@ -9,6 +9,9 @@ namespace BitulaMod
     public enum CustomEventType {
         StartedLookingForWork = 100,
         NoJobsAvailable = 101,
-        DoesntLikeAnyJobs = 102
+        DoesntLikeAnyJobs = 102,
+        StartedLookingForAnotherJob = 103,
+        TooFewBetterJobs = 104,
+        DoesntWantBetterJob = 105
     }
 }
