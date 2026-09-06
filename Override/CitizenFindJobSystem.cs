@@ -286,28 +286,31 @@ namespace BitulaMod
 							{
 								goto IL_0463;
 							}
-							int num3 = 0;
-							for (int k = num2; k <= educationLevel; k++)
-							{
-								if (this.m_AvailableWorkspacesByLevel[k] > 0)
-								{
-									num3 += this.m_AvailableWorkspacesByLevel[k];
-								}
-							}
+                            int num3 = 0;
+                            int highestAvailableJobLevel = -1;
 
-                            if (num2 < educationLevel) {
-                                m_CustomEventData.AddParameter(num3);
-                                m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+                            for (int k = num2; k <= educationLevel; k++) {
+                                if (this.m_AvailableWorkspacesByLevel[k] > 0) {
+                                    num3 += this.m_AvailableWorkspacesByLevel[k];
+                                    highestAvailableJobLevel = k;
+                                }
                             }
 
+
+
                             //if (num3 <= 100 || num3 < random.NextInt(500))
-                            if (m_CustomEventData.SkippedJobApplicationOrSameLevel( num3, num2, 
-								educationLevel, ref random)) {
-                                if (num3 != 0) 
-									if (num3 <= 100)
-										m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
-									else
-										m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntWantBetterJob);
+                            if (m_CustomEventData.SkippedJobApplicationOrSameLevel(num3, num2,
+								highestAvailableJobLevel, ref random)) {
+								if (num3 > 0) { 
+									m_CustomEventData.AddParameter(num3);
+									m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+								}
+                                if (num3 == 0)
+                                    m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
+                                else if (num3 <= 100)
+									m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
+								else
+									m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntWantBetterJob);
 
                                 this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
@@ -316,7 +319,13 @@ namespace BitulaMod
 								});
 								goto IL_0463;
 							}
-						}
+
+
+                            m_CustomEventData.AddParameter(num3);
+                            m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+
+
+                        }
 						Entity entity = Entity.Null;
 						if (!this.m_TouristHouseholds.HasComponent(household) && this.m_PropertyRenters.HasComponent(household))
 						{

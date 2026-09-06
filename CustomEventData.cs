@@ -109,8 +109,10 @@ namespace BitulaMod
             return random.NextInt(100) < protectionPercentage;
         }
 
-        public bool FailedJobApplication(int numJobs, ref Unity.Mathematics.Random random)
-        {
+        public bool FailedJobApplication(int numJobs, ref Unity.Mathematics.Random random) {
+            if (numJobs <= 0)
+                return true;
+
             int population = m_Population[m_City].m_Population;
 
             int passedMilestones = math.max(0, population - 1)
@@ -127,16 +129,22 @@ namespace BitulaMod
                 && random.NextInt(100) < appliedFailurePercentage;
         }
 
-        public bool SkippedJobApplicationOrSameLevel( int numJobs, int currentJobLevel, 
-            int educationLevel,  ref Unity.Mathematics.Random random) {
+        public bool SkippedJobApplicationOrSameLevel(int numJobs, int currentJobLevel,
+                        int highestAvailableJobLevel, ref Unity.Mathematics.Random random) {
 
-            if (currentJobLevel >= educationLevel || !m_AcceptSwitchJobs)
+            if (!m_AcceptSwitchJobs)
                 return numJobs <= 100 || numJobs < random.NextInt(500);
 
-            return SkippedJobApplication(numJobs, ref random);
+            bool hasBetterJob = highestAvailableJobLevel > currentJobLevel;
+
+            return SkippedJobApplication(numJobs, hasBetterJob, ref random);
         }
 
-        public bool SkippedJobApplication(int numJobs, ref Unity.Mathematics.Random random) {
+        public bool SkippedJobApplication(int numJobs, bool hasBetterJob, ref Unity.Mathematics.Random random) {
+
+            if (numJobs <= 0)
+                return true;
+
             int population = m_Population[m_City].m_Population;
 
             int passedMilestones = math.max(0, population - 1)
@@ -146,10 +154,14 @@ namespace BitulaMod
                 100,
                 passedMilestones * m_JobSeekerFailureIncrement);
 
-            bool applicationSkipped =
+            bool vanillaSkipped =
                 numJobs <= 100 || numJobs < random.NextInt(500);
 
-            return applicationSkipped &&
+            if (!hasBetterJob)
+                return vanillaSkipped ||
+                    random.NextInt(100) >= appliedFailurePercentage;
+
+            return vanillaSkipped &&
                 random.NextInt(100) < appliedFailurePercentage;
         }
 

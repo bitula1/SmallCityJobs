@@ -15,6 +15,7 @@ namespace BitulaMod
         DoesntWantBetterJob = 105,
         WorkplaceGone = 106,
         EmployerGone = 107,
+        CantSwitchJob = 108,
         DebugMessage = 200
     }
 }

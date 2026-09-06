@@ -8,34 +8,35 @@
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Bitulas mod" /-->
 	<LongDescription>
-Please report bugs in the discussion section/forum.
+		Please report bugs in the discussion section/forum.
 
-In the original game, 100 open jobs matching a citizen's education level or lower are required for a 100% chance that the citizen will apply for a job. With only one suitable open position, the chance is just 1%, and the citizen may instead become a student and travel to an outside connection to study.
+		In the original game, 100 open jobs matching a citizen's education level or lower are required for a 100% chance that the citizen will apply for a job. With only one suitable open position, the chance is just 1%, and the citizen may instead become a student and travel to an outside connection to study.
 
-This mod changes that behaviour progressively. For cities with a population below a configurable milestone, the application chance is 100%. As the population grows, the required number of available jobs gradually increases in configurable increments, eventually reaching the vanilla behaviour.
+		This mod changes that behaviour progressively. For cities with a population below a configurable milestone, the application chance is 100%. As the population grows, the required number of available jobs gradually increases in configurable increments, eventually reaching the vanilla behaviour.
 
-**Both Milestone and Increment can be configured in the game options.**
+		**Both Milestone and Increment can be configured in the game options.**
 
-**Default settings:** 100 population / 10%
+		**Default settings:** 100 population / 10%
 
-### Additional features
+		### Additional features
 
-- Displays a citizen's work hours in the Selected Info panel.
-- Displays the household's resource purchases from the previous month in the Household Info panel.
-- Added PrioritizeAdultEmployment checkbox in options. This prevents employed adults from deciding to leave their job to study. Vanilla behaviour is restored progressively as the city grows.
-- Added a "Looking for work" message for followed citizens, including the number of suitable positions and positions matching their education level.
-- Added AcceptLowerJobs checkbox in options. This reduces the vanilla penalty for accepting jobs below a citizen's education level in smaller cities. Vanilla behaviour is restored progressively as the city grows.
-- Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
-- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
-- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
-- Added a "Started looking for another job" message for employed followed citizens who begin searching for a better job
-- Added a "Too few better jobs" message when only a small number of better positions are available
-- Added a "Doesn't want a better job" message when enough better positions are available but the citizen decides not to pursue one
-- Added messages when a followed citizen's workplace or employer disappears
-- Added a debug life-path message type for testing
-- Added filtering to prevent consecutive duplicate life-path messages for the same citizen
-- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
-- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
+		- Displays a citizen's work hours in the Selected Info panel.
+		- Displays the household's resource purchases from the previous month in the Household Info panel.
+		- Added PrioritizeAdultEmployment checkbox in options. This prevents employed adults from deciding to leave their job to study. Vanilla behaviour is restored progressively as the city grows.
+		- Added a "Looking for work" message for followed citizens, including the number of suitable positions and positions matching their education level.
+		- Added AcceptLowerJobs checkbox in options. This reduces the vanilla penalty for accepting jobs below a citizen's education level in smaller cities. Vanilla behaviour is restored progressively as the city grows.
+		- Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
+		- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
+		- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
+		- Added a "Started looking for another job" message for employed followed citizens who begin searching for a better job
+		- Added a "Too few better jobs" message when only a small number of better positions are available
+		- Added a "Doesn't want a better job" message when enough better positions are available but the citizen decides not to pursue one
+		- Added messages when a followed citizen's workplace or employer disappears
+		- Added a debug life-path message type for testing
+		- Added filtering to prevent consecutive duplicate life-path messages for the same citizen
+		- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
+		- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
+		- Added a new life-path message when an employed citizen wants to switch jobs but no suitable positions at their current job level or above are available.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/smalljob.png" />
@@ -57,8 +58,9 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
-- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
+		- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
+		- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
+		- Added a new life-path message when an employed citizen wants to switch jobs but no suitable positions at their current job level or above are available.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
