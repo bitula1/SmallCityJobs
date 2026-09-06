@@ -294,12 +294,15 @@ namespace BitulaMod
 									num3 += this.m_AvailableWorkspacesByLevel[k];
 								}
 							}
-                            
-                            m_CustomEventData.AddParameter(num3);
-							m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
-							
-							if (num3 <= 100 || num3 < random.NextInt(500))
-							{
+
+                            if (num2 < educationLevel) {
+                                m_CustomEventData.AddParameter(num3);
+                                m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+                            }
+
+                            //if (num3 <= 100 || num3 < random.NextInt(500))
+                            if (m_CustomEventData.SkippedJobApplicationOrSameLevel( num3, num2, 
+								educationLevel, ref random)) {
                                 if (num3 != 0) 
 									if (num3 <= 100)
 										m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);

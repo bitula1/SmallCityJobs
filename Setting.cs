@@ -44,6 +44,9 @@ namespace BitulaMod
         [SettingsUISection("JobSeeking")]
         public bool AcceptLowerJobs { get; set; } = true;
 
+        [SettingsUISection("AcceptJobSwitch")]
+        public bool AcceptJobSwitch { get; set; } = true;
+
 
 
         public override void SetDefaults()
@@ -52,6 +55,7 @@ namespace BitulaMod
             JobSeekerFailureIncrement = 10;
             PrioritizeAdultEmployment = true;
             AcceptLowerJobs = true;
+            AcceptJobSwitch = true;
         }
     }
 
@@ -85,6 +89,8 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritizes employment over further education for adults in small cities. This effect gradually decreases as the population grows and eventually returns to the original education behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptLowerJobs)), "Accept lower jobs" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptJobSwitch)), "Accept job switch" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptJobSwitch)), "Allow employed citizens to switch to better jobs more readily in small cities. The effect is based on the Job Seeker Milestone and gradually returns to vanilla behavior as the city grows, while preventing excessive job hopping between positions of the same level." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },

@@ -17,6 +17,7 @@ namespace BitulaMod
         private int m_JobSeekerMilestone;
         private int m_JobSeekerFailureIncrement;
         private bool m_AcceptLowerJobs;
+        private bool m_AcceptSwitchJobs;
         private Entity m_City;
         private FixedString64Bytes m_Parameters;
         private ComponentLookup<Population> m_Population;
@@ -43,6 +44,7 @@ namespace BitulaMod
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
                 m_AcceptLowerJobs = Mod.Settings.AcceptLowerJobs,
+                m_AcceptSwitchJobs = Mod.Settings.AcceptJobSwitch,
                 m_CustomEventQueue = eventSender.GetQueueWriter()
             };
         }
@@ -92,6 +94,21 @@ namespace BitulaMod
             return m_Buildings.HasComponent(workplace);
         }
 
+        public bool RemoveOvereducationPenalty(ref Unity.Mathematics.Random random) {
+            if (!m_AcceptLowerJobs)
+                return false;
+
+            int population = m_Population[m_City].m_Population;
+            int passedMilestones =
+                math.max(0, population - 1) / m_JobSeekerMilestone;
+
+            int protectionPercentage = math.max(
+                0,
+                100 - passedMilestones * m_JobSeekerFailureIncrement);
+
+            return random.NextInt(100) < protectionPercentage;
+        }
+
         public bool FailedJobApplication(int numJobs, ref Unity.Mathematics.Random random)
         {
             int population = m_Population[m_City].m_Population;
@@ -110,19 +127,32 @@ namespace BitulaMod
                 && random.NextInt(100) < appliedFailurePercentage;
         }
 
-        public bool RemoveOvereducationPenalty(ref Unity.Mathematics.Random random) {
-            if (!m_AcceptLowerJobs)
-                return false;
+        public bool SkippedJobApplicationOrSameLevel( int numJobs, int currentJobLevel, 
+            int educationLevel,  ref Unity.Mathematics.Random random) {
 
-            int population = m_Population[m_City].m_Population;
-            int passedMilestones =
-                math.max(0, population - 1) / m_JobSeekerMilestone;
+            if (currentJobLevel >= educationLevel || !m_AcceptSwitchJobs)
+                return numJobs <= 100 || numJobs < random.NextInt(500);
 
-            int protectionPercentage = math.max(
-                0,
-                100 - passedMilestones * m_JobSeekerFailureIncrement);
-
-            return random.NextInt(100) < protectionPercentage;
+            return SkippedJobApplication(numJobs, ref random);
         }
+
+        public bool SkippedJobApplication(int numJobs, ref Unity.Mathematics.Random random) {
+            int population = m_Population[m_City].m_Population;
+
+            int passedMilestones = math.max(0, population - 1)
+                / m_JobSeekerMilestone;
+
+            int appliedFailurePercentage = math.min(
+                100,
+                passedMilestones * m_JobSeekerFailureIncrement);
+
+            bool applicationSkipped =
+                numJobs <= 100 || numJobs < random.NextInt(500);
+
+            return applicationSkipped &&
+                random.NextInt(100) < appliedFailurePercentage;
+        }
+
+
     }
 }

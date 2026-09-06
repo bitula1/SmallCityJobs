@@ -28,6 +28,14 @@ This mod changes that behaviour progressively. For cities with a population belo
 - Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
 - Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
 - Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
+- Added a "Started looking for another job" message for employed followed citizens who begin searching for a better job
+- Added a "Too few better jobs" message when only a small number of better positions are available
+- Added a "Doesn't want a better job" message when enough better positions are available but the citizen decides not to pursue one
+- Added messages when a followed citizen's workplace or employer disappears
+- Added a debug life-path message type for testing
+- Added filtering to prevent consecutive duplicate life-path messages for the same citizen
+- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
+- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/smalljob.png" />
@@ -39,7 +47,7 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.3" />
+	<ModVersion Value="1.4.1" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -49,8 +57,8 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
-- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
+- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
+- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
