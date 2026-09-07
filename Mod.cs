@@ -30,16 +30,19 @@ namespace BitulaMod
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
+            //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
 
-          
+
 
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenFindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.FindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ApplyToSchoolSystem>().Enabled = false;
+            //World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.WorkerSystem>().Enabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ApplyToSchoolSystem>(SystemUpdatePhase.GameSimulation);
+            //updateSystem.UpdateAt<WorkerSystem>(SystemUpdatePhase.GameSimulation);
 
 
         }

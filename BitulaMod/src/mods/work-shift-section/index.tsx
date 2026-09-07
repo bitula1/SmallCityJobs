@@ -8,6 +8,18 @@ const workHours$ = bindValue<string>(
     ""
 );
 
+const isDaysOff$ = bindValue<boolean>(
+    "BitulaMod",
+    "isDaysOff",
+    false
+);
+
+const remainingDaysOff$ = bindValue<number>(
+    "BitulaMod",
+    "remainingDaysOff",
+    0
+);
+
 const InfoSection: any = getModule(
     "game-ui/game/components/selected-info-panel/shared-components/info-section/info-section.tsx",
     "InfoSection"
@@ -36,22 +48,42 @@ export const WorkShiftSection = (componentList: any): any => {
 
     componentList[CITIZEN_SECTION] = (props: any) => {
         const workHours = useValue(workHours$);
+        const isDaysOff = useValue(isDaysOff$);
+        const remainingDaysOff = useValue(remainingDaysOff$);
+
+        const daysOffText = remainingDaysOff > 0
+            ? `Today (${remainingDaysOff} more day${remainingDaysOff === 1 ? "" : "s"})`
+            : "Today";
 
         return (
             <>
                 <VanillaCitizenSection {...props} />
 
-                {workHours && (
+                {(workHours || isDaysOff) && (
                     <InfoSection disableFocus={true}>
-                        <InfoRow
-                            left="Work hours"
-                            right={workHours}
-                            tooltipKeys={props.tooltipKeys}
-                            tooltipTags={props.tooltipTags}
-                            disableFocus={true}
-                            subRow={false}
-                            uppercase={false}
-                        />
+                        {workHours && (
+                            <InfoRow
+                                left="Work hours"
+                                right={workHours}
+                                tooltipKeys={props.tooltipKeys}
+                                tooltipTags={props.tooltipTags}
+                                disableFocus={true}
+                                subRow={false}
+                                uppercase={false}
+                            />
+                        )}
+
+                        {isDaysOff && (
+                            <InfoRow
+                                left="Days off"
+                                right={daysOffText}
+                                tooltipKeys={props.tooltipKeys}
+                                tooltipTags={props.tooltipTags}
+                                disableFocus={true}
+                                subRow={false}
+                                uppercase={false}
+                            />
+                        )}
                     </InfoSection>
                 )}
             </>

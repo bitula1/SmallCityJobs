@@ -78,6 +78,7 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_DoesntWantBetterJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_WorkplaceGone"] = 1;
             indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
             return new Dictionary<string, string>
             {
@@ -100,10 +101,12 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_DoesntLikeAnyJobs:0", "I don't like any of the open job positions." },                
                 { "BitulaMod.LIFEPATH_StartedLookingForAnotherJob:0", "I started looking for a better job. {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_StartedLookingForAnotherJob", "I found {0} suitable positions." },
-                { "BitulaMod.LIFEPATH_TooFewBetterJobs:0", "These are too few, so it's not worth looking for another job." },
+                { "BitulaMod.LIFEPATH_TooFewBetterJobs:0", "{LINK_NAME_1}, but that's too few to make looking for another job worthwhile." },
+                { "BitulaMod.LIFEPATH_LINK_TooFewBetterJobs", "I found {0} suitable positions" },
                 { "BitulaMod.LIFEPATH_DoesntWantBetterJob:0", "Some of these are better jobs, but I don't want to change jobs right now." },
                 { "BitulaMod.LIFEPATH_WorkplaceGone:0", "Looks like my workplace is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
+                { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
                 { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are none available." },
 
             };

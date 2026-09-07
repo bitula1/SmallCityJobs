@@ -15,6 +15,7 @@ using Unity.Entities.Internal;
 using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
+using System.Globalization;
 
 
 namespace BitulaMod
@@ -275,8 +276,12 @@ namespace BitulaMod
 								if (m_CustomEventData.IsCompany(workplace)) {
 									if (!m_PropertyRenters.TryGetComponent(workplace, out PropertyRenter renter) ||
 										renter.m_Property == Entity.Null) {
+										m_CustomEventData.SetHint(CustomEvent.WatchEvent);
 										m_CustomEventData.Send(citizenEntity, CustomEventType.EmployerGone);
-									}
+									} else {
+										m_CustomEventData.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
+                                        m_CustomEventData.Send(citizenEntity, CustomEventType.EmployerReturned);
+                                    }
 								} else if (!m_CustomEventData.HasBuilding(workplace) &&
 										   !m_OutsideConnections.HasComponent(workplace)) {
 									m_CustomEventData.Send(citizenEntity, CustomEventType.WorkplaceGone);
@@ -301,16 +306,19 @@ namespace BitulaMod
                             //if (num3 <= 100 || num3 < random.NextInt(500))
                             if (m_CustomEventData.SkippedJobApplicationOrSameLevel(num3, num2,
 								highestAvailableJobLevel, ref random)) {
-								if (num3 > 0) { 
+								if (num3 == 0) {
+									m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
+								} else if (num3 <= 100) {
+									m_CustomEventData.AddParameter(num3);
+									m_CustomEventData.SetHint(CustomEvent.IgnoreParameterInFilter);
+									m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
+								} else {
 									m_CustomEventData.AddParameter(num3);
 									m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
-								}
-                                if (num3 == 0)
-                                    m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
-                                else if (num3 <= 100)
-									m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
-								else
 									m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntWantBetterJob);
+								}
+
+
 
                                 this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{

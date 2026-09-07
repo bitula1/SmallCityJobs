@@ -20,6 +20,8 @@ namespace BitulaMod
         private bool m_AcceptSwitchJobs;
         private Entity m_City;
         private FixedString64Bytes m_Parameters;
+        private byte m_Hint;
+        private CustomEventType m_WatchedEvent;
         private ComponentLookup<Population> m_Population;
         private ComponentLookup<Followed> m_Followed;
         private ComponentLookup<Building> m_Buildings;
@@ -66,11 +68,15 @@ namespace BitulaMod
                 m_CustomEventQueue.Enqueue(new CustomEvent {
                     m_Citizen = citizen,
                     m_EventType = eventType,
-                    m_Param = m_Parameters
+                    m_Param = m_Parameters,
+                    m_Hint = this.m_Hint,
+                    m_WatchedEventType = m_WatchedEvent
                 });
             }
 
             m_Parameters = default;
+            m_Hint = default;
+            m_WatchedEvent = default;
         }
 
         public static void AddProducer(ref SystemState state, JobHandle dependency)
@@ -140,7 +146,8 @@ namespace BitulaMod
             return SkippedJobApplication(numJobs, hasBetterJob, ref random);
         }
 
-        public bool SkippedJobApplication(int numJobs, bool hasBetterJob, ref Unity.Mathematics.Random random) {
+        public bool SkippedJobApplication(int numJobs, bool hasBetterJob,
+    ref Unity.Mathematics.Random random) {
 
             if (numJobs <= 0)
                 return true;
@@ -163,6 +170,14 @@ namespace BitulaMod
 
             return vanillaSkipped &&
                 random.NextInt(100) < appliedFailurePercentage;
+        }
+
+        public void SetHint(byte hint) {
+            m_Hint |= hint;
+        }
+
+        public void SendOnlyIfWatchedEvent(CustomEventType eventType) {
+            m_WatchedEvent = eventType;
         }
 
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace BitulaMod
 {
     public enum CustomEventType {
+        None = 0,
         StartedLookingForWork = 100,
         NoJobsAvailable = 101,
         DoesntLikeAnyJobs = 102,
@@ -16,6 +17,7 @@ namespace BitulaMod
         WorkplaceGone = 106,
         EmployerGone = 107,
         CantSwitchJob = 108,
-        DebugMessage = 200
+        EmployerReturned = 109,
+        DebugMessage = 200,
     }
 }

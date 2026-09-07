@@ -25,6 +25,7 @@ namespace BitulaMod
         private NameSystem m_NameSystem;
         private LocalizationManager m_LocaleManager;
         private readonly Dictionary<Entity, string> m_LastCitizenEvents = new();
+        private readonly Dictionary<Entity, CustomEventType> m_WatchedCitizenEvents = new();
 
         protected override void OnCreate() {
             base.OnCreate();
@@ -80,6 +81,9 @@ namespace BitulaMod
         }
 
         protected override void OnUpdate() {
+            if (m_CustomEventQueue.IsEmpty())
+                return;
+
             if (!m_ProducerDependency.IsCompleted)
             {
                 log.Info("LifePath sender: producer still running");
@@ -111,7 +115,12 @@ namespace BitulaMod
 
             deps.Complete();
 
-            Entity parameterEntity = EntityManager.CreateEntity();
+            // Check watched-event requirement first.
+            if (cevent.m_WatchedEventType != CustomEventType.None) {
+                if (!m_WatchedCitizenEvents.TryGetValue(cevent.m_Citizen, out CustomEventType watchedEvent) ||
+                    watchedEvent != cevent.m_WatchedEventType)
+                    return;
+            }
 
             string[] parameters = cevent.m_Param.ToString().Split(',');
 
@@ -126,16 +135,21 @@ namespace BitulaMod
             if (parameters.Length > 0)
                 parameterText = string.Format(template, parameters);
             else
-                parameterText = template;                        
+                parameterText = template;
 
             if (cevent.m_EventType != CustomEventType.DebugMessage) {
-                string eventKey = $"{cevent.m_EventType}:{parameterText}";
+                string eventKey = (cevent.m_Hint & CustomEvent.IgnoreParameterInFilter) != 0
+                    ? cevent.m_EventType.ToString()
+                    : $"{cevent.m_EventType}:{parameterText}";
+
                 if (m_LastCitizenEvents.TryGetValue(cevent.m_Citizen, out string lastEvent) &&
                     lastEvent == eventKey)
                     return;
 
                 m_LastCitizenEvents[cevent.m_Citizen] = eventKey;
             }
+
+            Entity parameterEntity = EntityManager.CreateEntity();
 
             m_NameSystem.SetCustomName(
                 parameterEntity,
@@ -147,6 +161,12 @@ namespace BitulaMod
                 m_Sender = cevent.m_Citizen,
                 m_Target = parameterEntity
             });
+
+            if ((cevent.m_Hint & CustomEvent.WatchEvent) != 0)
+                m_WatchedCitizenEvents[cevent.m_Citizen] = cevent.m_EventType;
+
+            if (cevent.m_WatchedEventType != CustomEventType.None)
+                m_WatchedCitizenEvents.Remove(cevent.m_Citizen);
 
             string citizenName =
                 m_NameSystem.GetRenderedLabelName(cevent.m_Citizen);
