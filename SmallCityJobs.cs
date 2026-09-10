@@ -2,22 +2,24 @@
 using Game.Citizens;
 using Game.City;
 using Game.Companies;
-using Game.Objects;
-using Game.UI.Menu;
-using System.Security.Cryptography;
+using Game.Prefabs;
+using Game.Simulation;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Game.Common;
+using UnityEngine;
 
 namespace BitulaMod
 {
-    public struct CustomEventData
+    public struct SmallCityJobs
     {
         private int m_JobSeekerMilestone;
         private int m_JobSeekerFailureIncrement;
         private bool m_AcceptLowerJobs;
         private bool m_AcceptSwitchJobs;
+        private bool m_ReducedDaysOff;
         private Entity m_City;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
@@ -29,7 +31,7 @@ namespace BitulaMod
 
         private NativeQueue<CustomEvent>.ParallelWriter m_CustomEventQueue;
 
-        public static CustomEventData Create(ref SystemState state) {
+        public static SmallCityJobs Create(ref SystemState state) {
             var cityQuery = state.GetEntityQuery(
                 ComponentType.ReadOnly<Population>()
             );
@@ -37,7 +39,7 @@ namespace BitulaMod
             var eventSender =
                 state.World.GetOrCreateSystemManaged<LifePathEventSenderSystem>();           
 
-            return new CustomEventData {
+            return new SmallCityJobs {
                 m_Population = state.GetComponentLookup<Population>(true),
                 m_Followed = state.GetComponentLookup<Followed>(true),
                 m_City = cityQuery.GetSingletonEntity(),
@@ -47,7 +49,16 @@ namespace BitulaMod
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
                 m_AcceptLowerJobs = Mod.Settings.AcceptLowerJobs,
                 m_AcceptSwitchJobs = Mod.Settings.AcceptJobSwitch,
+                m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
                 m_CustomEventQueue = eventSender.GetQueueWriter()
+            };
+        }
+
+        public static SmallCityJobs Create() {
+            return new SmallCityJobs {
+                m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
+                m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
+                m_ReducedDaysOff = Mod.Settings.ReducedDaysOff
             };
         }
 
@@ -178,6 +189,29 @@ namespace BitulaMod
 
         public void SendOnlyIfWatchedEvent(CustomEventType eventType) {
             m_WatchedEvent = eventType;
+        }
+
+        public bool IsTodayOffDay(Citizen citizen, ref EconomyParameterData economyParameters, uint frame, TimeData timeData, int population) {
+            int vanillaThreshold = math.min(40, Mathf.RoundToInt(100f / math.max(1f, math.sqrt(economyParameters.m_TrafficReduction * (float)population))));
+            int threshold = vanillaThreshold;
+
+            if (m_ReducedDaysOff) {
+                int passedMilestones = math.max(0, population - 1) / m_JobSeekerMilestone;
+                int appliedPercentage = math.min(100, passedMilestones * m_JobSeekerFailureIncrement);
+
+                const int smallCityThreshold = 79; // 20% off days
+
+                threshold = Mathf.RoundToInt(math.lerp(
+                    smallCityThreshold,
+                    vanillaThreshold,
+                    appliedPercentage / 100f));
+            }
+
+            int day = TimeSystem.GetDay(frame, timeData);
+
+            return Unity.Mathematics.Random
+                .CreateFromIndex((uint)((int)citizen.m_PseudoRandom + day))
+                .NextInt(100) > threshold;
         }
 
 

@@ -37,6 +37,7 @@ namespace BitulaMod
         private CitySystem m_CitySystem;
         private EntityQuery m_TimeQuery;
         private Game.Common.TimeData m_TimeData;
+        private SmallCityJobs m_SmallCityJobs;
 
 
         protected override void OnCreate()
@@ -84,7 +85,7 @@ namespace BitulaMod
 
         protected override void OnUpdate()
         {
-
+            m_SmallCityJobs = SmallCityJobs.Create();
             updatePrevResourceCost();
             updateWorkHours();
             UpdateDaysOff();
@@ -175,15 +176,29 @@ namespace BitulaMod
             m_LastDayResourceCostBinding.Update(
                 lastDayResourceCost);
         }
-        public static int GetRemainingOffDays(Citizen citizen, ref EconomyParameterData economyParameters, uint frame, 
+        public int GetRemainingOffDays(Citizen citizen, ref EconomyParameterData economyParameters, uint frame,
             Game.Common.TimeData timeData, int population) {
 
-            int num = math.min(
+            int vanillaThreshold = math.min(
                 40,
                 Mathf.RoundToInt(
                     100f / math.max(
                         1f,
                         math.sqrt(economyParameters.m_TrafficReduction * (float)population))));
+
+            int threshold = vanillaThreshold;
+
+            if (Mod.Settings.ReducedDaysOff) {
+                int passedMilestones = math.max(0, population - 1) / Mod.Settings.JobSeekerMilestone;
+                int appliedPercentage = math.min(100, passedMilestones * Mod.Settings.JobSeekerFailureIncrement);
+
+                const int smallCityThreshold = 79;
+
+                threshold = Mathf.RoundToInt(math.lerp(
+                    smallCityThreshold,
+                    vanillaThreshold,
+                    appliedPercentage / 100f));
+            }
 
             int currentDay = TimeSystem.GetDay(frame, timeData);
             int offDays = 0;
@@ -192,7 +207,7 @@ namespace BitulaMod
                 bool isOffDay =
                     Unity.Mathematics.Random.CreateFromIndex(
                         (uint)((int)citizen.m_PseudoRandom + day))
-                    .NextInt(100) > num;
+                    .NextInt(100) > threshold;
 
                 if (!isOffDay)
                     break;
@@ -202,11 +217,7 @@ namespace BitulaMod
 
             return offDays;
         }
-        public static bool IsTodayOffDay(Citizen citizen, ref EconomyParameterData economyParameters, uint frame, Game.Common.TimeData timeData, int population) {
-            int num = math.min(40, Mathf.RoundToInt(100f / math.max(1f, math.sqrt(economyParameters.m_TrafficReduction * (float)population))));
-            int day = TimeSystem.GetDay(frame, timeData);
-            return Unity.Mathematics.Random.CreateFromIndex((uint)((int)citizen.m_PseudoRandom + day)).NextInt(100) > num;
-        }
+
 
 
 
@@ -236,7 +247,7 @@ namespace BitulaMod
             int population = populationData.m_Population;
             uint frame = m_SimulationSystem.frameIndex;
 
-            bool isDaysOff = IsTodayOffDay(
+            bool isDaysOff = m_SmallCityJobs.IsTodayOffDay(
                 citizen,
                 ref economyParameters,
                 frame,

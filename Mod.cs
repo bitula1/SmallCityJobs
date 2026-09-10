@@ -30,6 +30,7 @@ namespace BitulaMod
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.UIUpdate);
             //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
 
 
@@ -37,12 +38,16 @@ namespace BitulaMod
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenFindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.FindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ApplyToSchoolSystem>().Enabled = false;
-            //World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.WorkerSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.WorkerSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenBehaviorSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.LeisureSystem>().Enabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ApplyToSchoolSystem>(SystemUpdatePhase.GameSimulation);
-            //updateSystem.UpdateAt<WorkerSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<WorkerSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<CitizenBehaviorSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<LeisureSystem>(SystemUpdatePhase.GameSimulation);
 
 
         }
@@ -56,5 +61,6 @@ namespace BitulaMod
                 m_Setting = null;
             }
         }
+
     }
 }

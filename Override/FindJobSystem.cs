@@ -116,13 +116,13 @@ namespace BitulaMod
 				findJobJob.m_EmployableByEducation = this.m_CountHouseholdDataSystem.GetEmployables(out jobHandle2);
 				findJobJob.m_RandomSeed = RandomSeed.Next();
 				findJobJob.m_TripPriorityParameters = this.m_TripPriorityParametersQuery.GetSingleton<TripPriorityParametersData>();
-                findJobJob.m_CustomEventData = CustomEventData.Create(ref base.CheckedStateRef);
+                findJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
                 FindJobSystem.FindJobJob findJobJob2 = findJobJob;
 				base.Dependency = findJobJob2.ScheduleParallel(this.m_JobSeekerQuery, JobHandle.CombineDependencies(jobHandle, base.Dependency, jobHandle2));
 				this.m_PathfindSetupSystem.AddQueueWriter(base.Dependency);
 				this.m_EndFrameBarrier.AddJobHandleForProducer(base.Dependency);
 				this.m_CountHouseholdDataSystem.AddHouseholdDataReader(base.Dependency);
-                CustomEventData.AddProducer(ref base.CheckedStateRef, base.Dependency);
+                SmallCityJobs.AddProducer(ref base.CheckedStateRef, base.Dependency);
             }
 			if (!this.m_ResultsQuery.IsEmptyIgnoreFilter)
 			{
@@ -260,7 +260,7 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct FindJobJob : IJobChunk
 		{
-            public CustomEventData m_CustomEventData;
+            public SmallCityJobs m_CustomEventData;
             // Token: 0x060067DE RID: 26590 RVA: 0x00383028 File Offset: 0x00381228
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{

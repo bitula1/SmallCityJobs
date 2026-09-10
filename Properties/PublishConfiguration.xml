@@ -8,50 +8,44 @@
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Bitulas mod" /-->
 	<LongDescription>
-Please report bugs in the discussion section/forum.
+Supported/recommended mods: Progression Control and Hard Mode Continued.
+Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-In the original game, 100 open jobs matching a citizen's education level or lower are required for a 100% chance that the citizen will apply for a job. With only one suitable open position, the chance is just 1%, and the citizen may instead become a student and travel to an outside connection to study.
+I added option to enable full physical simulation, its false by default, but I highly recommend it until no performance issues (should be set before loading game) .
+In the vanilla game, workers already have a 59% chance of having a day off even in small cities, which is very unrealistic, and this chance increases further as the city grows. I added a progressive option that starts at 20% in small cities and gradually returns to vanilla behavior as the population passes the configured milestones.
+## Small City Jobs
 
-This mod changes that behaviour progressively. For cities with a population below a configurable milestone, the application chance is 100%. As the population grows, the required number of available jobs gradually increases in configurable increments, eventually reaching the vanilla behaviour.
+**Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
 
-**Both Milestone and Increment can be configured in the game options.**
+In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
 
-**Default settings:** 100 population / 10%
+The goal of this mod is not to replace the vanilla employment system, but to make it scale better with city size.
 
-### Additional features
+In smaller cities, citizens are more willing to take available jobs, accept reasonable alternatives, and look for better employment opportunities. The mod also reduces situations where adults leave employment or choose studying simply because the local job market is small, including cases where they would otherwise travel outside the city to study despite suitable work being available.
 
-- Displays a citizen's work hours in the Selected Info panel.
-- Displays the household's resource purchases from the previous month in the Household Info panel.
-- Added PrioritizeAdultEmployment checkbox in options. This prevents employed adults from deciding to leave their job to study. Vanilla behaviour is restored progressively as the city grows.
-- Added a "Looking for work" message for followed citizens, including the number of suitable positions and positions matching their education level.
-- Added AcceptLowerJobs checkbox in options. This reduces the vanilla penalty for accepting jobs below a citizen's education level in smaller cities. Vanilla behaviour is restored progressively as the city grows.
-- Fixed the CitizenFindJobSystem double-counting of available workplaces for unemployed citizens: https://forum.paradoxplaza.com/forum/threads/citizenfindjobsystem-double-counts-available-workplaces-for-unemployed-citizens.1940269/
-- Added a "No jobs available" message for followed citizens when there are no suitable open job positions.
-- Added a "Doesn't like any jobs" message for followed citizens when suitable positions are available but the citizen doesn't apply for any of them.
-- Added a "Started looking for another job" message for employed followed citizens who begin searching for a better job
-- Added a "Too few better jobs" message when only a small number of better positions are available
-- Added a "Doesn't want a better job" message when enough better positions are available but the citizen decides not to pursue one
-- Added messages when a followed citizen's workplace or employer disappears
-- Added a debug life-path message type for testing
-- Added filtering to prevent consecutive duplicate life-path messages for the same citizen
-- Employed citizens can now switch to better jobs more readily in small towns and villages. The effect follows the Job Seeker Milestone setting and gradually returns to vanilla behavior as the city grows.
-- The new Accept Job Switch option enables this feature while preventing unnecessary job hopping. When disabled, job switching follows the original vanilla behavior.
-- Added a new life-path message when an employed citizen wants to switch jobs but no suitable positions at their current job level or above are available.
-- Work-hours information now also shows days off.
-- Followed citizens can now report when a previously missing employer returns.
-- Further reduced life-path message spam. Performance optimization.
+As the population grows, these adjustments gradually fade and the game returns toward its original behaviour.
+
+The mod also adds **UI and life-path improvements** intended to make employment-related behaviour easier to understand. Their purpose is to expose more of what citizens are doing and why, making it easier to follow individual citizens and understand the effects of the employment simulation.
+
+The overall aim is to make villages and small towns function more naturally without making employment artificially easy in larger cities.
+
+The transition can be configured in the game options, allowing the player to decide how quickly vanilla behaviour should be restored.
+
+**Detailed mechanics, settings and individual changes are documented in the forum discussion.**
+
+Please report bugs and leave feedback in the discussion section/forum. Updated screenshots.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/smalljob.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="Properties/lifepath.png" />
-	<Screenshot Value="Properties/options.png" />
+	<Screenshot Value="Properties/lifepath2.png" />
+	<Screenshot Value="Properties/options2.png" />
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.2" />
+	<ModVersion Value="1.4.3" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -61,9 +55,8 @@ This mod changes that behaviour progressively. For cities with a population belo
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Work-hours information now also shows days off.
-- Followed citizens can now report when a previously missing employer returns.
-- Reduced life-path message spam. Performance optimization.
+		Full Traffic – Adds an option to disable the game's traffic reduction, allowing full citizen traffic to be simulated.
+		Milestone-Based Days Off – Reduces days off in small cities and gradually returns them toward the vanilla behavior as the population passes the configured milestones.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

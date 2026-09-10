@@ -148,12 +148,12 @@ namespace BitulaMod
 			goToWorkJob.m_Frame = this.m_SimulationSystem.frameIndex;
 			goToWorkJob.m_TimeData = this.m_TimeDataQuery.GetSingleton<TimeData>();
 			goToWorkJob.m_PopulationEntity = this.m_PopulationQuery.GetSingletonEntity();
-            goToWorkJob.m_CustomEventData = CustomEventData.Create(ref base.CheckedStateRef);
+            goToWorkJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
             JobHandle jobHandle;
 			goToWorkJob.m_CarReserverQueue = this.m_CitizenBehaviorSystem.GetCarReserveQueue(out jobHandle);
 			goToWorkJob.m_CommandBuffer = this.m_EndFrameBarrier.CreateCommandBuffer().AsParallelWriter();
 			JobHandle jobHandle2 = goToWorkJob.ScheduleParallel(this.m_GotoWorkQuery, JobHandle.CombineDependencies(base.Dependency, jobHandle));
-            CustomEventData.AddProducer(ref base.CheckedStateRef, jobHandle2);
+            SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle2);
             this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle2);
 			this.m_CitizenBehaviorSystem.AddCarReserveWriter(jobHandle2);
 			this.m_TriggerSystem.AddActionBufferWriter(jobHandle2);
@@ -238,36 +238,8 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct GoToWorkJob : IJobChunk
 		{
+            public SmallCityJobs m_SmallCityJobs;
             // Token: 0x060068CF RID: 26831 RVA: 0x003928D8 File Offset: 0x00390AD8
-            public CustomEventData m_CustomEventData;
-            public static int GetRemainingOffDays(Citizen citizen,
-    ref EconomyParameterData economyParameters,
-    uint frame, TimeData timeData, int population) {
-
-                int num = math.min(
-                    40,
-                    Mathf.RoundToInt(
-                        100f / math.max(
-                            1f,
-                            math.sqrt(economyParameters.m_TrafficReduction * (float)population))));
-
-                int currentDay = TimeSystem.GetDay(frame, timeData);
-                int offDays = 0;
-
-                for (int day = currentDay; ; day++) {
-                    bool isOffDay =
-                        Unity.Mathematics.Random.CreateFromIndex(
-                            (uint)((int)citizen.m_PseudoRandom + day))
-                        .NextInt(100) > num;
-
-                    if (!isOffDay)
-                        break;
-
-                    offDays++;
-                }
-
-                return offDays;
-            }
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
 				if (chunk.GetSharedComponent<UpdateFrame>(this.m_UpdateFrameType).m_Index != this.m_UpdateFrameIndex)
@@ -284,56 +256,12 @@ namespace BitulaMod
 				{
 					Entity entity = nativeArray[i];
 					Citizen citizen = nativeArray2[i];
-                    Entity workplace = nativeArray3[i].m_Workplace;
-
-                    bool invalidWorkplace =
-                        !this.m_Properties.HasComponent(workplace) &&
-                        !this.m_Buildings.HasComponent(workplace) &&
-                        !this.m_OutsideConnections.HasComponent(workplace);
-                    if (invalidWorkplace && this.m_CustomEventData.IsFollowed(entity)) {
-                        bool isOffDay = WorkerSystem.IsTodayOffDay(
-                            citizen,
-                            ref this.m_EconomyParameters,
-                            this.m_Frame,
-                            this.m_TimeData,
-                            population);
-
-                        bool isTimeToWork = WorkerSystem.IsTimeToWork(
-                            citizen,
-                            nativeArray3[i],
-                            ref this.m_EconomyParameters,
-                            this.m_TimeOfDay);
-
-                        int remainingOffDays =GetRemainingOffDays(
-                            citizen,
-                            ref this.m_EconomyParameters,
-                            this.m_Frame,
-                            this.m_TimeData,
-                            population);
-
-                        FixedString64Bytes debugMessage = default;
-
-                        debugMessage.Append(isOffDay ? 1 : 0);
-                        debugMessage.Append('-');
-                        debugMessage.Append(isTimeToWork ? 1 : 0);
-                        debugMessage.Append('-');
-                        debugMessage.Append(remainingOffDays);
-
-                        this.m_CustomEventData.AddParameter(debugMessage);
-                        this.m_CustomEventData.Send(
-                            entity,
-                            CustomEventType.DebugMessage);
-
-                        
-
-                        
-                    }
-                    if (!WorkerSystem.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_Frame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, nativeArray3[i], ref this.m_EconomyParameters, this.m_TimeOfDay))
+					if (!m_SmallCityJobs.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_Frame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, nativeArray3[i], ref this.m_EconomyParameters, this.m_TimeOfDay))
 					{
 						DynamicBuffer<TripNeeded> dynamicBuffer = bufferAccessor[i];
 						if (!this.m_Attendings.HasComponent(entity) && (citizen.m_State & CitizenFlags.MovingAwayReachOC) == CitizenFlags.None)
 						{
-							//Entity workplace = nativeArray3[i].m_Workplace;
+							Entity workplace = nativeArray3[i].m_Workplace;
 							Entity entity2 = Entity.Null;
 							if (this.m_Properties.HasComponent(workplace))
 							{
@@ -565,8 +493,8 @@ namespace BitulaMod
 			// Token: 0x04009955 RID: 39253
 			public TimeData m_TimeData;
 
-			// Token: 0x04009956 RID: 39254
-			public int m_Population;
+			#pragma warning disable CS0649
+            public int m_Population;
 
 			// Token: 0x04009957 RID: 39255
 			public EntityCommandBuffer.ParallelWriter m_CommandBuffer;

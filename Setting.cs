@@ -44,8 +44,14 @@ namespace BitulaMod
         [SettingsUISection("JobSeeking")]
         public bool AcceptLowerJobs { get; set; } = true;
 
-        [SettingsUISection("AcceptJobSwitch")]
+        [SettingsUISection("JobSeeking")]
         public bool AcceptJobSwitch { get; set; } = true;
+
+        [SettingsUISection("JobSeeking")]
+        public bool FullTrafficSimulation { get; set; } = false;
+
+        [SettingsUISection("JobSeeking")]
+        public bool ReducedDaysOff { get; set; } = true;
 
 
 
@@ -56,6 +62,8 @@ namespace BitulaMod
             PrioritizeAdultEmployment = true;
             AcceptLowerJobs = true;
             AcceptJobSwitch = true;
+            ReducedDaysOff = true;
+            FullTrafficSimulation = false;
         }
     }
 
@@ -93,6 +101,10 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptJobSwitch)), "Accept job switch" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptJobSwitch)), "Allow employed citizens to switch to better jobs more readily in small cities. The effect is based on the Job Seeker Milestone and gradually returns to vanilla behavior as the city grows, while preventing excessive job hopping between positions of the same level." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReducedDaysOff)), "Less Days Off" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReducedDaysOff)), "Reduces worker days off in small cities, gradually returning to vanilla behavior as the population grows." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },

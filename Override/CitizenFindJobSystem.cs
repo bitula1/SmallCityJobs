@@ -109,7 +109,7 @@ namespace BitulaMod
 			citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 			citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetUnemployedWorkspaceByLevel();
 			citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-            citizenFindJobJob.m_CustomEventData = CustomEventData.Create(ref base.CheckedStateRef);
+            citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
 
 
             CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob2 = citizenFindJobJob;
@@ -135,12 +135,12 @@ namespace BitulaMod
 				citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 				citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetFreeWorkplaces();
 				citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-				citizenFindJobJob.m_CustomEventData = CustomEventData.Create(ref base.CheckedStateRef);
+				citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
                 CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob3 = citizenFindJobJob;
 				base.Dependency = citizenFindJobJob3.ScheduleParallel(this.m_EmployedQuery, base.Dependency);
 			}
 			this.m_EndFrameBarrier.AddJobHandleForProducer(base.Dependency);
-            CustomEventData.AddProducer( ref base.CheckedStateRef, base.Dependency);
+            SmallCityJobs.AddProducer( ref base.CheckedStateRef, base.Dependency);
         }
 
 		// Token: 0x06006732 RID: 26418 RVA: 0x00378940 File Offset: 0x00376B40
@@ -199,7 +199,7 @@ namespace BitulaMod
         [BurstCompile]
 		private struct CitizenFindJobJob : IJobChunk
 		{
-            public CustomEventData m_CustomEventData;
+            public SmallCityJobs m_CustomEventData;
             // Token: 0x06006736 RID: 26422 RVA: 0x003789A8 File Offset: 0x00376BA8
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{

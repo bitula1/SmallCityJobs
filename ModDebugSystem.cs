@@ -20,8 +20,8 @@ namespace BitulaMod {
         protected override void OnUpdate() {
 
 
-            CustomEventData customEventData =
-                CustomEventData.Create(ref CheckedStateRef);
+            SmallCityJobs customEventData =
+                SmallCityJobs.Create(ref CheckedStateRef);
 
 
             NativeArray<Entity> citizens =
