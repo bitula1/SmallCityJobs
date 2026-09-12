@@ -100,7 +100,7 @@ namespace BitulaMod
                 SendCitizenEvent(cevent);
             }
 
-            if (count > 0)
+            if (count > 1)
                 log.Info($"LifePath sender drained {count} event(s)");
 
             m_ProducerDependency = default;
@@ -170,9 +170,6 @@ namespace BitulaMod
 
             string citizenName =
                 m_NameSystem.GetRenderedLabelName(cevent.m_Citizen);
-
-            Mod.log.Info(
-                $"{cevent.m_EventType} chirp enqueued for {citizenName} ({cevent.m_Citizen})");
         }
     }
 }

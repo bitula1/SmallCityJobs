@@ -88,6 +88,7 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
             indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_FoundCloserJob"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -120,6 +121,7 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
                 { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are none available." },
+                { "BitulaMod.LIFEPATH_FoundCloserJob:0", "I found a job closer to home than my current workplace." },
 
             };
         }

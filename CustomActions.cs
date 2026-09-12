@@ -18,6 +18,7 @@ namespace BitulaMod
         EmployerGone = 107,
         CantSwitchJob = 108,
         EmployerReturned = 109,
+        FoundCloserJob = 110,
         DebugMessage = 200,
     }
 }

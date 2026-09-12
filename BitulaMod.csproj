@@ -78,6 +78,10 @@
 		<None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
 		<None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+	</ItemGroup>
 	<Target Name="BuildUI" AfterTargets="AfterBuild">
 		<Exec Command="npm run build" WorkingDirectory="$(ProjectDir)BitulaMod" />
 	</Target>

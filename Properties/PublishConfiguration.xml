@@ -11,9 +11,10 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-I added option to enable full physical simulation, its false by default, but I highly recommend it until no performance issues (should be set before loading game) .
-In the vanilla game, workers already have a 59% chance of having a day off even in small cities, which is very unrealistic, and this chance increases further as the city grows. I added a progressive option that starts at 20% in small cities and gradually returns to vanilla behavior as the population passes the configured milestones.
-## Small City Jobs
+- Added closer-job switching: employed citizens can now switch to a same-level job when a suitable workplace closer to home is available.
+- Closer-job switching follows the configured population progression and gradually returns to vanilla behavior as the city grows.
+- Better job opportunities still take priority over same-level job switching.
+- Uses a lightweight beeline-distance check for closer workplaces to keep the feature easy on simulation performance.
 
 **Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
 
@@ -45,7 +46,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.3" />
+	<ModVersion Value="1.4.4" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -55,12 +56,15 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-		Full Traffic – Adds an option to disable the game's traffic reduction, allowing full citizen traffic to be simulated.
-		Milestone-Based Days Off – Reduces days off in small cities and gradually returns them toward the vanilla behavior as the population passes the configured milestones.
+- Added closer-job switching: employed citizens can now switch to a same-level job when a suitable workplace closer to home is available.
+- Closer-job switching follows the configured population progression and gradually returns to vanilla behavior as the city grows.
+- Better job opportunities still take priority over same-level job switching.
+- Uses a lightweight beeline-distance check for closer workplaces to keep the feature easy on simulation performance.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
-	<ExternalLink Type="Discord" Url="https://discord.gg/FAW5QR53KJ" />	
+	<ExternalLink Type="Discord" Url="https://discord.gg/HTav7ARPs2" />
+	<!--<ExternalLink Type="Discord" Url="https://discord.gg/FAW5QR53KJ" />-->
 	<!--Supported values Public, Private, Unlisted-->
 	<AccessLevel Value="Public" />
 </Publish>

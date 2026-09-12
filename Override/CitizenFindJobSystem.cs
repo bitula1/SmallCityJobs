@@ -109,7 +109,7 @@ namespace BitulaMod
 			citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 			citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetUnemployedWorkspaceByLevel();
 			citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-            citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
+            citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
 
 
             CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob2 = citizenFindJobJob;
@@ -135,7 +135,7 @@ namespace BitulaMod
 				citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 				citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetFreeWorkplaces();
 				citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-				citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
+				citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
                 CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob3 = citizenFindJobJob;
 				base.Dependency = citizenFindJobJob3.ScheduleParallel(this.m_EmployedQuery, base.Dependency);
 			}
@@ -304,8 +304,8 @@ namespace BitulaMod
 
 
                             //if (num3 <= 100 || num3 < random.NextInt(500))
-                            if (m_CustomEventData.SkippedJobApplicationOrSameLevel(num3, num2,
-								highestAvailableJobLevel, ref random)) {
+                            if (m_CustomEventData.SkippedJobApplication(num3, num2,
+								highestAvailableJobLevel, ref random, citizenEntity)) {
 								if (num3 == 0) {
 									m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
 								} else if (num3 <= 100) {

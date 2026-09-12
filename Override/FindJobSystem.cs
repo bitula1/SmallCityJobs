@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Xml;
 using Colossal.Collections;
 using Game;
 using Game.Agents;
@@ -116,7 +117,7 @@ namespace BitulaMod
 				findJobJob.m_EmployableByEducation = this.m_CountHouseholdDataSystem.GetEmployables(out jobHandle2);
 				findJobJob.m_RandomSeed = RandomSeed.Next();
 				findJobJob.m_TripPriorityParameters = this.m_TripPriorityParametersQuery.GetSingleton<TripPriorityParametersData>();
-                findJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef);
+                findJobJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, findJobJob.m_CommandBuffer);
                 FindJobSystem.FindJobJob findJobJob2 = findJobJob;
 				base.Dependency = findJobJob2.ScheduleParallel(this.m_JobSeekerQuery, JobHandle.CombineDependencies(jobHandle, base.Dependency, jobHandle2));
 				this.m_PathfindSetupSystem.AddQueueWriter(base.Dependency);
@@ -147,12 +148,14 @@ namespace BitulaMod
 				startWorkingJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
 				startWorkingJob.m_CommandBuffer = this.m_EndFrameBarrier.CreateCommandBuffer();
 				startWorkingJob.m_StartedWorking = this.m_StartedWorking;
-				FindJobSystem.StartWorkingJob startWorkingJob2 = startWorkingJob;
+                startWorkingJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
+                FindJobSystem.StartWorkingJob startWorkingJob2 = startWorkingJob;
 				base.Dependency = startWorkingJob2.Schedule(JobHandle.CombineDependencies(jobHandle3, base.Dependency));
 				this.m_TriggerSystem.AddActionBufferWriter(base.Dependency);
 				this.m_EndFrameBarrier.AddJobHandleForProducer(base.Dependency);
 				this.m_WriteDeps = JobHandle.CombineDependencies(base.Dependency, this.m_WriteDeps);
-			}
+                SmallCityJobs.AddProducer(ref base.CheckedStateRef, base.Dependency);
+            }
 		}
 
 		// Token: 0x060067DA RID: 26586 RVA: 0x00382EF8 File Offset: 0x003810F8
@@ -260,7 +263,7 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct FindJobJob : IJobChunk
 		{
-            public SmallCityJobs m_CustomEventData;
+            public SmallCityJobs m_SmallCityJobs;
             // Token: 0x060067DE RID: 26590 RVA: 0x00383028 File Offset: 0x00381228
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
@@ -360,28 +363,52 @@ namespace BitulaMod
 											m_Methods = PathMethod.Pedestrian
 										};
 										SetupQueueTarget setupQueueTarget2 = setupQueueTarget;
-                                        bool removeOvereducationPenalty = m_CustomEventData.RemoveOvereducationPenalty(ref random);
-                                        setupQueueTarget = new SetupQueueTarget
-										{
-											m_Type = SetupTargetType.JobSeekerTo,
-											m_Methods = PathMethod.Pedestrian,
-											m_Value = level + 5 * (num + 1),
-                                            m_Value2 = flag ? 0f : removeOvereducationPenalty ? 2f : num4
-                                            //m_Value2 = (flag ? 0f : num4)
-										};
-										SetupQueueTarget setupQueueTarget3 = setupQueueTarget;
-										if (nativeArray3[i].m_Outside > 0)
-										{
-											setupQueueTarget3.m_Flags |= SetupTargetFlags.Export;
-										}
-										if (flag)
-										{
-											setupQueueTarget3.m_Flags |= SetupTargetFlags.Import;
-										}
-										PathUtils.UpdateOwnedVehicleMethods(household, ref this.m_OwnedVehicles, ref pathfindParameters, ref setupQueueTarget2, ref setupQueueTarget3);
-										SetupQueueItem setupQueueItem = new SetupQueueItem(entity2, pathfindParameters, setupQueueTarget2, setupQueueTarget3);
-										this.m_PathfindQueue.Enqueue(setupQueueItem);
-									}
+                                        bool foundCloserJob = m_SmallCityJobs.FoundCloserJob(owner);
+
+                                        bool removeOvereducationPenalty = foundCloserJob ||
+                                            m_SmallCityJobs.RemoveOvereducationPenalty(ref random);
+
+                                        Entity closestJob = foundCloserJob
+                                            ? m_SmallCityJobs.GetClosestSameLevelJob(owner, num2)
+                                            : Entity.Null;                                        
+                                       
+                                        setupQueueTarget = new SetupQueueTarget {
+                                            m_Type = SetupTargetType.JobSeekerTo,
+                                            m_Methods = PathMethod.Pedestrian,
+                                            m_Value = level + 5 * (num + 1),
+                                            m_Value2 = flag ? 0f : removeOvereducationPenalty ? 2f : num4,
+                                            m_Entity = closestJob
+                                        };
+										if (foundCloserJob)
+											m_SmallCityJobs.RemoveFoundCloserJob(owner);
+
+                                        SetupQueueTarget setupQueueTarget3 = setupQueueTarget;
+
+                                        if (nativeArray3[i].m_Outside > 0) {
+                                            setupQueueTarget3.m_Flags |= SetupTargetFlags.Export;
+                                        }
+
+                                        if (flag) {
+                                            setupQueueTarget3.m_Flags |= SetupTargetFlags.Import;
+                                        }
+
+                                        PathUtils.UpdateOwnedVehicleMethods(
+                                            household,
+                                            ref this.m_OwnedVehicles,
+                                            ref pathfindParameters,
+                                            ref setupQueueTarget2,
+                                            ref setupQueueTarget3);
+
+                                        SetupQueueItem setupQueueItem =
+                                            new SetupQueueItem(
+                                                entity2,
+                                                pathfindParameters,
+                                                setupQueueTarget2,
+                                                setupQueueTarget3);
+
+                                        this.m_PathfindQueue.Enqueue(setupQueueItem);                                        
+                                    }
+                                        
 								}
 							}
 						}
@@ -486,8 +513,9 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct StartWorkingJob : IJob
 		{
-			// Token: 0x060067E0 RID: 26592 RVA: 0x003834D0 File Offset: 0x003816D0
-			public void Execute()
+            public SmallCityJobs m_SmallCityJobs;
+            // Token: 0x060067E0 RID: 26592 RVA: 0x003834D0 File Offset: 0x003816D0
+            public void Execute()
 			{
 				int num = 0;
 				for (int i = 0; i < this.m_Chunks.Length; i++)
@@ -506,7 +534,7 @@ namespace BitulaMod
 							if (this.m_Citizens.HasComponent(owner) && !this.m_Deleteds.HasComponent(owner))
 							{
 								Entity destination = nativeArray2[j].m_Destination;
-								if (this.m_Prefabs.HasComponent(destination) && this.m_EmployeeBuffers.HasBuffer(destination))
+                                if (this.m_Prefabs.HasComponent(destination) && this.m_EmployeeBuffers.HasBuffer(destination))
 								{
 									DynamicBuffer<Employee> dynamicBuffer = this.m_EmployeeBuffers[destination];
 									WorkProvider workProvider = this.m_WorkProviders[destination];
@@ -548,14 +576,16 @@ namespace BitulaMod
 													{
 														this.m_CommandBuffer.RemoveComponent<Worker>(owner);
 													}
-													this.m_CommandBuffer.AddComponent<Worker>(owner, new Worker
+
+                                                    this.m_CommandBuffer.AddComponent<Worker>(owner, new Worker
 													{
 														m_Workplace = destination,
 														m_Level = (byte)bestFor,
 														m_LastCommuteTime = nativeArray2[j].m_Duration,
 														m_Shift = workshift
 													});
-													num++;
+
+                                                    num++;
 													this.m_TriggerBuffer.Enqueue(new TriggerAction(TriggerType.CitizenStartedWorking, Entity.Null, owner, destination, 0f));
 													freeWorkplaces.Refresh(dynamicBuffer, workProvider.m_MaxWorkers, workplaceData.m_Complexity, num2);
 													this.m_FreeWorkplaces[destination] = freeWorkplaces;
