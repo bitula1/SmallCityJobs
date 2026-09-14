@@ -25,15 +25,27 @@ namespace BitulaMod {
             AccessTools.StructFieldRefAccess<CitizenPathfindSetup, ComponentLookup<Game.Objects.OutsideConnection>>("m_OutsideConnections");
         private static readonly AccessTools.StructFieldRef<CitizenPathfindSetup, EntityQuery> FreeWorkplaceQuery =
             AccessTools.StructFieldRefAccess<CitizenPathfindSetup, EntityQuery>("m_FreeWorkplaceQuery");
+
+        private static readonly MethodInfo GetComponentLookupMethod =  AccessTools.Method( typeof(SystemBase), "GetComponentLookup",  
+            new Type[] { typeof(bool) });
         [HarmonyTargetMethod]
         public static MethodBase TargetMethod() {
             return AccessTools.Method(
                 typeof(PathfindSetupSystem),
                 "FindTargets",
                 new Type[] {
-                    typeof(SetupTargetType),
-                    typeof(PathfindSetupSystem.SetupData).MakeByRefType()
+            typeof(SetupTargetType),
+            typeof(PathfindSetupSystem.SetupData).MakeByRefType()
                 });
+        }
+
+        private static ComponentLookup<T> GetComponentLookup<T>( PathfindSetupSystem system, bool isReadOnly) where T : unmanaged, IComponentData {
+            MethodInfo genericMethod =
+                GetComponentLookupMethod.MakeGenericMethod(typeof(T));
+
+            return (ComponentLookup<T>)genericMethod.Invoke(
+                system,
+                new object[] { isReadOnly });
         }
 
         [HarmonyTranspiler]
@@ -89,6 +101,8 @@ namespace BitulaMod {
             cityServiceType.Update(system);
             outsideConnections.Update(system);
 
+            ComponentLookup<BetterJobSearch> betterJobSearch =  GetComponentLookup<BetterJobSearch>(system, true);
+
             Mod.log.Info("Harmony scheduling custom SetupJobSeekerToJob");
 
             return new SetupJobSeekerToJob {
@@ -97,7 +111,8 @@ namespace BitulaMod {
                 m_WorkProviderType = workProviderType,
                 m_CityServiceType = cityServiceType,
                 m_OutsideConnections = outsideConnections,
-                m_SetupData = setupData
+                m_SetupData = setupData,
+                m_BetterJobSearch = betterJobSearch,
             }.ScheduleParallel(freeWorkplaceQuery, inputDeps);
         }
     }

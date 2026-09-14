@@ -195,8 +195,8 @@ namespace BitulaMod
         // Token: 0x040092A9 RID: 37545
         private CitizenFindJobSystem.TypeHandle __TypeHandle;
 
-        // Token: 0x020014E8 RID: 5352
-        [BurstCompile]
+		// Token: 0x020014E8 RID: 5352
+		[BurstCompile]
 		private struct CitizenFindJobJob : IJobChunk
 		{
             public SmallCityJobs m_CustomEventData;
@@ -239,7 +239,7 @@ namespace BitulaMod
 							citizen.m_UnemploymentTimeCounter += 1f / (float)CitizenFindJobSystem.kUpdatesPerDay;
 							nativeArray2[i] = citizen;
 							int num = this.m_AvailableWorkspacesByLevel[educationLevel];
-                            if (num <= 0 || m_CustomEventData.FailedJobApplication(num, ref random))
+                            if (num <= 0 || m_CustomEventData.FailedJobApplication(num))
 							{
                                 Entity citizenEntity = nativeArray[i];
                                 if (num <= 0)
@@ -304,8 +304,7 @@ namespace BitulaMod
 
 
                             //if (num3 <= 100 || num3 < random.NextInt(500))
-                            if (m_CustomEventData.SkippedJobApplication(num3, num2,
-								highestAvailableJobLevel, ref random, citizenEntity)) {
+                            if (m_CustomEventData.SkippedJobApplication(num3, num2, highestAvailableJobLevel,  citizenEntity)) {
 								if (num3 == 0) {
 									m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
 								} else if (num3 <= 100) {
@@ -359,6 +358,7 @@ namespace BitulaMod
 								m_Level = (byte)citizen.GetEducationLevel(),
 								m_Outside = (byte)(((citizen.m_State & CitizenFlags.Commuter) != CitizenFlags.None) ? 1 : 0)
 							});
+
 							this.m_CommandBuffer.AddComponent<CurrentBuilding>(unfilteredChunkIndex, entity2, new CurrentBuilding
 							{
 								m_CurrentBuilding = entity

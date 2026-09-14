@@ -1,5 +1,6 @@
 ﻿using Game.Buildings;
 using Game.City;
+using Game.Common;
 using Game.Companies;
 using Game.Pathfind;
 using Game.Simulation;
@@ -29,6 +30,8 @@ namespace BitulaMod {
         public ComponentLookup<Game.Objects.OutsideConnection> m_OutsideConnections;
 
         public PathfindSetupSystem.SetupData m_SetupData;
+        [ReadOnly]
+        public ComponentLookup<BetterJobSearch> m_BetterJobSearch;
 
         public void Execute(
             in ArchetypeChunk chunk,
@@ -44,9 +47,15 @@ namespace BitulaMod {
 
             for (int i = 0; i < m_SetupData.Length; i++) {
                 Entity entity;
+                Entity owner;
                 PathfindTargetSeeker<PathfindSetupBuffer> pathfindTargetSeeker;
 
-                m_SetupData.GetItem(i, out entity, out pathfindTargetSeeker);
+                m_SetupData.GetItem(i, out entity, out owner, out pathfindTargetSeeker);
+
+                int level = pathfindTargetSeeker.m_SetupQueueTarget.m_Value % 5;
+                int searchedLevel = pathfindTargetSeeker.m_SetupQueueTarget.m_Value / 5 - 1;
+
+                bool betterJobSearch = m_BetterJobSearch.HasComponent(owner);
 
                 Unity.Mathematics.Random random =
                     pathfindTargetSeeker.m_RandomSeed.GetRandom(unfilteredChunkIndex);
@@ -77,6 +86,8 @@ namespace BitulaMod {
 
                         if (num2 >= lowestFree && num2 >= num3) {
                             int bestFor = freeWorkplaces.GetBestFor(num2);
+                            if (betterJobSearch && bestFor < num3)
+                                continue;
                             int num4 = nativeArray3.Length > 0
                                 ? nativeArray3[j].m_MaxWorkers
                                 : 0;

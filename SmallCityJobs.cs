@@ -13,10 +13,13 @@ using UnityEngine;
 using Game.Tools;
 using System;
 using System.Globalization;
+using Game.Agents;
 
 namespace BitulaMod
 {
     public struct CloserJobSearch : IComponentData {
+    }
+    public struct BetterJobSearch : IComponentData {
     }
     public struct SmallCityJobs
     {
@@ -26,9 +29,12 @@ namespace BitulaMod
         private bool m_AcceptLowerJobs;
         private bool m_AcceptSwitchJobs;
         private bool m_ReducedDaysOff;
+        private bool m_PromoteJob;
+        private Unity.Mathematics.Random m_Random;
         private Entity m_City;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
+        private Workplaces m_Workplaces;
         private CustomEventType m_WatchedEvent;
         private ComponentLookup<Population> m_Population;
         private ComponentLookup<Followed> m_Followed;
@@ -40,6 +46,9 @@ namespace BitulaMod
         private ComponentLookup<Game.Objects.Transform> m_Transforms;
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
         private ComponentLookup<CloserJobSearch> m_CloserJobSearch;
+        private ComponentLookup<HasJobSeeker> m_HasJobSeekers;
+        
+
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
 
         [ReadOnly]
@@ -55,6 +64,9 @@ namespace BitulaMod
             var eventSender =
                 state.World.GetOrCreateSystemManaged<LifePathEventSenderSystem>();
 
+            var countWorkplacesSystem = state.World.GetOrCreateSystemManaged<CountWorkplacesSystem>();
+            Workplaces localFreeWorkplaces = countWorkplacesSystem.GetFreeWorkplaces();
+
             var workplaceQuery = state.GetEntityQuery(
                 ComponentType.ReadOnly<FreeWorkplaces>(),
                 ComponentType.Exclude<Deleted>(),
@@ -62,31 +74,41 @@ namespace BitulaMod
                 ComponentType.Exclude<Destroyed>()
             );
 
+            var smallCityJobsSeed = (uint)System.Environment.TickCount;
+            if (smallCityJobsSeed == 0)
+                smallCityJobsSeed = 1;
+
             return new SmallCityJobs {
                 m_Population = state.GetComponentLookup<Population>(true),
                 m_Followed = state.GetComponentLookup<Followed>(true),
                 m_City = cityQuery.GetSingletonEntity(),
                 m_Buildings = state.GetComponentLookup<Building>(true),
                 m_CompanyDatas = state.GetComponentLookup<CompanyData>(true),
-
                 m_Workers = state.GetComponentLookup<Worker>(true),
                 m_HouseholdMembers = state.GetComponentLookup<HouseholdMember>(true),
                 m_PropertyRenters = state.GetComponentLookup<PropertyRenter>(true),
                 m_Transforms = state.GetComponentLookup<Game.Objects.Transform>(true),
                 m_FreeWorkplaces = state.GetComponentLookup<FreeWorkplaces>(true),
                 m_CloserJobSearch = state.GetComponentLookup<CloserJobSearch>(true),
+                m_HasJobSeekers = state.GetComponentLookup<HasJobSeeker>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
+                m_Random = new Unity.Mathematics.Random(smallCityJobsSeed),
 
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
                 m_AcceptLowerJobs = Mod.Settings.AcceptLowerJobs,
                 m_AcceptSwitchJobs = Mod.Settings.AcceptJobSwitch,
                 m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
+                m_PromoteJob = Mod.Settings.WorkplacePromotion,
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
-
+                m_Workplaces = localFreeWorkplaces,
                 m_CommandBuffer = commandBuffer.GetValueOrDefault()
             };
+        }
+
+        public int GetFreeWorkplaces(int level) {
+            return m_Workplaces[level];
         }
 
         public static SmallCityJobs Create() {
@@ -146,22 +168,11 @@ namespace BitulaMod
             return m_Buildings.HasComponent(workplace);
         }
 
-        public bool RemoveOvereducationPenalty(ref Unity.Mathematics.Random random) {
-            if (!m_AcceptLowerJobs)
-                return false;
-
-            int population = m_Population[m_City].m_Population;
-            int passedMilestones =
-                math.max(0, population - 1) / m_JobSeekerMilestone;
-
-            int protectionPercentage = math.max(
-                0,
-                100 - passedMilestones * m_JobSeekerFailureIncrement);
-
-            return random.NextInt(100) < protectionPercentage;
+        public bool isEmployed(Entity citizen) {
+            return m_Workers.HasComponent(citizen);
         }
 
-        public bool FailedJobApplication(int numJobs, ref Unity.Mathematics.Random random) {
+        public bool FailedJobApplication(int numJobs) {
             if (numJobs <= 0)
                 return true;
 
@@ -175,10 +186,10 @@ namespace BitulaMod
                 passedMilestones * m_JobSeekerFailureIncrement);
 
             bool applicationFailed =
-                numJobs < random.NextInt(100);
+                numJobs < m_Random.NextInt(100);
 
             return applicationFailed
-                && random.NextInt(100) < appliedFailurePercentage;
+                && m_Random.NextInt(100) < appliedFailurePercentage;
         }
 
         private int GetProgression() {
@@ -189,8 +200,8 @@ namespace BitulaMod
             return math.min(100, passedMilestones * m_JobSeekerFailureIncrement);
         }
 
-        private bool UseSmallCityBehavior(ref Unity.Mathematics.Random random) {
-            return random.NextInt(100) >= GetProgression();
+        public bool UseSmallCityBehavior() {
+            return m_Random.NextInt(100) >= GetProgression();
         }
 
         public bool FoundCloserJob(Entity citizen) {
@@ -201,22 +212,20 @@ namespace BitulaMod
             m_CommandBuffer.RemoveComponent<CloserJobSearch>(citizen.Index, citizen);
         }
 
-        public bool SkippedJobApplication(int numJobs, int currentJobLevel,
-            int highestAvailableJobLevel, ref Unity.Mathematics.Random random, Entity citizen) {
+        public bool SkippedJobApplication(int numJobs, int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
 
             if (numJobs <= 0)
                 return true;
 
             bool vanillaSkipped =
                 numJobs <= VanillaWorkspaceThreshold ||
-                numJobs < random.NextInt(500);
+                numJobs < m_Random.NextInt(500);
 
             if (!m_AcceptSwitchJobs)
                 return vanillaSkipped;
 
-            bool useSmallCityBehavior = UseSmallCityBehavior(ref random);
+            bool useSmallCityBehavior = UseSmallCityBehavior();
             bool hasBetterJob = highestAvailableJobLevel > currentJobLevel;            
-
 
             if (!hasBetterJob && useSmallCityBehavior) {
                 hasBetterJob = HasClosestSameLevelJob(citizen, currentJobLevel);
@@ -357,6 +366,61 @@ namespace BitulaMod
                     return workplaces.m_HighlyEducated;
                 default:
                     return 0;
+            }
+        }
+
+        public void AddBetterJobComponent(Entity citizen) {
+            if (!m_HasJobSeekers.TryGetComponent(citizen, out HasJobSeeker hasJobSeeker))
+                return;
+
+            if (hasJobSeeker.m_Seeker == Entity.Null)
+                return;
+
+            Entity jobSeeker = hasJobSeeker.m_Seeker;
+
+            m_CommandBuffer.AddComponent<BetterJobSearch>(
+                jobSeeker.Index,
+                jobSeeker);
+        }
+
+        public bool AcceptLowerJobs() {
+            return m_AcceptLowerJobs;
+        }
+
+        public bool IsWorkplaceAllowed(Entity owner, Entity destination, ComponentLookup<PrefabRef> prefabs) {
+            if (!prefabs.HasComponent(destination))
+                return false;
+            bool sameWorkplace = m_Workers.HasComponent(owner) &&  destination == m_Workers[owner].m_Workplace;
+            if (sameWorkplace && m_PromoteJob)  return true;
+
+            return !sameWorkplace;
+        }
+
+        public bool IsPromotionAllowed(Entity owner, Entity destination, ComponentLookup<PrefabRef> prefabs, int bestFor) {
+            bool sameWorkplace =  m_Workers.HasComponent(owner) &&  destination == m_Workers[owner].m_Workplace;
+
+            if (!prefabs.HasComponent(destination))
+                return false;
+
+            return sameWorkplace && m_PromoteJob && bestFor > this.m_Workers[owner].m_Level;
+        }
+
+        public void PromoteWorker(Entity owner, DynamicBuffer<Employee> dynamicBuffer, int bestFor, EntityCommandBuffer commandBuffer) {
+
+            for (int k = 0; k < dynamicBuffer.Length; k++) {
+                Employee employee = dynamicBuffer[k];
+
+                if (employee.m_Worker == owner) {
+                    employee.m_Level = (byte)bestFor;
+                    dynamicBuffer[k] = employee;
+
+                    Worker worker = this.m_Workers[owner];
+                    worker.m_Level = (byte)bestFor;
+                    commandBuffer.SetComponent(owner, worker);
+
+                    Send(owner, CustomEventType.PromotedJob);
+                    return;
+                }
             }
         }
 

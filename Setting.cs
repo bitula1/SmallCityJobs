@@ -53,6 +53,9 @@ namespace BitulaMod
         [SettingsUISection("JobSeeking")]
         public bool ReducedDaysOff { get; set; } = true;
 
+        [SettingsUISection("JobSeeking")]
+        public bool WorkplacePromotion { get; set; } = true;
+
 
 
         public override void SetDefaults()
@@ -64,6 +67,7 @@ namespace BitulaMod
             AcceptJobSwitch = true;
             ReducedDaysOff = true;
             FullTrafficSimulation = false;
+            WorkplacePromotion = true;
         }
     }
 
@@ -89,8 +93,11 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundCloserJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_PromotedJob"] = 1;
             return new Dictionary<string, string>
             {
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Job-seeker population milestone" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population interval at which the job-application failure chance increases." },
@@ -102,10 +109,10 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptJobSwitch)), "Accept job switch" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptJobSwitch)), "Allow employed citizens to switch to better jobs more readily in small cities. The effect is based on the Job Seeker Milestone and gradually returns to vanilla behavior as the city grows, while preventing excessive job hopping between positions of the same level." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReducedDaysOff)), "Less Days Off" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReducedDaysOff)), "Reduces worker days off in small cities, gradually returning to vanilla behavior as the population grows." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.WorkplacePromotion)), "Workplace Promotion" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.WorkplacePromotion)), "Allow workers to be promoted to a higher-level position at their current workplace when a suitable position is available." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
@@ -122,6 +129,7 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
                 { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are none available." },
                 { "BitulaMod.LIFEPATH_FoundCloserJob:0", "I found a job closer to home than my current workplace." },
+                { "BitulaMod.LIFEPATH_PromotedJob:0", "I was promoted to a better position at my workplace." },
 
             };
         }
