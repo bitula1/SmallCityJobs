@@ -56,6 +56,12 @@ namespace BitulaMod
         [SettingsUISection("JobSeeking")]
         public bool WorkplacePromotion { get; set; } = true;
 
+        [SettingsUISection("JobSeeking")]
+        public bool CloserJobEmployed { get; set; } = true;
+
+        [SettingsUISection("JobSeeking")]
+        public bool CloserJobUnemployed { get; set; } = true;
+
 
 
         public override void SetDefaults()
@@ -94,6 +100,8 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundCloserJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_PromotedJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_CloserJobUnemployed"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_CloserJobEmployed"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
@@ -113,6 +121,10 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReducedDaysOff)), "Reduces worker days off in small cities, gradually returning to vanilla behavior as the population grows." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.WorkplacePromotion)), "Workplace Promotion" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.WorkplacePromotion)), "Allow workers to be promoted to a higher-level position at their current workplace when a suitable position is available." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobUnemployed)), "Unemployed seek closest job" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobUnemployed)), "Allows unemployed citizens to choose the closest suitable available job." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobEmployed)), "Employed switch to closer job" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobEmployed)), "Allows employed citizens to switch to a suitable job that is closer to home than their current job." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },

@@ -390,8 +390,8 @@ namespace BitulaMod
 						DynamicBuffer<Game.Economy.Resources> dynamicBuffer2 = bufferAccessor2[i];
 						int householdTotalWealth = EconomyUtils.GetHouseholdTotalWealth(household, dynamicBuffer2);
 						int householdIncome = EconomyUtils.GetHouseholdIncome(dynamicBuffer, ref this.m_Workers, ref this.m_CitizenDatas, ref this.m_HealthProblems, ref this.m_EconomyParameters, this.m_TaxRates);
-						household.m_SalaryLastDay = householdIncome;
-						MoveAwayReason moveAwayReason = (flag ? MoveAwayReason.NoAdults : (flag2 ? MoveAwayReason.NotHappy : ((householdTotalWealth + householdIncome < -1000) ? MoveAwayReason.NoMoney : MoveAwayReason.None)));
+                        household.m_Income = householdIncome;
+                        MoveAwayReason moveAwayReason = (flag ? MoveAwayReason.NoAdults : (flag2 ? MoveAwayReason.NotHappy : ((householdTotalWealth + householdIncome < -1000) ? MoveAwayReason.NoMoney : MoveAwayReason.None)));
 						if (moveAwayReason != MoveAwayReason.None)
 						{
 							CitizenUtils.HouseholdMoveAway(this.m_CommandBuffer, unfilteredChunkIndex, entity, moveAwayReason);

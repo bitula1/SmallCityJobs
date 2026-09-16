@@ -101,7 +101,7 @@ namespace BitulaMod {
             cityServiceType.Update(system);
             outsideConnections.Update(system);
 
-            ComponentLookup<BetterJobSearch> betterJobSearch =  GetComponentLookup<BetterJobSearch>(system, true);
+            ComponentLookup<SmallCityJobsComponent> smallCitySearch =  GetComponentLookup<SmallCityJobsComponent>(system, true);
 
             Mod.log.Info("Harmony scheduling custom SetupJobSeekerToJob");
 
@@ -112,7 +112,7 @@ namespace BitulaMod {
                 m_CityServiceType = cityServiceType,
                 m_OutsideConnections = outsideConnections,
                 m_SetupData = setupData,
-                m_BetterJobSearch = betterJobSearch,
+                m_SmallCitySearch = smallCitySearch,
             }.ScheduleParallel(freeWorkplaceQuery, inputDeps);
         }
     }

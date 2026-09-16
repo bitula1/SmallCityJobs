@@ -274,8 +274,10 @@ namespace BitulaMod
 				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
 				for (int i = 0; i < nativeArray.Length; i++)
 				{
+					
 					Entity owner = nativeArray2[i].m_Owner;
-					if (this.m_Deleteds.HasComponent(owner) || !this.m_CitizenDatas.HasComponent(owner))
+                    if (!m_SmallCityJobs.init(owner, SmallCityJobsPhase.FindJob)) continue;
+                    if (this.m_Deleteds.HasComponent(owner) || !this.m_CitizenDatas.HasComponent(owner))
 					{
 						this.m_CommandBuffer.AddComponent<Deleted>(unfilteredChunkIndex, nativeArray[i], default(Deleted));
 					}
@@ -364,33 +366,27 @@ namespace BitulaMod
 											m_Methods = PathMethod.Pedestrian
 										};
 										SetupQueueTarget setupQueueTarget2 = setupQueueTarget;
+                                        bool employed = m_SmallCityJobs.isEmployed(owner);
                                         bool foundCloserJob = m_SmallCityJobs.FoundCloserJob(owner);
-										bool sm = m_SmallCityJobs.UseSmallCityBehavior();
-                                        bool removeOvereducationPenalty = m_SmallCityJobs.AcceptLowerJobs() && (
-											(num == num2 && foundCloserJob) ||
-											( !m_SmallCityJobs.isEmployed(owner) && sm) || (m_SmallCityJobs.isEmployed(owner) && num > num2 && sm));
+                                        bool foundHigherJob = m_SmallCityJobs.FoundHigherJob(owner);
+                                        bool sm = m_SmallCityJobs.UseSmallCityBehavior(owner);                                        
+                                        bool removeOvereducationPenalty = m_SmallCityJobs.AcceptLowerJobs();
 
+										bool better = (num == num2 && foundCloserJob) || (!employed && sm) || (foundHigherJob);
                                         
 
-										bool employed = m_SmallCityJobs.isEmployed(owner);
-										bool better = (employed && num > num2) || (!employed && !removeOvereducationPenalty);
-                                        if (better) {
-                                            m_SmallCityJobs.AddBetterJobComponent(owner);
-                                        }
-
-                                        Entity closestJob = foundCloserJob && !better
-                                            ? m_SmallCityJobs.GetClosestSameLevelJob(owner, num2)
+                                        Entity closestJob = foundCloserJob 
+                                            ? m_SmallCityJobs.GetClosestJob(owner, num2)
                                             : Entity.Null;
 
                                         setupQueueTarget = new SetupQueueTarget {
                                             m_Type = SetupTargetType.JobSeekerTo,
                                             m_Methods = PathMethod.Pedestrian,
                                             m_Value = level + 5 * (num + 1),
-                                            m_Value2 = flag ? 0f : removeOvereducationPenalty ? 2f : num4,
+                                            m_Value2 = flag ? 0f : (removeOvereducationPenalty || better) ? 2f : num4,
                                             m_Entity = closestJob
                                         };
-										if (foundCloserJob)
-											m_SmallCityJobs.RemoveFoundCloserJob(owner);
+										
 
                                         SetupQueueTarget setupQueueTarget3 = setupQueueTarget;
 

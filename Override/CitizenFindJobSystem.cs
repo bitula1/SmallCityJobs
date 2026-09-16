@@ -109,7 +109,7 @@ namespace BitulaMod
 			citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 			citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetUnemployedWorkspaceByLevel();
 			citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-            citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
+            citizenFindJobJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
 
 
             CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob2 = citizenFindJobJob;
@@ -135,7 +135,7 @@ namespace BitulaMod
 				citizenFindJobJob.m_RandomSeed = RandomSeed.Next();
 				citizenFindJobJob.m_AvailableWorkspacesByLevel = this.m_CountWorkplacesSystem.GetFreeWorkplaces();
 				citizenFindJobJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
-				citizenFindJobJob.m_CustomEventData = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
+				citizenFindJobJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, citizenFindJobJob.m_CommandBuffer);
                 CitizenFindJobSystem.CitizenFindJobJob citizenFindJobJob3 = citizenFindJobJob;
 				base.Dependency = citizenFindJobJob3.ScheduleParallel(this.m_EmployedQuery, base.Dependency);
 			}
@@ -199,7 +199,7 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct CitizenFindJobJob : IJobChunk
 		{
-            public SmallCityJobs m_CustomEventData;
+            public SmallCityJobs m_SmallCityJobs;
             // Token: 0x06006736 RID: 26422 RVA: 0x003789A8 File Offset: 0x00376BA8
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
@@ -213,7 +213,9 @@ namespace BitulaMod
 				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
 				for (int i = 0; i < nativeArray.Length; i++)
 				{
-					Entity household = this.m_HouseholdMembers[nativeArray[i]].m_Household;
+                    Entity citizenEntity = nativeArray[i];
+                    if (!m_SmallCityJobs.init( citizenEntity,  SmallCityJobsPhase.LookingForJob)) continue;
+                    Entity household = this.m_HouseholdMembers[nativeArray[i]].m_Household;
 					Citizen citizen = nativeArray2[i];
 					CitizenAge age = citizen.GetAge();
 					if (age == CitizenAge.Child || age == CitizenAge.Elderly)
@@ -239,13 +241,9 @@ namespace BitulaMod
 							citizen.m_UnemploymentTimeCounter += 1f / (float)CitizenFindJobSystem.kUpdatesPerDay;
 							nativeArray2[i] = citizen;
 							int num = this.m_AvailableWorkspacesByLevel[educationLevel];
-                            if (num <= 0 || m_CustomEventData.FailedJobApplication(num))
-							{
-                                Entity citizenEntity = nativeArray[i];
-                                if (num <= 0)
-                                    m_CustomEventData.Send(citizenEntity, CustomEventType.NoJobsAvailable);
-								else
-                                    m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntLikeAnyJobs);
+                            
+                            if (m_SmallCityJobs.UnemployedSkippedApplication(num, citizenEntity))
+							{                                                                
                                 this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
 									m_Seeker = Entity.Null,
@@ -258,10 +256,10 @@ namespace BitulaMod
                                     ? m_AvailableWorkspacesByLevel[0]
                                     : m_AvailableWorkspacesByLevel[educationLevel]
                                       - m_AvailableWorkspacesByLevel[educationLevel - 1];
-                                Entity citizenEntity = nativeArray[i];
-								m_CustomEventData.AddParameter(num);
-                                m_CustomEventData.AddParameter(matchingEducationPositions);
-                                m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForWork);
+
+								m_SmallCityJobs.AddParameter(num);
+                                m_SmallCityJobs.AddParameter(matchingEducationPositions);
+                                m_SmallCityJobs.Send(citizenEntity, CustomEventType.StartedLookingForWork);
                             }
 						}
 						else
@@ -271,20 +269,20 @@ namespace BitulaMod
 							NativeArray<Worker> nativeArray4 = chunk.GetNativeArray<Worker>(ref this.m_WorkerType);
 							int num2 = (int)(this.m_OutsideConnections.HasComponent(nativeArray4[i].m_Workplace) ? 0 : nativeArray4[i].m_Level);
                             Entity workplace = nativeArray4[i].m_Workplace;
-                            Entity citizenEntity = nativeArray[i];
-							if (m_CustomEventData.IsFollowed(citizenEntity)) {
-								if (m_CustomEventData.IsCompany(workplace)) {
+                            
+							if (m_SmallCityJobs.IsFollowed(citizenEntity)) {
+								if (m_SmallCityJobs.IsCompany(workplace)) {
 									if (!m_PropertyRenters.TryGetComponent(workplace, out PropertyRenter renter) ||
 										renter.m_Property == Entity.Null) {
-										m_CustomEventData.SetHint(CustomEvent.WatchEvent);
-										m_CustomEventData.Send(citizenEntity, CustomEventType.EmployerGone);
+										m_SmallCityJobs.SetHint(CustomEvent.WatchEvent);
+										m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerGone);
 									} else {
-										m_CustomEventData.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
-                                        m_CustomEventData.Send(citizenEntity, CustomEventType.EmployerReturned);
+										m_SmallCityJobs.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
+                                        m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerReturned);
                                     }
-								} else if (!m_CustomEventData.HasBuilding(workplace) &&
+								} else if (!m_SmallCityJobs.HasBuilding(workplace) &&
 										   !m_OutsideConnections.HasComponent(workplace)) {
-									m_CustomEventData.Send(citizenEntity, CustomEventType.WorkplaceGone);
+									m_SmallCityJobs.Send(citizenEntity, CustomEventType.WorkplaceGone);
 								}
 							}
                             if (num2 >= educationLevel)
@@ -304,21 +302,7 @@ namespace BitulaMod
 
 
                             //if (num3 <= 100 || num3 < random.NextInt(500))
-                            if (m_CustomEventData.SkippedJobApplication(num3, num2, highestAvailableJobLevel,  citizenEntity)) {
-								if (num3 == 0) {
-									m_CustomEventData.Send(citizenEntity, CustomEventType.CantSwitchJob);
-								} else if (num3 <= 100) {
-									m_CustomEventData.AddParameter(num3);
-									m_CustomEventData.SetHint(CustomEvent.IgnoreParameterInFilter);
-									m_CustomEventData.Send(citizenEntity, CustomEventType.TooFewBetterJobs);
-								} else {
-									m_CustomEventData.AddParameter(num3);
-									m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
-									m_CustomEventData.Send(citizenEntity, CustomEventType.DoesntWantBetterJob);
-								}
-
-
-
+                            if (m_SmallCityJobs.EmployedSkippedApplication(num3, num2, highestAvailableJobLevel,  citizenEntity)) {
                                 this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
 									m_Seeker = Entity.Null,
@@ -328,8 +312,8 @@ namespace BitulaMod
 							}
 
 
-                            m_CustomEventData.AddParameter(num3);
-                            m_CustomEventData.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
+                            m_SmallCityJobs.AddParameter(num3);
+                            m_SmallCityJobs.Send(citizenEntity, CustomEventType.StartedLookingForAnotherJob);
 
 
                         }
