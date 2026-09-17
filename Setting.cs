@@ -17,7 +17,7 @@ namespace BitulaMod
         {
         }
 
-        public int JobSeekerMilestone = 100;
+        public int JobSeekerMilestone = 200;
 
         [SettingsUISection("JobSeeking")]
         [SettingsUITextInput]
@@ -66,7 +66,7 @@ namespace BitulaMod
 
         public override void SetDefaults()
         {
-            JobSeekerMilestoneText = "100";
+            JobSeekerMilestoneText = "200";
             JobSeekerFailureIncrement = 10;
             PrioritizeAdultEmployment = true;
             AcceptLowerJobs = true;
@@ -98,6 +98,7 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
             indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_NoSuitableSwitch"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundCloserJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_PromotedJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CloserJobUnemployed"] = 1;
@@ -139,7 +140,8 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_WorkplaceGone:0", "Looks like my workplace is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
-                { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are none available." },
+                { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are no other jobs in this city." },
+                { "BitulaMod.LIFEPATH_NoSuitableSwitch:0", "I would like a better job, but none of the available jobs are suitable." },
                 { "BitulaMod.LIFEPATH_FoundCloserJob:0", "I found a job closer to home than my current workplace." },
                 { "BitulaMod.LIFEPATH_PromotedJob:0", "I was promoted to a better position at my workplace." },
 

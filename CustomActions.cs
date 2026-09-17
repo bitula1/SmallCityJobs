@@ -20,6 +20,7 @@ namespace BitulaMod
         EmployerReturned = 109,
         FoundCloserJob = 110,
         PromotedJob = 111,
+        NoSuitableSwitch = 112,
         DebugMessage = 200,
     }
 }

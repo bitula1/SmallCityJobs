@@ -21,6 +21,7 @@ namespace BitulaMod
     public struct SmallCityJobs
     {
         private const int VanillaWorkspaceThreshold = 100;
+        private const int VanillaSwitchDesireThreshold = 500;
         private Entity m_Citizen;
         private bool m_UseSmallCityBehaviour;
         private SmallCityJobsPhase m_Phase;
@@ -253,12 +254,14 @@ namespace BitulaMod
         }
 
         public bool EmployedSkippedApplication(int numJobs, int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
-            if (numJobs == 0)  Send(citizen, CustomEventType.CantSwitchJob);            
-            if (numJobs <= 0)
+
+            if (numJobs <= 0) {
+                Send(citizen, CustomEventType.CantSwitchJob);
                 return true;
+            }
 
             bool useSmallCityBehavior = UseSmallCityBehavior(citizen);
-            bool vanillaSkipped = numJobs <= VanillaWorkspaceThreshold || numJobs < m_Random.NextInt(500);
+            bool vanillaSkipped = numJobs <= VanillaWorkspaceThreshold || numJobs < m_Random.NextInt(VanillaSwitchDesireThreshold);
             
             if (!m_AcceptSwitchJobs)
                 return vanillaSkipped;
@@ -287,11 +290,15 @@ namespace BitulaMod
                     Send(citizen, CustomEventType.DoesntWantBetterJob);
                 }
             }
+            bool noSuitableJobs = !hasBetterJob && !hasCloserJob;
+            
+            if (noSuitableJobs)
+                Send(citizen, CustomEventType.NoSuitableSwitch);
 
             if (!useSmallCityBehavior)
                 return vanillaSkipped;
 
-            return !hasBetterJob && !hasCloserJob;
+            return noSuitableJobs;
         }
 
         public void SetHint(byte hint) {

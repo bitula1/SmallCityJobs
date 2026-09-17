@@ -11,10 +11,8 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Recompiled to latest game patch 1.6.2f. (According to skyve the previous version crashed for some or all players)
-- Added separate settings to control closer-job searching for employed and unemployed citizens.
-- Added closer-job searching for unemployed citizens, who can now prefer the nearest workplace with a suitable available position.
-		
+- Improved job-switching messages to distinguish between having no other jobs available in the city and having jobs available but none suitable for switching.
+
 **Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
 
 In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
@@ -45,7 +43,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.6" />
+	<ModVersion Value="1.4.7" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -55,9 +53,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Recompiled to latest game patch 1.6.2f. (According to skyve the previous version crashed for some or all players)
-- Added separate settings to control closer-job searching for employed and unemployed citizens.
-- Added closer-job searching for unemployed citizens, who can now prefer the nearest workplace with a suitable available position.
+- Improved job-switching messages to distinguish between having no other jobs available in the city and having jobs available but none suitable for switching.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
