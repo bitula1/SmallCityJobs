@@ -103,8 +103,6 @@ namespace BitulaMod {
 
             ComponentLookup<SmallCityJobsComponent> smallCitySearch =  GetComponentLookup<SmallCityJobsComponent>(system, true);
 
-            Mod.log.Info("Harmony scheduling custom SetupJobSeekerToJob");
-
             return new SetupJobSeekerToJob {
                 m_EntityType = entityType,
                 m_FreeWorkplaceType = freeWorkplaceType,

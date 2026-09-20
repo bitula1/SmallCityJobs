@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- current building -->
+  <path d="M3 21V8l6-3v16"></path>
+  <path d="M6 10h1"></path>
+  <path d="M6 14h1"></path>
+  <path d="M6 18h1"></path>
+
+  <!-- workplace -->
+  <path d="M15 21V11h6v10"></path>
+  <path d="M18 14v1"></path>
+  <path d="M18 18v1"></path>
+
+  <!-- mismatch -->
+  <path d="M10 9h6"></path>
+  <path d="m14 7 2 2-2 2"></path>
+</svg>

@@ -78,7 +78,7 @@ namespace BitulaMod
             AddBinding(m_RemainingDaysOff);
 
 
-
+            RequireForUpdate(m_TimeQuery);
             Mod.log.Info("WorkShiftUISystem created successfully");
 
         }
@@ -269,6 +269,30 @@ namespace BitulaMod
             } else {
                 m_RemainingDaysOff.Update(0);
             }
+        }
+
+        public bool IsTodayOffDay(Entity citizenEntity) {
+            m_TimeData = m_TimeQuery.GetSingleton<Game.Common.TimeData>();
+
+
+            Citizen citizen =
+                EntityManager.GetComponentData<Citizen>(citizenEntity);
+
+            EconomyParameterData economyParameters =
+                m_EconomyParameterQuery.GetSingleton<EconomyParameterData>();
+
+            Population populationData =
+                EntityManager.GetComponentData<Population>(m_CitySystem.City);
+
+            int population = populationData.m_Population;
+            uint frame = m_SimulationSystem.frameIndex;
+
+            return m_SmallCityJobs.IsTodayOffDay(
+                citizen,
+                ref economyParameters,
+                frame,
+                m_TimeData,
+                population);
         }
 
         private void updateWorkHours()

@@ -2,9 +2,37 @@ import { selectedInfo } from "cs2/bindings";
 import { getModule } from "cs2/modding";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
-//import { bindValue, bindMap, useValue, useMapValue} from "cs2/api";
 import { bindValue, useValue } from "cs2/api";
 import { setWorkersTabSelected, subscribeWorkersTab, isWorkersTabSelected } from "mods/workers-tab/state";
+import workingIcon from "./icons/working.svg";
+import notWorkingIcon from "./icons/not-working.svg";
+import dayOffIcon from "./icons/day-off.svg";
+import goingToWorkIcon from "./icons/going-to-work.svg";
+import employerGoneIcon from "./icons/employer-gone.svg";
+import workplaceGoneIcon from "./icons/workplace-gone.svg";
+import workingElsewhereIcon from "./icons/working-elsewhere.svg";
+import "./WorkersTab.css";
+
+enum WorkerStatus {
+    None = 0,
+    Working = 1,
+    NotWorking = 2,
+    DayOff = 3,
+    GoingToWork = 4,
+    EmployerGone = 5,
+    WorkplaceGone = 6,
+    WorkingElsewhere = 7
+}
+
+const statusIcons: Partial<Record<WorkerStatus, string>> = {
+    [WorkerStatus.Working]: workingIcon,
+    [WorkerStatus.NotWorking]: notWorkingIcon,
+    [WorkerStatus.DayOff]: dayOffIcon,
+    [WorkerStatus.GoingToWork]: goingToWorkIcon,
+    [WorkerStatus.EmployerGone]: employerGoneIcon,
+    [WorkerStatus.WorkplaceGone]: workplaceGoneIcon,
+    [WorkerStatus.WorkingElsewhere]: workingElsewhereIcon
+};
 
 type Entity = {
     index: number;
@@ -15,25 +43,14 @@ type Entity = {
 type Worker = {
     entity: Entity;
     name: any;
+    status: WorkerStatus;
 };
 
-
-/*const workers$ = bindValue<Entity[]>(
-    "BitulaMod",
-    "workers",
-    []
-);*/
 const workers$ = bindValue<Worker[]>(
     "BitulaMod",
     "workers",
     []
 );
-
-/*const avatars$ = bindMap<any, any>(
-    "avatars",
-    "avatarsMap"
-);*/
-
 
 const panelStyles: any = getModule(
     "game-ui/game/components/selected-info-panel/selected-info-panel.module.scss",
@@ -73,7 +90,7 @@ const WorkerRow = ({ worker }: { worker: Worker }) => {
 
     return (
         <div
-            className={householdStyles.item}
+            className={`${householdStyles.item} worker-row`}
             onClick={() => selectedInfo.selectEntity(worker.entity)}
         >
             <Avatar
@@ -84,6 +101,11 @@ const WorkerRow = ({ worker }: { worker: Worker }) => {
             <div className={householdStyles.itemLabel}>
                 {name}
             </div>
+
+            <img
+                src={statusIcons[worker.status]}
+                className="worker-status-icon"
+            />
         </div>
     );
 };

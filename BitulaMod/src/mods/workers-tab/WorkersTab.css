@@ -1,0 +1,12 @@
+.worker-row {
+    position: relative;
+}
+
+.worker-status-icon {
+    width: 24rem;
+    height: 24rem;
+    position: absolute;
+    right: 12rem;
+    top: 50%;
+    transform: translateY(-50%);
+}

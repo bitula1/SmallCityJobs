@@ -123,7 +123,7 @@ namespace BitulaMod
             return new SmallCityJobs {
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
-                m_ReducedDaysOff = Mod.Settings.ReducedDaysOff
+                m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
             };
         }
 
