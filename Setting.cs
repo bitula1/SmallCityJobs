@@ -19,16 +19,17 @@ namespace BitulaMod
 
         public int JobSeekerMilestone = 200;
 
+        private string m_JobSeekerMilestoneText = "200";
+
         [SettingsUISection("JobSeeking")]
         [SettingsUITextInput]
-        public string JobSeekerMilestoneText
-        {
-            get => JobSeekerMilestone.ToString();
+        public string JobSeekerMilestoneText {
+            get => m_JobSeekerMilestoneText ?? JobSeekerMilestone.ToString();
 
-            set
-            {
-                if (int.TryParse(value, out int parsed))
-                {
+            set {
+                m_JobSeekerMilestoneText = value;
+
+                if (int.TryParse(value, out int parsed)) {
                     JobSeekerMilestone = Math.Max(1, parsed);
                 }
             }

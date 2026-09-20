@@ -50,7 +50,8 @@ namespace BitulaMod
         private ComponentLookup<Game.Objects.Transform> m_Transforms;
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
         private ComponentLookup<SmallCityJobsComponent> m_SmallCitySearch;
-        
+        private ComponentLookup<TravelPurpose> m_TravelPurposes;
+
 
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
 
@@ -97,6 +98,7 @@ namespace BitulaMod
                 m_Transforms = state.GetComponentLookup<Game.Objects.Transform>(true),
                 m_FreeWorkplaces = state.GetComponentLookup<FreeWorkplaces>(true),
                 m_SmallCitySearch = state.GetComponentLookup<SmallCityJobsComponent>(true),
+                m_TravelPurposes = state.GetComponentLookup<TravelPurpose>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
                 m_Random = new Unity.Mathematics.Random(smallCityJobsSeed),
@@ -180,6 +182,10 @@ namespace BitulaMod
             return m_Workers.HasComponent(citizen);
         }
 
+        public bool IsIdle(Entity citizen) {
+            return !m_TravelPurposes.HasComponent(citizen);
+        }
+
         public bool UnemployedSkippedApplication(int numJobs, Entity citizen) {
             if (numJobs <= 0) {
                 Send(citizen, CustomEventType.NoJobsAvailable);
@@ -254,6 +260,8 @@ namespace BitulaMod
         }
 
         public bool EmployedSkippedApplication(int numJobs, int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
+
+            if (!IsIdle(citizen)) return true;
 
             if (numJobs <= 0) {
                 Send(citizen, CustomEventType.CantSwitchJob);

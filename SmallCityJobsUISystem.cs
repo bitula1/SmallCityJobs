@@ -1,9 +1,11 @@
-﻿using Colossal.UI.Binding;
+﻿using Colossal.Entities;
+using Colossal.UI.Binding;
 using Game;
 using Game.Buildings;
 using Game.Citizens;
 using Game.Common;
 using Game.Companies;
+using Game.Prefabs;
 using Game.Simulation;
 using Game.UI;
 using Game.UI.InGame;
@@ -25,6 +27,8 @@ namespace BitulaMod {
         private struct WorkerInfo {
             public Entity Worker;
             public WorkerStatus Status;
+            public CitizenJobLevelKey JobLevel;
+            public CitizenEducationLevel EducationLevel;
         }
         private readonly List<WorkerInfo> m_Workers = new();
         private SelectedInfoUISystem m_SelectedInfoUISystem;
@@ -113,10 +117,14 @@ namespace BitulaMod {
             for (int i = 0; i < employees.Length; i++) {
                 Entity worker = employees[i].m_Worker;
 
-                if (worker != Entity.Null && EntityManager.Exists(worker) &&  EntityManager.HasComponent<Worker>(worker)) {
+
+                if (worker != Entity.Null && EntityManager.Exists(worker) &&  EntityManager.TryGetComponent<Worker>(worker, out Worker workerData)
+                    && EntityManager.TryGetComponent<Citizen>(worker, out Citizen citizenData)) {
                     m_Workers.Add(new WorkerInfo {
                         Worker = worker,
-                        Status = GetWorkerStatus(worker)
+                        Status = GetWorkerStatus(worker),
+                        JobLevel = (CitizenJobLevelKey)workerData.m_Level,
+                        EducationLevel = (CitizenEducationLevel)citizenData.GetEducationLevel()
                     });
                 }
             }
@@ -211,6 +219,12 @@ namespace BitulaMod {
 
                 writer.PropertyName("status");
                 writer.Write((int)worker.Status);
+
+                writer.PropertyName("jobLevel");
+                writer.Write((int)worker.JobLevel);
+
+                writer.PropertyName("educationLevel");
+                writer.Write((int)worker.EducationLevel);
 
                 writer.TypeEnd();
             }

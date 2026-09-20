@@ -11,7 +11,26 @@ import goingToWorkIcon from "./icons/going-to-work.svg";
 import employerGoneIcon from "./icons/employer-gone.svg";
 import workplaceGoneIcon from "./icons/workplace-gone.svg";
 import workingElsewhereIcon from "./icons/working-elsewhere.svg";
+import jobSimpleIcon from "./icons/job-simple.svg";
+import jobBasicIcon from "./icons/job-basic.svg";
+import jobSeniorIcon from "./icons/job-senior.svg";
+import jobSpecialistIcon from "./icons/job-specialist.svg";
+import jobManagerIcon from "./icons/job-manager.svg";
+import uneducatedIcon from "./icons/education-uneducated.svg";
+import poorlyEducatedIcon from "./icons/education-poorly-educated.svg";
+import educatedIcon from "./icons/education-educated.svg";
+import wellEducatedIcon from "./icons/education-well-educated.svg";
+import highlyEducatedIcon from "./icons/education-highly-educated.svg";
+
 import "./WorkersTab.css";
+
+enum EducationLevel {
+    Uneducated = 0,
+    PoorlyEducated = 1,
+    Educated = 2,
+    WellEducated = 3,
+    HighlyEducated = 4
+}
 
 enum WorkerStatus {
     None = 0,
@@ -24,6 +43,15 @@ enum WorkerStatus {
     WorkingElsewhere = 7
 }
 
+enum JobLevel {
+    Simple = 0,
+    Basic = 1,
+    Senior = 2,
+    Specialist = 3,
+    Manager = 4,
+    Unknown = 5
+}
+
 const statusIcons: Partial<Record<WorkerStatus, string>> = {
     [WorkerStatus.Working]: workingIcon,
     [WorkerStatus.NotWorking]: notWorkingIcon,
@@ -32,6 +60,22 @@ const statusIcons: Partial<Record<WorkerStatus, string>> = {
     [WorkerStatus.EmployerGone]: employerGoneIcon,
     [WorkerStatus.WorkplaceGone]: workplaceGoneIcon,
     [WorkerStatus.WorkingElsewhere]: workingElsewhereIcon
+};
+
+const jobLevelIcons: Partial<Record<JobLevel, string>> = {
+    [JobLevel.Simple]: jobSimpleIcon,
+    [JobLevel.Basic]: jobBasicIcon,
+    [JobLevel.Senior]: jobSeniorIcon,
+    [JobLevel.Specialist]: jobSpecialistIcon,
+    [JobLevel.Manager]: jobManagerIcon,
+};
+
+const educationLevelIcons: Partial<Record<EducationLevel, string>> = {
+    [EducationLevel.Uneducated]: uneducatedIcon,
+    [EducationLevel.PoorlyEducated]: poorlyEducatedIcon,
+    [EducationLevel.Educated]: educatedIcon,
+    [EducationLevel.WellEducated]: wellEducatedIcon,
+    [EducationLevel.HighlyEducated]: highlyEducatedIcon,
 };
 
 type Entity = {
@@ -44,6 +88,8 @@ type Worker = {
     entity: Entity;
     name: any;
     status: WorkerStatus;
+    jobLevel: JobLevel;
+    educationLevel: EducationLevel;
 };
 
 const workers$ = bindValue<Worker[]>(
@@ -105,6 +151,16 @@ const WorkerRow = ({ worker }: { worker: Worker }) => {
             <img
                 src={statusIcons[worker.status]}
                 className="worker-status-icon"
+            />
+
+            <img
+                src={jobLevelIcons[worker.jobLevel]}
+                className="worker-job-level-icon"
+            />
+
+            <img
+                src={educationLevelIcons[worker.educationLevel]}
+                className="worker-education-level-icon"
             />
         </div>
     );

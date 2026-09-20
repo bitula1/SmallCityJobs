@@ -11,16 +11,10 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Expanded the Workers tab with worker status indicator icons (see screenshot):
-
-- Working – currently at their workplace.
-- Not Working – currently not working.
-- Day Off – has a scheduled day off.
-- Going to Work – currently travelling to work.
-- Employer Gone – the citizen's employer no longer exists.
-- Workplace Gone – the workplace building no longer exists.
-- Working Elsewhere – the citizen is marked as working or going to work, but is currently inside a different building than their assigned workplace. This may indicate a stuck worker state.
-
+- Fixed a vanilla issue where workers could get stuck inside the building of their previous workplace after searching for a new job while going to work. Employed citizens now seek a new job only while idle.
+- Fixed an editing issue in the milestone settings text field.
+- Added job-level and education-level icons to the Workers tab; see screenshot.
+		
 **Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
 
 In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
@@ -52,7 +46,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.9" />
+	<ModVersion Value="1.4.10" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -62,15 +56,9 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Expanded the Workers tab with worker status indicator icons:
-
-- Working – currently at their workplace.
-- Not Working – currently not working.
-- Day Off – has a scheduled day off.
-- Going to Work – currently travelling to work.
-- Employer Gone – the citizen's employer no longer exists.
-- Workplace Gone – the workplace building no longer exists.
-- Working Elsewhere – the citizen is marked as working or going to work, but is currently inside a different building than their assigned workplace. This may indicate a stuck worker state.
+- Fixed a vanilla issue where workers could get stuck inside the building of their previous workplace after searching for a new job while going to work. Employed citizens now seek a new job only while idle.
+- Fixed an editing issue in the milestone settings text field.
+- Added job-level and education-level icons to the Workers tab; see screenshot.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
