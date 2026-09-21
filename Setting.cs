@@ -52,6 +52,9 @@ namespace BitulaMod
         public bool FullTrafficSimulation { get; set; } = false;
 
         [SettingsUISection("JobSeeking")]
+        public bool ProgressiveTrafficSimulation { get; set; } = true;
+
+        [SettingsUISection("JobSeeking")]
         public bool ReducedDaysOff { get; set; } = true;
 
         [SettingsUISection("JobSeeking")]
@@ -74,6 +77,7 @@ namespace BitulaMod
             AcceptJobSwitch = true;
             ReducedDaysOff = true;
             FullTrafficSimulation = false;
+            ProgressiveTrafficSimulation = true;
             WorkplacePromotion = true;
         }
     }
@@ -106,9 +110,11 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_CloserJobEmployed"] = 1;
             return new Dictionary<string, string>
             {
+                { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
-                { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Gradually reintroduces the game's traffic reduction as the city grows. Small cities begin with no traffic reduction, allowing all simulated traffic to appear normally. At each configured population milestone, an additional percentage of the vanilla traffic reduction is restored according to the Job Seeker Failure Increment setting, until the original vanilla value is reached. Unlike Full Traffic Simulation, which keeps traffic reduction completely disabled regardless of population, this option progressively returns traffic simulation toward vanilla behavior as the city becomes larger." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Job-seeker population milestone" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population interval at which the job-application failure chance increases." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Failure chance increment" },

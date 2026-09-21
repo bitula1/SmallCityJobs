@@ -28,3 +28,12 @@
     width: 24rem;
     height: 24rem;
 }
+
+.worker-satisfaction-level-icon {
+    position: absolute;
+    right: 93rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}

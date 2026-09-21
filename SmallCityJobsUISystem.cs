@@ -93,7 +93,6 @@ namespace BitulaMod {
             if (m_Renters.TryGetBuffer(
                     selectedEntity,
                     out DynamicBuffer<Renter> renters)) {
-                Mod.log.Info($"Selected building has {renters.Length} renters");
                 for (int i = 0; i < renters.Length; i++) {
                     Entity renter = renters[i].m_Renter;
 

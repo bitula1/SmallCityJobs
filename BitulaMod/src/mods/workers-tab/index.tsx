@@ -21,8 +21,21 @@ import poorlyEducatedIcon from "./icons/education-poorly-educated.svg";
 import educatedIcon from "./icons/education-educated.svg";
 import wellEducatedIcon from "./icons/education-well-educated.svg";
 import highlyEducatedIcon from "./icons/education-highly-educated.svg";
+import satisfaction0Icon from "./icons/satisfaction-0.svg";
+import satisfactionMinus1Icon from "./icons/satisfaction-minus1.svg";
+import satisfactionMinus2Icon from "./icons/satisfaction-minus2.svg";
+import satisfactionMinus3Icon from "./icons/satisfaction-minus3.svg";
+import satisfactionMinus4Icon from "./icons/satisfaction-minus4.svg";
 
 import "./WorkersTab.css";
+
+enum JobSatisfactionLevel {
+    Matching = 0,
+    Minus1 = -1,
+    Minus2 = -2,
+    Minus3 = -3,
+    Minus4 = -4
+}
 
 enum EducationLevel {
     Uneducated = 0,
@@ -76,6 +89,14 @@ const educationLevelIcons: Partial<Record<EducationLevel, string>> = {
     [EducationLevel.Educated]: educatedIcon,
     [EducationLevel.WellEducated]: wellEducatedIcon,
     [EducationLevel.HighlyEducated]: highlyEducatedIcon,
+};
+
+const jobSatisfactionLevelIcons: Partial<Record<JobSatisfactionLevel, string>> = {
+    [JobSatisfactionLevel.Matching]: satisfaction0Icon,
+    [JobSatisfactionLevel.Minus1]: satisfactionMinus1Icon,
+    [JobSatisfactionLevel.Minus2]: satisfactionMinus2Icon,
+    [JobSatisfactionLevel.Minus3]: satisfactionMinus3Icon,
+    [JobSatisfactionLevel.Minus4]: satisfactionMinus4Icon,
 };
 
 type Entity = {
@@ -161,6 +182,13 @@ const WorkerRow = ({ worker }: { worker: Worker }) => {
             <img
                 src={educationLevelIcons[worker.educationLevel]}
                 className="worker-education-level-icon"
+            />
+
+            <img
+                src={jobSatisfactionLevelIcons[
+                    (worker.jobLevel - worker.educationLevel) as JobSatisfactionLevel
+                ]}
+                className="worker-satisfaction-level-icon"
             />
         </div>
     );

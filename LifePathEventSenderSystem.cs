@@ -100,9 +100,6 @@ namespace BitulaMod
                 SendCitizenEvent(cevent);
             }
 
-            if (count > 1)
-                log.Info($"LifePath sender drained {count} event(s)");
-
             m_ProducerDependency = default;
         }
 

@@ -11,10 +11,10 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Fixed a vanilla issue where workers could get stuck inside the building of their previous workplace after searching for a new job while going to work. Employed citizens now seek a new job only while idle.
-- Fixed an editing issue in the milestone settings text field.
-- Added job-level and education-level icons to the Workers tab; see screenshot.
-		
+- Added Progressive Traffic Simulation, which gradually restores vanilla traffic reduction as the city grows.
+- Full Traffic Simulation and Progressive Traffic Simulation can now be changed from the in-game options.
+- Added a job satisfaction icon based on the worker's job and education levels.
+
 **Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
 
 In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
@@ -46,7 +46,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.10" />
+	<ModVersion Value="1.4.11" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -56,9 +56,9 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Fixed a vanilla issue where workers could get stuck inside the building of their previous workplace after searching for a new job while going to work. Employed citizens now seek a new job only while idle.
-- Fixed an editing issue in the milestone settings text field.
-- Added job-level and education-level icons to the Workers tab; see screenshot.
+- Added Progressive Traffic Simulation, which gradually restores vanilla traffic reduction as the city grows.
+- Full Traffic Simulation and Progressive Traffic Simulation can now be changed from the in-game options.
+- Added a job satisfaction icon based on the worker's job and education levels.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

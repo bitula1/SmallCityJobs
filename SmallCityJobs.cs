@@ -117,6 +117,12 @@ namespace BitulaMod
             };
         }
 
+        public static int GetAppliedPercentage( int population, int milestone, int increment) {
+            int passedMilestones = math.max(0, population - 1) / milestone;
+
+            return math.min(100, passedMilestones * increment);
+        }
+
         public int GetFreeWorkplaces(int level) {
             return m_Workplaces[level];
         }
