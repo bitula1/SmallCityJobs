@@ -3,7 +3,7 @@ import { getModule } from "cs2/modding";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { bindValue, useValue } from "cs2/api";
-import { setWorkersTabSelected, subscribeWorkersTab, isWorkersTabSelected } from "mods/workers-tab/state";
+import { setWorkersTabSelected, subscribeWorkersTab, isWorkersTabSelected, selectCustomTab } from "mods/common/state";
 import workingIcon from "./icons/working.svg";
 import notWorkingIcon from "./icons/not-working.svg";
 import dayOffIcon from "./icons/day-off.svg";
@@ -26,6 +26,7 @@ import satisfactionMinus1Icon from "./icons/satisfaction-minus1.svg";
 import satisfactionMinus2Icon from "./icons/satisfaction-minus2.svg";
 import satisfactionMinus3Icon from "./icons/satisfaction-minus3.svg";
 import satisfactionMinus4Icon from "./icons/satisfaction-minus4.svg";
+import workersIcon from "./icons/workers-group.svg";
 
 import "./WorkersTab.css";
 
@@ -259,11 +260,11 @@ export const WorkersTab = (componentList: any): any => {
                         id={2}
                         selectedId={workersSelected ? 2 : 0}
                         onSelect={() => {
-                            setWorkersTabSelected(true);
+                            selectCustomTab("workers");
                         }}
                     >
                         <TintedIcon
-                            src="Media/Game/Icons/Citizen.svg"
+                            src={workersIcon}
                             className={panelStyles.tabIcon}
                         />
                     </Tab>,

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Rear tragedy mask -->
+  <path fill="#62C96B" d="M12.1 6.1c2.8 1.1 5.5 1 8-.1.5-.2 1 .1 1.1.7.4 3.4-.3 7.8-2.6 10.8-1.8 2.3-4.6 2.1-6.4-.5-1.7-2.5-2.4-6.4-1.7-9.8.1-.7.8-1.4 1.6-1.1z"/>
+  <!-- Larger tragedy eyes -->
+  <ellipse cx="14.3" cy="10.7" rx="1.15" ry="0.85" fill="#FFFFFF"/>
+  <ellipse cx="18.35" cy="10.75" rx="1.15" ry="0.85" fill="#FFFFFF"/>
+  <!-- Larger tragedy mouth -->
+  <path d="M13.8 16.05c1.35-1.75 3.65-1.85 5.05.05"
+        fill="none" stroke="#FFFFFF" stroke-width="1.75" stroke-linecap="round"/>
+
+  <!-- Front comedy mask -->
+  <path fill="#62C96B" d="M3.1 3.8c3 1.2 6.3 1.2 9.5-.5.6-.3 1.2 0 1.4.6 1.2 4.6.9 10.4-2.5 13.5-2.7 2.4-6.1 1.1-7.6-2.2C2.4 11.9 1.9 7.4 2 5c0-.8.5-1.5 1.1-1.2z"/>
+  <!-- Larger comedy eyes -->
+  <ellipse cx="5.95" cy="8.25" rx="1.25" ry="0.9" fill="#FFFFFF"/>
+  <ellipse cx="10.55" cy="8.2" rx="1.25" ry="0.9" fill="#FFFFFF"/>
+  <!-- Larger comedy mouth -->
+  <path d="M5.15 11.55c1.5 2.65 4.7 3.15 7.1.25"
+        fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/>
+</svg>

@@ -3,10 +3,17 @@ import { getModule } from "cs2/modding";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { bindValue, useValue } from "cs2/api";
-import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected } from "mods/workers-tab/state";
-
-
+import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected, selectCustomTab } from "mods/common/state";
+import customersIcon from "./icons/customers-group.svg";
+import leisuringIcon from "./icons/leisuring.svg";
+import goingToLeisureIcon from "./icons/going-to-leisure.svg";
 import "./CustomersTab.css";
+
+enum CustomerStatus {
+    None = 0,
+    Leisuring = 1,
+    GoingToLeisure = 2
+}
 
 type Entity = {
     index: number;
@@ -17,6 +24,7 @@ type Entity = {
 type Customer = {
     entity: Entity;
     name: any;
+    status: CustomerStatus;
 };
 
 const customers$ = bindValue<Customer[]>(
@@ -55,6 +63,10 @@ const useLocalizedName: any = getModule(
     "useLocalizedName"
 );
 
+const statusIcons: Partial<Record<CustomerStatus, string>> = {
+    [CustomerStatus.Leisuring]: leisuringIcon,
+    [CustomerStatus.GoingToLeisure]: goingToLeisureIcon
+};
 
 export const ACTIONS_SECTION = selectedInfo.SectionType.Actions;
 
@@ -73,7 +85,12 @@ const CustomerRow = ({ customer }: { customer: Customer }) => {
 
             <div className={householdStyles.itemLabel}>
                 {name}
-            </div>            
+            </div>   
+
+            <img
+                src={statusIcons[customer.status]}
+                className="customer-status-icon"
+            />
         </div>
     );
 };
@@ -93,7 +110,7 @@ export const CustomersPanel = () => {
     );
 };
 
-export const WorkersTab = (componentList: any): any => {
+export const CustomersTab = (componentList: any): any => {
     
 
     const VanillaActionsSection =
@@ -140,14 +157,14 @@ export const WorkersTab = (componentList: any): any => {
 
                 {showCustomersTab && tabBar && createPortal(
                     <Tab
-                        id={2}
-                        selectedId={customersSelected ? 2 : 0}
+                        id={3}
+                        selectedId={customersSelected ? 3 : 0}
                         onSelect={() => {
-                            setCustomersTabSelected(true);
+                            selectCustomTab("customers");
                         }}
                     >
                         <TintedIcon
-                            src="Media/Game/Icons/Citizen.svg"
+                            src={customersIcon}
                             className={panelStyles.tabIcon}
                         />
                     </Tab>,

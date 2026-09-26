@@ -31,4 +31,17 @@ export const subscribeCustomersTab = (listener: (selected: boolean) => void) => 
     };
 };
 
-export const isCustomersTabSelected = () => workersSelectedGlobal;
+export const isCustomersTabSelected = () => customersSelectedGlobal;
+
+export type CustomTab = "workers" | "customers" | null;
+
+export const selectCustomTab = (tab: CustomTab) => {
+    const workersSelected = tab === "workers";
+    const customersSelected = tab === "customers";
+
+    workersSelectedGlobal = workersSelected;
+    customersSelectedGlobal = customersSelected;
+
+    workersTabListeners.forEach(listener => listener(workersSelected));
+    customersTabListeners.forEach(listener => listener(customersSelected));
+};

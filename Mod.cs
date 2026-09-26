@@ -46,6 +46,7 @@ namespace BitulaMod
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityJobsUISystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<SmallCityLeisureUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
