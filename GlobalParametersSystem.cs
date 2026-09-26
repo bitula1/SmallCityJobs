@@ -12,7 +12,6 @@ namespace BitulaMod {
     
     public partial class GlobalParametersSystem : GameSystemBase {
         private EntityQuery m_EconomyParameterQuery;
-        private bool m_PreviousFullTrafficSimulation;
         private float m_VanillaTrafficReduction;
         private bool m_VanillaTrafficReductionCaptured;
         private EntityQuery m_PopulationQuery;

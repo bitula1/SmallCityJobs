@@ -11,29 +11,39 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Added Progressive Traffic Simulation, which gradually restores vanilla traffic reduction as the city grows.
-- Full Traffic Simulation and Progressive Traffic Simulation can now be changed from the in-game options.
-- Added a job satisfaction icon based on the worker's job and education levels.
+- Added Normal Leisure setting, making citizens visit leisure locations such as parks and cinemas at a more realistic frequency. The vanilla leisure chance is very low, which can leave smaller cities feeling lifeless.
+- Added new Life Path messages for leisure behavior. Some are flavor messages with 3 random variants.
+- Added followed-citizen messages when a citizen decides to go out for leisure or decides not to.
+- Added messages explaining when no suitable city park can be found.
+- Added messages explaining when no suitable leisure provider is available.
+- Added a dedicated message when a citizen wants a meal but cannot find a suitable place.
+- Added a message when the desired leisure service exists but is currently full or unavailable.
+- Added a message showing the actual place a citizen found and decided to visit.
+- Added messages explaining when no suitable indoor leisure destination can be found.
+- Fixed a vanilla bug where citizens could be routed to ghost companies for leisure.
+- Changed main text
 
-**Small City Jobs** is designed to make employment behave more naturally in small towns and villages.
+Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
 In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
 
-The goal of this mod is not to replace the vanilla employment system, but to make it scale better with city size.
+The goal of this mod is not to replace the vanilla simulation, but to make some of its systems scale better with city size.
 
 In smaller cities, citizens are more willing to take available jobs, accept reasonable alternatives, and look for better employment opportunities. The mod also reduces situations where adults leave employment or choose studying simply because the local job market is small, including cases where they would otherwise travel outside the city to study despite suitable work being available.
 
-As the population grows, these adjustments gradually fade and the game returns toward its original behaviour.
+As the population grows, these employment adjustments gradually fade and the game returns toward its original behaviour.
 
-The mod also adds **UI and life-path improvements** intended to make employment-related behaviour easier to understand. Their purpose is to expose more of what citizens are doing and why, making it easier to follow individual citizens and understand the effects of the employment simulation.
+The mod also improves leisure behaviour. In the vanilla game, the chance for citizens to seek leisure can be very low, which is especially noticeable in smaller cities where parks, cinemas and other leisure locations may remain unusually empty. The optional Normal Leisure setting makes citizens seek leisure at a more natural frequency while preserving the existing leisure system and provider requirements.
 
-The overall aim is to make villages and small towns function more naturally without making employment artificially easy in larger cities.
+The mod adds UI and Life Path improvements for both employment and leisure. These expose more of what citizens are doing and why, including job decisions, leisure choices, failed searches, unavailable services, and the locations citizens decide to visit.
 
-The transition can be configured in the game options, allowing the player to decide how quickly vanilla behaviour should be restored.
+The overall aim is to make villages and small towns feel more active and believable without making employment artificially easy or replacing the game's existing simulation in larger cities.
 
-**Detailed mechanics, settings and individual changes are documented in the forum discussion.**
+The progression of the employment changes and the Normal Leisure behaviour can be configured in the game options.
+		
+Several vanilla issues are also addressed, some I also posted in official bugfix forum.
 
-Please report bugs and leave feedback in the discussion section/forum. Updated screenshots.
+Detailed mechanics, settings and individual changes are documented in the forum discussion.
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/smalljob.png" />
@@ -46,7 +56,7 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.11" />
+	<ModVersion Value="1.4.12" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -56,9 +66,17 @@ Please report bugs and leave feedback in the discussion section/forum. Updated s
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Added Progressive Traffic Simulation, which gradually restores vanilla traffic reduction as the city grows.
-- Full Traffic Simulation and Progressive Traffic Simulation can now be changed from the in-game options.
-- Added a job satisfaction icon based on the worker's job and education levels.
+- Added Normal Leisure setting, making citizens visit leisure locations such as parks and cinemas at a more realistic frequency. The vanilla leisure chance is very low, which can leave smaller cities feeling lifeless.
+- Added new Life Path messages for leisure behavior. Some are flavor messages with 3 random variants.
+- Added followed-citizen messages when a citizen decides to go out for leisure or decides not to.
+- Added messages explaining when no suitable city park can be found.
+- Added messages explaining when no suitable leisure provider is available.
+- Added a dedicated message when a citizen wants a meal but cannot find a suitable place.
+- Added a message when the desired leisure service exists but is currently full or unavailable.
+- Added a message showing the actual place a citizen found and decided to visit.
+- Added messages explaining when no suitable indoor leisure destination can be found.
+- Fixed a vanilla bug where citizens could be routed to ghost companies for leisure.
+- Changed main text
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

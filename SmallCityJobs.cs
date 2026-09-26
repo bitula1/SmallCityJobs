@@ -17,7 +17,17 @@ using Game.Agents;
 
 namespace BitulaMod
 {
-    
+    public struct DesiredLeisureTypeComponent : IComponentData {
+        public LeisureType m_Type;
+    }
+    public struct DesiredProviderFound : IComponentData {
+        public bool m_Value;
+    }
+
+    public struct AvailableProviderFound : IComponentData {
+        public bool m_Value;
+    }
+
     public struct SmallCityJobs
     {
         private const int VanillaWorkspaceThreshold = 100;
@@ -33,13 +43,12 @@ namespace BitulaMod
         private bool m_PromoteJob;
         private bool m_AcceptCloserJobsEmployed;
         private bool m_AcceptCloserJobsUnemployed;
+        private bool m_NormalLeisure;
         private Unity.Mathematics.Random m_Random;
-        private Entity m_City;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
         private Workplaces m_Workplaces;
         private CustomEventType m_WatchedEvent;
-        private ComponentLookup<Population> m_Population;
         private ComponentLookup<Followed> m_Followed;
         private ComponentLookup<Building> m_Buildings;
         private ComponentLookup<CompanyData> m_CompanyDatas;
@@ -51,6 +60,9 @@ namespace BitulaMod
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
         private ComponentLookup<SmallCityJobsComponent> m_SmallCitySearch;
         private ComponentLookup<TravelPurpose> m_TravelPurposes;
+        private ComponentLookup<DesiredLeisureTypeComponent> m_DesiredLeisureTypes;
+        public ComponentLookup<DesiredProviderFound> m_DesiredProviderFound;
+        public ComponentLookup<AvailableProviderFound> m_AvailableProviderFound;
 
 
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
@@ -86,9 +98,7 @@ namespace BitulaMod
                 m_Citizen = default,
                 m_Phase = SmallCityJobsPhase.None,
                 m_UseSmallCityBehaviour = false,
-                m_Population = state.GetComponentLookup<Population>(true),
                 m_Followed = state.GetComponentLookup<Followed>(true),
-                m_City = cityQuery.GetSingletonEntity(),
                 m_Buildings = state.GetComponentLookup<Building>(true),
                 m_CompanyDatas = state.GetComponentLookup<CompanyData>(true),
                 m_Workers = state.GetComponentLookup<Worker>(true),
@@ -99,6 +109,9 @@ namespace BitulaMod
                 m_FreeWorkplaces = state.GetComponentLookup<FreeWorkplaces>(true),
                 m_SmallCitySearch = state.GetComponentLookup<SmallCityJobsComponent>(true),
                 m_TravelPurposes = state.GetComponentLookup<TravelPurpose>(true),
+                m_DesiredLeisureTypes = state.GetComponentLookup<DesiredLeisureTypeComponent>(true),
+                m_DesiredProviderFound = state.GetComponentLookup<DesiredProviderFound>(true),
+                m_AvailableProviderFound = state.GetComponentLookup<AvailableProviderFound>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
                 m_Random = new Unity.Mathematics.Random(smallCityJobsSeed),
@@ -111,6 +124,8 @@ namespace BitulaMod
                 m_PromoteJob = Mod.Settings.WorkplacePromotion,
                 m_AcceptCloserJobsEmployed = Mod.Settings.CloserJobEmployed,
                 m_AcceptCloserJobsUnemployed = Mod.Settings.CloserJobUnemployed,
+                m_NormalLeisure = Mod.Settings.NormalLeisure,
+
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
                 m_Workplaces = localFreeWorkplaces,
                 m_CommandBuffer = commandBuffer.GetValueOrDefault()
@@ -147,14 +162,15 @@ namespace BitulaMod
             m_Parameters.Append(parameter);
         }
 
-        public void Send(Entity citizen, CustomEventType eventType) {
+        public void Send(Entity citizen, CustomEventType eventType, Entity? target = null) {
             if (IsFollowed(citizen)) {
                 m_CustomEventQueue.Enqueue(new CustomEvent {
                     m_Citizen = citizen,
                     m_EventType = eventType,
                     m_Param = m_Parameters,
                     m_Hint = this.m_Hint,
-                    m_WatchedEventType = m_WatchedEvent
+                    m_WatchedEventType = m_WatchedEvent,
+                    m_Target = target ?? Entity.Null,
                 });
             }
 
@@ -218,34 +234,32 @@ namespace BitulaMod
             return failed;
         }
 
-        private int GetProgression() {
-            int population = m_Population[m_City].m_Population;
-            int passedMilestones = math.max(0, population - 1)
-                / m_JobSeekerMilestone;
+        public static int GetProgression(int population) {
+            int passedMilestones = math.max(0, population - 1) / Mod.Settings.JobSeekerMilestone;
 
-            return math.min(100, passedMilestones * m_JobSeekerFailureIncrement);
+            return math.min(100, passedMilestones * Mod.Settings.JobSeekerFailureIncrement);
         }
 
         public bool init(Entity citizen, SmallCityJobsPhase phase) {
-            
+
             if (!m_SmallCitySearch.HasComponent(citizen)) {
                 return false;
-            } else if (phase == SmallCityJobsPhase.LookingForJob && (m_Citizen == Entity.Null || m_Citizen != citizen)) {
-                bool rnd = m_Random.NextInt(100) >= GetProgression();
-                SmallCityJobsComponent cmp = m_SmallCitySearch[citizen];
+            }
+
+            SmallCityJobsComponent cmp = m_SmallCitySearch[citizen];
+            m_UseSmallCityBehaviour = cmp.m_UseSmallCityBehaviour;
+
+            if (phase == SmallCityJobsPhase.LookingForJob &&  (m_Citizen == Entity.Null || m_Citizen != citizen)) {
                 cmp.m_phase = phase;
-                cmp.m_UseSmallCityBehaviour = rnd;
-                m_UseSmallCityBehaviour = rnd;
                 cmp.m_FoundCloserJob = false;
                 cmp.m_FoundHigherJob = false;
                 m_CommandBuffer.SetComponent(citizen.Index, citizen, cmp);
-            } else if (phase != SmallCityJobsPhase.LookingForJob) {
-                m_UseSmallCityBehaviour = m_SmallCitySearch[citizen].m_UseSmallCityBehaviour;
             }
-            m_Phase = phase;            
-            m_Citizen = citizen;
-            return true;
 
+            m_Phase = phase;
+            m_Citizen = citizen;
+
+            return true;
         }
 
         public bool UseSmallCityBehavior(Entity citizen) {                        
@@ -544,6 +558,128 @@ namespace BitulaMod
                     return;
                 }
             }
+        }
+
+        public int GetLeisureChance(Entity citizen) {
+            Citizen citizenData = m_Citizens[citizen];
+            return Unity.Mathematics.Random.CreateFromIndex(
+                (uint)((int)citizenData.m_PseudoRandom + 10000)
+            ).NextInt(5, 46);
+        }
+
+        public bool DoLeisure(Entity citizen, uint simulationFrame) {
+            if (!UseSmallCityBehavior(citizen) || !m_NormalLeisure)
+                return false;
+
+            Citizen citizenData = m_Citizens[citizen];
+            int chance = GetLeisureChance(citizen);
+            uint period = simulationFrame / CitizenBehaviorSystem.kLeisureSeekerCooldownFrames;
+            int roll = Unity.Mathematics.Random.CreateFromIndex(
+                (uint)citizenData.m_PseudoRandom + 20000u + period
+            ).NextInt(100);
+            bool result = roll < chance;
+            if (result)
+                Send(citizen, CustomEventType.DoLeisure);
+            else
+                Send(citizen, CustomEventType.WantNoLeisure);
+            return result;
+        }
+
+        public void PrintLeisureIssue(Entity citizen, LeisureType desired) {
+            if (desired == LeisureType.Count)
+                return;
+
+            if (GetDesiredProviderFound(citizen) &&
+                !GetAvailableProviderFound(citizen)) {
+                Send(citizen, CustomEventType.ServiceFull);
+                return;
+            }
+
+            switch (desired) {
+                case LeisureType.Meals:
+                    Send(citizen, CustomEventType.NoMeals);
+                    break;
+
+                case LeisureType.CityPark:
+                    Send(citizen, CustomEventType.NoCityPark);
+                    break;
+
+                case LeisureType.CityIndoors:
+                    Send(citizen, CustomEventType.NoCityIndoors);
+                    break;
+
+                default:
+                    Send(citizen, CustomEventType.NoLeisureProvider);
+                    break;
+            }
+        }
+
+        public void SetDesiredLeisureType(Entity citizen, LeisureType leisureType) {
+            DesiredLeisureTypeComponent component = new DesiredLeisureTypeComponent {
+                m_Type = leisureType
+            };
+
+            if (m_DesiredLeisureTypes.HasComponent(citizen))
+                m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
+            else
+                m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+        }
+
+        public LeisureType GetDesiredLeisureType(Entity citizen) {
+            if (!m_DesiredLeisureTypes.HasComponent(citizen))
+                return LeisureType.Count;
+
+            return m_DesiredLeisureTypes[citizen].m_Type;
+        }
+
+        public void SetDesiredProviderFound(Entity citizen) {
+            m_CommandBuffer.SetComponent(
+                citizen.Index,
+                citizen,
+                new DesiredProviderFound {
+                    m_Value = true
+                });
+        }
+
+        public void SetAvailableProviderFound(Entity citizen) {
+            m_CommandBuffer.SetComponent(
+                citizen.Index,
+                citizen,
+                new AvailableProviderFound {
+                    m_Value = true
+                });
+        }
+
+        public void CreateDesiredProviderFound(Entity citizen) {
+            DesiredProviderFound component = new DesiredProviderFound {
+                m_Value = false
+            };
+
+            if (m_DesiredProviderFound.HasComponent(citizen))
+                m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
+            else
+                m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+        }
+
+        public void CreateAvailableProviderFound(Entity citizen) {
+            AvailableProviderFound component = new AvailableProviderFound {
+                m_Value = false
+            };
+
+            if (m_AvailableProviderFound.HasComponent(citizen))
+                m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
+            else
+                m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+        }
+
+        public bool GetDesiredProviderFound(Entity citizen) {
+            return m_DesiredProviderFound.HasComponent(citizen) &&
+                   m_DesiredProviderFound[citizen].m_Value;
+        }
+
+        public bool GetAvailableProviderFound(Entity citizen) {
+            return m_AvailableProviderFound.HasComponent(citizen) &&
+                   m_AvailableProviderFound[citizen].m_Value;
         }
 
 

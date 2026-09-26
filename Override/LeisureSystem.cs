@@ -160,7 +160,7 @@ namespace BitulaMod
 			leisureJob.m_LeisureQueue = this.m_LeisureQueue.AsParallelWriter();
 			leisureJob.m_TimeData = this.m_TimeDataQuery.GetSingleton<TimeData>();
 			leisureJob.m_PopulationEntity = this.m_PopulationQuery.GetSingletonEntity();
-            leisureJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
+            leisureJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, leisureJob.m_CommandBuffer);
             JobHandle jobHandle4 = leisureJob.ScheduleParallel(this.m_LeisureQuery, JobUtils.CombineDependencies(base.Dependency, jobHandle2, jobHandle3, jobHandle));
             SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle4);
             this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle4);
@@ -525,7 +525,8 @@ namespace BitulaMod
 									}
 									leisure.m_TargetAgent = destination;
 									nativeArray2[i] = leisure;
-									dynamicBuffer.Add(new TripNeeded
+                                    m_SmallCityJobs.Send(entity, CustomEventType.FoundLeisureAt, destination);
+                                    dynamicBuffer.Add(new TripNeeded
 									{
 										m_TargetAgent = destination,
 										m_Purpose = Purpose.Leisure,
@@ -549,7 +550,11 @@ namespace BitulaMod
 							}
 							else if (!this.m_Targets.HasComponent(entity))
 							{
-								if (this.m_Purposes.HasComponent(entity) && (this.m_Purposes[entity].m_Purpose == Purpose.Leisure || this.m_Purposes[entity].m_Purpose == Purpose.Traveling))
+                                LeisureType desired = m_SmallCityJobs.GetDesiredLeisureType(entity);
+                                //m_SmallCityJobs.AddParameter($"Leisure type={(int)desired}");
+                                //m_SmallCityJobs.Send(entity, CustomEventType.DebugMessage);								
+                                m_SmallCityJobs.PrintLeisureIssue(entity, desired);
+                                if (this.m_Purposes.HasComponent(entity) && (this.m_Purposes[entity].m_Purpose == Purpose.Leisure || this.m_Purposes[entity].m_Purpose == Purpose.Traveling))
 								{
 									this.m_CommandBuffer.RemoveComponent<TravelPurpose>(unfilteredChunkIndex, entity);
 								}
@@ -762,7 +767,10 @@ namespace BitulaMod
 					});
 					return;
 				}
-				this.m_CommandBuffer.AddComponent(chunkIndex, citizen, in this.m_PathfindTypes);
+                m_SmallCityJobs.SetDesiredLeisureType(citizen, leisureType);
+                m_SmallCityJobs.CreateDesiredProviderFound(citizen);
+                m_SmallCityJobs.CreateAvailableProviderFound(citizen);
+                this.m_CommandBuffer.AddComponent(chunkIndex, citizen, in this.m_PathfindTypes);
 				this.m_CommandBuffer.SetComponent<PathInformation>(chunkIndex, citizen, new PathInformation
 				{
 					m_State = PathFlags.Pending

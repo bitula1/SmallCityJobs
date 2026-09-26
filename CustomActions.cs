@@ -21,6 +21,14 @@ namespace BitulaMod
         FoundCloserJob = 110,
         PromotedJob = 111,
         NoSuitableSwitch = 112,
+        DoLeisure = 113,
+        WantNoLeisure = 114,
+        NoCityPark = 115,
+        NoLeisureProvider = 116,
+        NoMeals = 117,
+        ServiceFull = 118,
+        FoundLeisureAt = 119,
+        NoCityIndoors = 120,
         DebugMessage = 200,
     }
 }

@@ -39,7 +39,6 @@ namespace BitulaMod {
         private NameSystem m_NameSystem;
         private SimulationSystem m_SimulationSystem;
         private WorkShiftUISystem m_WorkShiftUISystem;
-        private SmallCityJobs m_SmallCityJobs;
         private EntityQuery m_TimeQuery;
         private TimeData m_TimeData;
 

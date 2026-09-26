@@ -15,5 +15,6 @@ namespace BitulaMod {
         public CustomEventType m_WatchedEventType;
         public FixedString64Bytes m_Param;
         public byte m_Hint;
+        public Entity m_Target;
     }
 }

@@ -1,7 +1,9 @@
 
 let workersSelectedGlobal = false;
+let customersSelectedGlobal = false;
 
 const workersTabListeners = new Set<(selected: boolean) => void>();
+const customersTabListeners = new Set<(selected: boolean) => void>();
 
 export const setWorkersTabSelected = (selected: boolean) => {
     workersSelectedGlobal = selected;
@@ -17,11 +19,16 @@ export const subscribeWorkersTab = (listener: (selected: boolean) => void) => {
 
 export const isWorkersTabSelected = () => workersSelectedGlobal;
 
-/*export const WORKER_BUILDING_PREFIXES = [
-    "BuildingPrefab:IndustrialManufacturing",
-    "BuildingPrefab:IndustrialAgricultureHub",
-    "BuildingPrefab:IndustrialAquacultureLandHub",
-    "BuildingPrefab:IndustrialForestryHub",
-    "BuildingPrefab:IndustrialOreHub",
-    "BuildingPrefab: EU_CommercialLow"
-];*/
+export const setCustomersTabSelected = (selected: boolean) => {
+    customersSelectedGlobal = selected;
+    customersTabListeners.forEach(listener => listener(selected));
+};
+
+export const subscribeCustomersTab = (listener: (selected: boolean) => void) => {
+    customersTabListeners.add(listener);
+    return () => {
+        customersTabListeners.delete(listener);
+    };
+};
+
+export const isCustomersTabSelected = () => workersSelectedGlobal;

@@ -66,6 +66,9 @@ namespace BitulaMod
         [SettingsUISection("JobSeeking")]
         public bool CloserJobUnemployed { get; set; } = true;
 
+        [SettingsUISection("JobSeeking")]
+        public bool NormalLeisure { get; set; } = true;
+
 
 
         public override void SetDefaults()
@@ -79,6 +82,7 @@ namespace BitulaMod
             FullTrafficSimulation = false;
             ProgressiveTrafficSimulation = true;
             WorkplacePromotion = true;
+            NormalLeisure = true;
         }
     }
 
@@ -108,6 +112,14 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_PromotedJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CloserJobUnemployed"] = 1;
             indexCounts["BitulaMod.LIFEPATH_CloserJobEmployed"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_DoLeisure"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_WantNoLeisure"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_NoLeisureProvider"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_NoCityPark"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_NoMeals"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_NoCityIndoors"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_ServiceFull"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_FoundLeisureAt"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -133,6 +145,8 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobUnemployed)), "Allows unemployed citizens to choose the closest suitable available job." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobEmployed)), "Employed switch to closer job" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobEmployed)), "Allows employed citizens to switch to a suitable job that is closer to home than their current job." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisure)), "Normal Leisure" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisure)), "Gives citizens a more realistic individual chance to choose leisure activities during their free time." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
@@ -151,6 +165,21 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_NoSuitableSwitch:0", "There are other suitable positions available, but none would be a better or closer job." },
                 { "BitulaMod.LIFEPATH_FoundCloserJob:0", "I found a job closer to home than my current workplace." },
                 { "BitulaMod.LIFEPATH_PromotedJob:0", "I was promoted to a better position at my workplace." },
+                { "BitulaMod.LIFEPATH_DoLeisure:0", "I felt like spending some time on leisure." },
+                { "BitulaMod.LIFEPATH_WantNoLeisure:0", "I didn't feel like spending my free time on leisure." },
+                { "BitulaMod.LIFEPATH_NoCityPark:0", "I wanted to get some fresh air in a park, but there wasn't one nearby." },
+                { "BitulaMod.LIFEPATH_NoCityPark:1", "I felt like taking a walk through a park, but I couldn't find one." },
+                { "BitulaMod.LIFEPATH_NoCityPark:2", "A quiet park would have been nice, but there wasn't anywhere suitable to go." },
+                { "BitulaMod.LIFEPATH_NoLeisureProvider:0", "I wanted to do something for leisure, but I couldn't find a suitable place." },
+                { "BitulaMod.LIFEPATH_NoMeals:0", "I was craving a proper meal, but nowhere nearby had anything for me." },
+                { "BitulaMod.LIFEPATH_NoMeals:1", "I went out hoping to grab a bite, but I couldn't find anywhere to eat." },
+                { "BitulaMod.LIFEPATH_NoMeals:2", "My stomach had plans, but apparently the city didn't." },
+                { "BitulaMod.LIFEPATH_NoCityIndoors:0", "I was hoping for some culture or recreation, but nothing caught my interest." },
+                { "BitulaMod.LIFEPATH_NoCityIndoors:1", "I felt like doing something cultural or active, but there wasn't much on offer." },
+                { "BitulaMod.LIFEPATH_NoCityIndoors:2", "I was looking for somewhere to enjoy some culture, sport or recreation, but came up empty." },
+                { "BitulaMod.LIFEPATH_ServiceFull:0", "I found a place I wanted to visit, but it was already full." },
+                { "BitulaMod.LIFEPATH_FoundLeisureAt:0", "I found a place I wanted to visit. Let's go to {LINK_1}." },
+
 
             };
         }

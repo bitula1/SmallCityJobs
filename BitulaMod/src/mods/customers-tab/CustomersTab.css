@@ -1,0 +1,39 @@
+.worker-row {
+    position: relative;
+}
+
+.worker-status-icon {
+    width: 24rem;
+    height: 24rem;
+    position: absolute;
+    right: 12rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.worker-job-level-icon {
+    position: absolute;
+    right: 39rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.worker-education-level-icon {
+    position: absolute;
+    right: 66rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.worker-satisfaction-level-icon {
+    position: absolute;
+    right: 93rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}

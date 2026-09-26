@@ -10,6 +10,7 @@ namespace BitulaMod {
         LookingForJob,
         FindJob,
         SetupPath,
-        StartWorking
+        StartWorking,
+        StartLeisure
     }
 }

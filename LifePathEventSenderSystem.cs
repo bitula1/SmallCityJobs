@@ -1,6 +1,7 @@
 ﻿using Colossal.Localization;
 using Colossal.Logging;
 using Game;
+using Game.Buildings;
 using Game.Prefabs;
 using Game.SceneFlow;
 using Game.Triggers;
@@ -19,6 +20,7 @@ namespace BitulaMod
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Dictionary<CustomEventType, TriggerPrefab> m_EventPrefabs;
         private PrefabSystem m_PrefabSystem;
+        private CreateChirpSystem m_CreateChirpSystem;
         private LifePathEventSystem m_LifePathEventSystem;
         private NativeQueue<CustomEvent> m_CustomEventQueue;
         private JobHandle m_ProducerDependency;
@@ -26,6 +28,8 @@ namespace BitulaMod
         private LocalizationManager m_LocaleManager;
         private readonly Dictionary<Entity, string> m_LastCitizenEvents = new();
         private readonly Dictionary<Entity, CustomEventType> m_WatchedCitizenEvents = new();
+        private ComponentLookup<PropertyRenter> m_PropertyRenters;
+        
 
         protected override void OnCreate() {
             base.OnCreate();
@@ -34,8 +38,10 @@ namespace BitulaMod
 
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_LifePathEventSystem = World.GetOrCreateSystemManaged<LifePathEventSystem>();
+            m_CreateChirpSystem = World.GetOrCreateSystemManaged<CreateChirpSystem>();
             m_CustomEventQueue = new NativeQueue<CustomEvent>(Allocator.Persistent);
             m_NameSystem = World.GetOrCreateSystemManaged<NameSystem>();
+            m_PropertyRenters = SystemAPI.GetComponentLookup<PropertyRenter>(true);
 
             foreach (CustomEventType type in Enum.GetValues(typeof(CustomEventType))) {
                 TriggerPrefab prefab = new TriggerPrefab {
@@ -89,6 +95,7 @@ namespace BitulaMod
                 log.Info("LifePath sender: producer still running");
                 return;
             }
+            m_PropertyRenters.Update(this);
 
             m_ProducerDependency.Complete();
 
@@ -146,12 +153,30 @@ namespace BitulaMod
                 m_LastCitizenEvents[cevent.m_Citizen] = eventKey;
             }
 
-            Entity parameterEntity = EntityManager.CreateEntity();
+            Entity parameterEntity;
+
+            if (cevent.m_Target != Entity.Null) {
+                NativeQueue<ChirpCreationData> chirpQueue =
+                    m_CreateChirpSystem.GetQueue(out JobHandle chirpDeps);
+
+                chirpDeps.Complete();
+
+                chirpQueue.Enqueue(new ChirpCreationData {
+                    m_TriggerPrefab = eventPrefab,
+                    m_Sender = cevent.m_Citizen,
+                    m_Target = cevent.m_Target
+                });
+
+                return;
+            }
+
+            parameterEntity = EntityManager.CreateEntity();
 
             m_NameSystem.SetCustomName(
                 parameterEntity,
                 parameterText
             );
+
 
             queue.Enqueue(new LifePathEventCreationData {
                 m_EventPrefab = eventPrefab,
