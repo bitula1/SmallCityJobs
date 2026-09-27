@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Leisure desire 1 - very bored</title>
+
+  <!-- very muted side hair -->
+  <circle cx="3.8" cy="8.0" r="2.6" fill="#7D7874"/>
+  <circle cx="20.2" cy="8.0" r="2.6" fill="#7D7874"/>
+  <circle cx="3.3" cy="11.0" r="2.2" fill="#706B69"/>
+  <circle cx="20.7" cy="11.0" r="2.2" fill="#706B69"/>
+
+  <!-- gray-beige face -->
+  <circle cx="12" cy="12" r="9.4" fill="#B9B5A7" stroke="#514F4A" stroke-width="1.15"/>
+
+  <!-- dull gray-blue cap -->
+  <path d="M6.4 5.1C7.9 2.9 10 2.1 12 2.1s4.1.8 5.6 3
+           c-1.4-.4-2.4-.2-3.4.5C13 4.7 11 4.6 9.8 5.6
+           8.8 4.9 7.8 4.7 6.4 5.1Z"
+        fill="#7A858A"/>
+
+  <!-- desaturated eye makeup -->
+  <path d="M6.6 9.0 8.6 7.8l2.0 1.7-2.0 1.8Z" fill="#72797D"/>
+  <path d="M13.4 9.5l2.0-1.7 2.0 1.2-2.0 2.3Z" fill="#72797D"/>
+
+  <!-- half-closed bored eyes -->
+  <path d="M7.2 9.8h2.8" stroke="#383735" stroke-width="1.15" stroke-linecap="round"/>
+  <path d="M14.0 9.8h2.8" stroke="#383735" stroke-width="1.15" stroke-linecap="round"/>
+  <circle cx="8.6" cy="10.25" r="0.45" fill="#383735"/>
+  <circle cx="15.4" cy="10.25" r="0.45" fill="#383735"/>
+
+  <!-- almost gray clown nose -->
+  <circle cx="12" cy="12.6" r="2.05" fill="#8C7777" stroke="#665858" stroke-width="0.65"/>
+  <circle cx="11.4" cy="12.0" r="0.45" fill="#AAA0A0" opacity="0.7"/>
+
+  <!-- barely visible cheek paint -->
+  <circle cx="6.8" cy="14.0" r="1.2" fill="#9A9092" opacity="0.65"/>
+  <circle cx="17.2" cy="14.0" r="1.2" fill="#9A9092" opacity="0.65"/>
+
+  <!-- strongly downturned mouth -->
+  <path d="M7.2 18.5c1.1-2.25 2.8-3.35 4.8-3.35s3.7 1.1 4.8 3.35"
+        fill="none" stroke="#514F4A" stroke-width="1.45"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- gray boredom marks -->
+  <circle cx="5.6" cy="17.0" r="0.55" fill="#77737B"/>
+  <circle cx="18.4" cy="17.0" r="0.55" fill="#77737B"/>
+
+  <!-- dull gray pom -->
+  <circle cx="12" cy="1.8" r="1.15" fill="#77737B"/>
+</svg>

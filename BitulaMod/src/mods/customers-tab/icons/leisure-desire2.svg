@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Leisure desire 2 - bored</title>
+
+  <!-- side hair -->
+  <circle cx="3.8" cy="8.0" r="2.6" fill="#BC7A63"/>
+  <circle cx="20.2" cy="8.0" r="2.6" fill="#BC7A63"/>
+  <circle cx="3.3" cy="11.0" r="2.2" fill="#A96767"/>
+  <circle cx="20.7" cy="11.0" r="2.2" fill="#A96767"/>
+
+  <!-- face -->
+  <circle cx="12" cy="12" r="9.4" fill="#D8C477" stroke="#5A4E43" stroke-width="1.15"/>
+
+  <!-- clown cap / top hair -->
+  <path d="M6.4 5.1C7.9 2.9 10 2.1 12 2.1s4.1.8 5.6 3
+           c-1.4-.4-2.4-.2-3.4.5C13 4.7 11 4.6 9.8 5.6
+           8.8 4.9 7.8 4.7 6.4 5.1Z"
+        fill="#6D9CB5"/>
+
+  <!-- eye makeup -->
+  <path d="M6.7 9.2 8.7 7.7l2 1.8-2 2Z" fill="#6687A4"/>
+  <path d="M13.3 9.5l2-1.8 2 1.5-2 2.1Z" fill="#6687A4"/>
+
+  <!-- slightly tired eyes -->
+  <path d="M7.2 9.7h2.8" stroke="#332E2B" stroke-width="1.05" stroke-linecap="round"/>
+  <path d="M14.0 9.7h2.8" stroke="#332E2B" stroke-width="1.05" stroke-linecap="round"/>
+  <circle cx="8.6" cy="10.15" r="0.48" fill="#332E2B"/>
+  <circle cx="15.4" cy="10.15" r="0.48" fill="#332E2B"/>
+
+  <!-- clown nose -->
+  <circle cx="12" cy="12.6" r="2.05" fill="#B96868" stroke="#824C4C" stroke-width="0.65"/>
+  <circle cx="11.4" cy="12.0" r="0.45" fill="#D69393" opacity="0.8"/>
+
+  <!-- cheek paint -->
+  <circle cx="6.8" cy="14.0" r="1.2" fill="#C18E98" opacity="0.8"/>
+  <circle cx="17.2" cy="14.0" r="1.2" fill="#C18E98" opacity="0.8"/>
+
+  <!-- neutral / mildly bored mouth -->
+  <path d="M8.0 17.4c1.2-.35 2.55-.5 4-.5s2.8.15 4 .5"
+        fill="none" stroke="#5A4E43" stroke-width="1.35"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- hat pom -->
+  <circle cx="12" cy="1.8" r="1.15" fill="#8F7AA4"/>
+</svg>

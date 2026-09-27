@@ -19,6 +19,7 @@ namespace BitulaMod
 {
     public struct DesiredLeisureTypeComponent : IComponentData {
         public LeisureType m_Type;
+        public byte m_Desire;
     }
     public struct DesiredProviderFound : IComponentData {
         public bool m_Value;
@@ -44,6 +45,8 @@ namespace BitulaMod
         private bool m_AcceptCloserJobsEmployed;
         private bool m_AcceptCloserJobsUnemployed;
         private bool m_NormalLeisure;
+        private int m_NormalLeisureMin;
+        private int m_NormalLeisureMax;
         private Unity.Mathematics.Random m_Random;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
@@ -125,6 +128,8 @@ namespace BitulaMod
                 m_AcceptCloserJobsEmployed = Mod.Settings.CloserJobEmployed,
                 m_AcceptCloserJobsUnemployed = Mod.Settings.CloserJobUnemployed,
                 m_NormalLeisure = Mod.Settings.NormalLeisure,
+                m_NormalLeisureMin = Mod.Settings.NormalLeisureMin,
+                m_NormalLeisureMax = Mod.Settings.NormalLeisureMax,
 
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
                 m_Workplaces = localFreeWorkplaces,
@@ -147,6 +152,9 @@ namespace BitulaMod
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
                 m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
+                m_NormalLeisure = Mod.Settings.NormalLeisure,
+                m_NormalLeisureMin = Mod.Settings.NormalLeisureMin,
+                m_NormalLeisureMax = Mod.Settings.NormalLeisureMax
             };
         }
 
@@ -564,7 +572,24 @@ namespace BitulaMod
             Citizen citizenData = m_Citizens[citizen];
             return Unity.Mathematics.Random.CreateFromIndex(
                 (uint)((int)citizenData.m_PseudoRandom + 10000)
-            ).NextInt(5, 46);
+            ).NextInt(m_NormalLeisureMin, m_NormalLeisureMax + 1);        
+        }
+
+        public int GetLeisureChance(Citizen citizen) {
+            return Unity.Mathematics.Random.CreateFromIndex(
+                (uint)((int)citizen.m_PseudoRandom + 10000)
+            ).NextInt(m_NormalLeisureMin, m_NormalLeisureMax + 1);
+        }
+
+        public byte GetLeisureDesireLevel(Citizen citizen) {
+            int chance = GetLeisureChance(citizen);
+
+            return (byte)(1 + math.clamp(
+                (chance - m_NormalLeisureMin) * 5 /
+                (m_NormalLeisureMax - m_NormalLeisureMin + 1),
+                0,
+                4
+            ));
         }
 
         public bool DoLeisure(Entity citizen, uint simulationFrame) {
@@ -614,9 +639,10 @@ namespace BitulaMod
             }
         }
 
-        public void SetDesiredLeisureType(Entity citizen, LeisureType leisureType) {
+        public void SetDesiredLeisureType(Entity citizen, LeisureType type, byte desire) {
             DesiredLeisureTypeComponent component = new DesiredLeisureTypeComponent {
-                m_Type = leisureType
+                m_Type = type,
+                m_Desire = desire
             };
 
             if (m_DesiredLeisureTypes.HasComponent(citizen))

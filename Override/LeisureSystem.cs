@@ -754,7 +754,9 @@ namespace BitulaMod
 			{
 				LeisureType leisureType = this.SelectLeisureType(household, tourist, citizenData, ref random);
 				float num = 255f - (float)citizenData.m_LeisureCounter;
-				if (leisureType == LeisureType.Travel || leisureType == LeisureType.Sightseeing || leisureType == LeisureType.Attractions)
+                byte desire = (byte)(1 + math.clamp((int)(num * 5f / 256f), 0, 4));
+                m_SmallCityJobs.SetDesiredLeisureType(citizen, leisureType, desire);
+                if (leisureType == LeisureType.Travel || leisureType == LeisureType.Sightseeing || leisureType == LeisureType.Attractions)
 				{
 					if (this.m_Purposes.HasComponent(citizen))
 					{
@@ -767,7 +769,7 @@ namespace BitulaMod
 					});
 					return;
 				}
-                m_SmallCityJobs.SetDesiredLeisureType(citizen, leisureType);
+                
                 m_SmallCityJobs.CreateDesiredProviderFound(citizen);
                 m_SmallCityJobs.CreateAvailableProviderFound(citizen);
                 this.m_CommandBuffer.AddComponent(chunkIndex, citizen, in this.m_PathfindTypes);

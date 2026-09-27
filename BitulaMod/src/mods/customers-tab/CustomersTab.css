@@ -3,11 +3,38 @@
 }
 
 .customer-status-icon {
-    width: 24rem;
-    height: 24rem;
     position: absolute;
     right: 12rem;
     top: 50%;
     transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.customer-wealth-icon {
+    position: absolute;
+    right: 39rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.customer-age-icon {
+    position: absolute;
+    right: 66rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.customer-desire-icon {
+    position: absolute;
+    right: 93rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
 }
 

@@ -10,6 +10,7 @@ using System;
 namespace BitulaMod
 {
     [FileLocation(nameof(BitulaMod))]
+    [SettingsUITabOrder("JobSeeking", "LeisureSeeking")]
     public class Setting : ModSetting
     {
 
@@ -17,11 +18,13 @@ namespace BitulaMod
         {
         }
 
-        public int JobSeekerMilestone = 200;
 
-        private string m_JobSeekerMilestoneText = "200";
 
-        [SettingsUISection("JobSeeking")]
+        public int JobSeekerMilestone = 500;
+
+        private string m_JobSeekerMilestoneText = "500";
+
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         [SettingsUITextInput]
         public string JobSeekerMilestoneText {
             get => m_JobSeekerMilestoneText ?? JobSeekerMilestone.ToString();
@@ -35,45 +38,53 @@ namespace BitulaMod
             }
         }
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
         public int JobSeekerFailureIncrement { get; set; } = 10;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool PrioritizeAdultEmployment { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool AcceptLowerJobs { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool AcceptJobSwitch { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool FullTrafficSimulation { get; set; } = false;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool ProgressiveTrafficSimulation { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool ReducedDaysOff { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool WorkplacePromotion { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool CloserJobEmployed { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("JobSeeking", "JobSeeking")]
         public bool CloserJobUnemployed { get; set; } = true;
 
-        [SettingsUISection("JobSeeking")]
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
         public bool NormalLeisure { get; set; } = true;
+
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int NormalLeisureMin { get; set; } = 5;
+
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int NormalLeisureMax { get; set; } = 46;
 
 
 
         public override void SetDefaults()
         {
-            JobSeekerMilestoneText = "200";
+            JobSeekerMilestoneText = "500";
             JobSeekerFailureIncrement = 10;
             PrioritizeAdultEmployment = true;
             AcceptLowerJobs = true;
@@ -82,7 +93,12 @@ namespace BitulaMod
             FullTrafficSimulation = false;
             ProgressiveTrafficSimulation = true;
             WorkplacePromotion = true;
+            CloserJobEmployed = true;
+            CloserJobUnemployed = true;
+
             NormalLeisure = true;
+            NormalLeisureMin = 5;
+            NormalLeisureMax = 46;
         }
     }
 
@@ -123,6 +139,14 @@ namespace BitulaMod
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
+                { m_Setting.GetOptionTabLocaleID("JobSeeking"), "Job Seeking" },
+                { m_Setting.GetOptionTabLocaleID("LeisureSeeking"), "Leisure Seeking" },
+                { m_Setting.GetOptionGroupLocaleID("JobSeeking"), "Job Seeking" },
+                { m_Setting.GetOptionGroupLocaleID("LeisureSeeking"), "Leisure Seeking" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMin)), "Minimum leisure desire" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMin)), "Sets the minimum leisure desire percentage assigned to citizens using Small City leisure behavior." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMax)), "Maximum leisure desire" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMax)), "Sets the maximum leisure desire percentage assigned to citizens using Small City leisure behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },

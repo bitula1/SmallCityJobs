@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Wealthy</title>
+
+  <!-- large sparkles around -->
+  <path d="M3.0 3.2l.55 1.2 1.2.55-1.2.55-.55 1.2-.55-1.2-1.2-.55 1.2-.55Z"
+        fill="#FFE66D"/>
+  <path d="M21.0 4.0l.45 1 .95.45-.95.45-.45 1-.45-1-.95-.45.95-.45Z"
+        fill="#FFFFFF"/>
+  <path d="M20.9 18.6l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5Z"
+        fill="#FFE66D"/>
+
+  <!-- crown -->
+  <path d="M7.2 6.1 8.4 3.6 10.7 5l1.3-2.6L13.3 5l2.3-1.4 1.2 2.5Z"
+        fill="#F4C542" stroke="#8A681A" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M7.7 6.0h8.6"
+        stroke="#8A681A" stroke-width="0.8" stroke-linecap="round"/>
+
+  <!-- money bag -->
+  <path d="M7.6 8.1c1.1-1.0 2.6-1.5 4.4-1.5s3.3.5 4.4 1.5
+           c2.0 1.8 3.0 4.5 2.8 7.0-.2 3.1-2.4 5.3-5.4 5.3H10.2
+           c-3.0 0-5.2-2.2-5.4-5.3-.2-2.5.8-5.2 2.8-7Z"
+        fill="#8B5CF6" stroke="#4F2F75" stroke-width="1.15" stroke-linejoin="round"/>
+
+  <!-- tied neck -->
+  <path d="M8.5 8.3c1.0.6 2.2.9 3.5.9s2.5-.3 3.5-.9"
+        fill="none" stroke="#4F2F75" stroke-width="1.0" stroke-linecap="round"/>
+  <path d="M9.3 6.8h5.4"
+        stroke="#4F2F75" stroke-width="1.0" stroke-linecap="round"/>
+
+  <!-- gold coins overflowing -->
+  <circle cx="8.0" cy="9.3" r="1.35" fill="#FFD75A" stroke="#9A7622" stroke-width="0.65"/>
+  <circle cx="10.6" cy="8.6" r="1.5" fill="#F4C542" stroke="#9A7622" stroke-width="0.65"/>
+  <circle cx="13.3" cy="8.6" r="1.5" fill="#FFD75A" stroke="#9A7622" stroke-width="0.65"/>
+  <circle cx="16.0" cy="9.3" r="1.35" fill="#F4C542" stroke="#9A7622" stroke-width="0.65"/>
+
+  <!-- huge currency mark -->
+  <path d="M13.8 12.0c-.55-.5-1.25-.75-2.0-.75
+           -1.35 0-2.3.65-2.3 1.55
+           0 .9.9 1.25 2.4 1.55
+           1.4.3 2.3.65 2.3 1.6
+           0 .95-.95 1.6-2.4 1.6
+           -.9 0-1.7-.3-2.3-.9"
+        fill="none" stroke="#FFF3A3" stroke-width="1.0"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 10.5v8.0"
+        stroke="#FFF3A3" stroke-width="0.85" stroke-linecap="round"/>
+
+  <!-- diamond -->
+  <path d="M4.1 14.0 5.6 12.5 7.1 14 5.6 16Z"
+        fill="#72D6FF" stroke="#2F6D8A" stroke-width="0.55"/>
+  <path d="M16.9 15.2 18.5 13.6 20.1 15.2 18.5 17.4Z"
+        fill="#72D6FF" stroke="#2F6D8A" stroke-width="0.55"/>
+
+  <!-- highlights -->
+  <path d="M8.0 10.4c.7-.8 1.4-1.2 2.3-1.4"
+        fill="none" stroke="#BFA3FF" stroke-width="0.75" stroke-linecap="round"/>
+</svg>

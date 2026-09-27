@@ -7,12 +7,51 @@ import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected,
 import customersIcon from "./icons/customers-group.svg";
 import leisuringIcon from "./icons/leisuring.svg";
 import goingToLeisureIcon from "./icons/going-to-leisure.svg";
+import leisureDesire1 from "./icons/leisure-desire1.svg";
+import leisureDesire2 from "./icons/leisure-desire2.svg";
+import leisureDesire3 from "./icons/leisure-desire3.svg";
+import leisureDesire4 from "./icons/leisure-desire4.svg";
+import leisureDesire5 from "./icons/leisure-desire5.svg";
+import wealthWretched from "./icons/wealth-wretched.svg";
+import wealthPoor from "./icons/wealth-poor.svg";
+import wealthModest from "./icons/wealth-modest.svg";
+import wealthComfortable from "./icons/wealth-comfortable.svg";
+import wealthWealthy from "./icons/wealth-wealthy.svg";
+
+import ageChild from "./icons/age-child.svg";
+import ageTeen from "./icons/age-teen.svg";
+import ageAdult from "./icons/age-adult.svg";
+import ageElderly from "./icons/age-elderly.svg";
+
 import "./CustomersTab.css";
 
 enum CustomerStatus {
     None = 0,
     Leisuring = 1,
     GoingToLeisure = 2
+}
+
+enum Desire {
+    Desire1 = 1,
+    Desire2 = 2,
+    Desire3 = 3,
+    Desire4 = 4,
+    Desire5 = 5,
+}
+
+enum Age {
+    Child = 0,
+    Teen = 1,
+    Adult = 2,
+    Elderly = 3
+}
+
+enum Wealth {
+    Wretched = 0,
+    Poor = 1,
+    Modest = 2,
+    Comfortable = 3,
+    Wealthy = 4
 }
 
 type Entity = {
@@ -25,6 +64,9 @@ type Customer = {
     entity: Entity;
     name: any;
     status: CustomerStatus;
+    desire: Desire;
+    wealth: Wealth;
+    age: Age;
 };
 
 const customers$ = bindValue<Customer[]>(
@@ -68,6 +110,29 @@ const statusIcons: Partial<Record<CustomerStatus, string>> = {
     [CustomerStatus.GoingToLeisure]: goingToLeisureIcon
 };
 
+const desireIcons: Record<Desire, string> = {
+    [Desire.Desire1]: leisureDesire1,
+    [Desire.Desire2]: leisureDesire2,
+    [Desire.Desire3]: leisureDesire3,
+    [Desire.Desire4]: leisureDesire4,
+    [Desire.Desire5]: leisureDesire5
+};
+
+const ageIcons: Record<Age, string> = {
+    [Age.Child]: ageChild,
+    [Age.Teen]: ageTeen,
+    [Age.Adult]: ageAdult,
+    [Age.Elderly]: ageElderly
+};
+
+const wealthIcons: Record<Wealth, string> = {
+    [Wealth.Wretched]: wealthWretched,
+    [Wealth.Poor]: wealthPoor,
+    [Wealth.Modest]: wealthModest,
+    [Wealth.Comfortable]: wealthComfortable,
+    [Wealth.Wealthy]: wealthWealthy
+};
+
 export const ACTIONS_SECTION = selectedInfo.SectionType.Actions;
 
 const CustomerRow = ({ customer }: { customer: Customer }) => {
@@ -85,11 +150,26 @@ const CustomerRow = ({ customer }: { customer: Customer }) => {
 
             <div className={householdStyles.itemLabel}>
                 {name}
-            </div>   
+            </div>
+
+            <img
+                src={desireIcons[customer.desire]}
+                className="customer-desire-icon"
+            />
 
             <img
                 src={statusIcons[customer.status]}
                 className="customer-status-icon"
+            />
+
+            <img
+                src={ageIcons[customer.age]}
+                className="customer-age-icon"
+            />
+
+            <img
+                src={wealthIcons[customer.wealth]}
+                className="customer-wealth-icon"
             />
         </div>
     );

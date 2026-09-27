@@ -5,6 +5,7 @@ using Game.Buildings;
 using Game.Citizens;
 using Game.Common;
 using Game.Companies;
+using Game.Economy;
 using Game.Prefabs;
 using Game.Simulation;
 using Game.UI;
@@ -12,6 +13,8 @@ using Game.UI.InGame;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using static Game.Simulation.CountHouseholdDataSystem;
 
 namespace BitulaMod {
     enum LeisureStatus {
@@ -19,10 +22,14 @@ namespace BitulaMod {
         Leisuring = 1,
         GoingToLeisure = 2,
     }
+
     public partial class SmallCityLeisureUISystem : UISystemBase {
         private struct CustomerInfo {
             public Entity Customer;
             public LeisureStatus Status;
+            public byte LeisureDesire;
+            public CitizenAgeKey Age;
+            public HouseholdWealthKey Wealth;
         }
 
         private readonly List<CustomerInfo> m_Customers = new();
@@ -31,9 +38,12 @@ namespace BitulaMod {
         private RawValueBinding m_CustomersBinding;
         private NameSystem m_NameSystem;
         private EntityQuery m_LeisureCitizenQuery;
+        private EntityQuery m_HappinessParameterQuery;
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
         private ComponentLookup<Target> m_Targets;
-        private ComponentLookup<PropertyRenter> m_PropertyRenters;
+        private ComponentLookup<PropertyRenter> m_PropertyRenters;        
+        private ComponentLookup<SmallCityJobsComponent> m_UseSCJ;
+        private ComponentLookup<DesiredLeisureTypeComponent> m_Desire;
         private EntityQuery m_GoingToLeisureQuery;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
@@ -56,10 +66,13 @@ namespace BitulaMod {
                  ComponentType.ReadOnly<Citizen>(),
                  ComponentType.ReadOnly<TravelPurpose>()
              );
+            m_HappinessParameterQuery = GetEntityQuery( ComponentType.ReadOnly<CitizenHappinessParameterData>());
+            m_UseSCJ = GetComponentLookup<SmallCityJobsComponent>(true);
+            m_Desire = GetComponentLookup<DesiredLeisureTypeComponent>(true);
 
 
             AddBinding(m_CustomersBinding);
-
+            RequireForUpdate(m_HappinessParameterQuery);
             Mod.log.Info("SmallCityLeisureUISystem created successfully");
         }
 
@@ -81,56 +94,44 @@ namespace BitulaMod {
             m_CurrentBuildings.Update(ref state);
             m_Targets.Update(ref state);
             m_PropertyRenters.Update(ref state);
+            m_UseSCJ.Update(ref state);
+            m_Desire.Update(ref state);
 
-            AddCustomers(selectedEntity);
+            AddCustomers(selectedEntity, SmallCityJobs.Create());
 
             m_CustomersBinding.Update();
         }
 
-        private void AddCustomers(Entity selectedEntity) {
-            using NativeArray<Entity> citizens =
-                m_LeisureCitizenQuery.ToEntityArray(Allocator.Temp);
+        private void AddCustomers(Entity selectedEntity, SmallCityJobs scj) {
+            using NativeArray<Entity> citizens = m_LeisureCitizenQuery.ToEntityArray(Allocator.Temp);
 
-            // Citizens already at the selected leisure location
             foreach (Entity citizen in citizens) {
-                if (m_CurrentBuildings.TryGetComponent(
-                        citizen,
-                        out CurrentBuilding currentBuilding) &&
-                    currentBuilding.m_CurrentBuilding == selectedEntity) {
-
-                    m_Customers.Add(new CustomerInfo {
-                        Customer = citizen,
-                        Status = LeisureStatus.Leisuring
-                    });
-                }
-            }
-
-            using NativeArray<Entity> travelingCitizens =
-                m_GoingToLeisureQuery.ToEntityArray(Allocator.Temp);
-
-            // Citizens travelling to the selected leisure location
-            foreach (Entity citizen in travelingCitizens) {
-                TravelPurpose travelPurpose =
-                    EntityManager.GetComponentData<TravelPurpose>(citizen);
-
-                if (travelPurpose.m_Purpose != Purpose.Leisure) {
-                    continue;
-                }
-
-                // Already there -> handled above as Leisuring
-                if (m_CurrentBuildings.TryGetComponent(
-                        citizen,
-                        out CurrentBuilding currentBuilding) &&
-                    currentBuilding.m_CurrentBuilding == selectedEntity) {
-                    continue;
-                }
-
                 if (!EntityManager.TryGetComponent<Leisure>(
                         citizen,
                         out Leisure leisure)) {
                     continue;
                 }
+                bool useSCJ = m_UseSCJ.TryGetComponent(citizen, out SmallCityJobsComponent scjComponent) && scjComponent.m_UseSmallCityBehaviour;
 
+                CustomerInfo customerInfo = new CustomerInfo {
+                    Customer = citizen
+                };
+
+                bool addCustomer = false;
+                HouseholdMember householdMember = EntityManager.GetComponentData<HouseholdMember>(citizen);
+
+                customerInfo.Wealth = CitizenUIUtils.GetHouseholdWealth( EntityManager, householdMember.m_Household, 
+                    m_HappinessParameterQuery.GetSingleton<CitizenHappinessParameterData>());
+                customerInfo.Age = CitizenUIUtils.GetAge(EntityManager, citizen);
+
+                if (useSCJ) {
+                    Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
+                    customerInfo.LeisureDesire = scj.GetLeisureDesireLevel(citizenData);
+                } else if (m_Desire.TryGetComponent( citizen, out DesiredLeisureTypeComponent desireComponent)) {
+                    customerInfo.LeisureDesire = desireComponent.m_Desire;
+                }
+
+                // Already at the selected leisure location
                 Entity targetEntity = leisure.m_TargetAgent;
 
                 if (m_PropertyRenters.TryGetComponent(
@@ -139,11 +140,27 @@ namespace BitulaMod {
                     targetEntity = renter.m_Property;
                 }
 
-                if (targetEntity == selectedEntity) {
-                    m_Customers.Add(new CustomerInfo {
-                        Customer = citizen,
-                        Status = LeisureStatus.GoingToLeisure
-                    });
+                // Already at the selected leisure location
+                if (m_CurrentBuildings.TryGetComponent(
+                        citizen,
+                        out CurrentBuilding currentBuilding) &&
+                    currentBuilding.m_CurrentBuilding == selectedEntity &&
+                    targetEntity == selectedEntity) {
+
+                    customerInfo.Status = LeisureStatus.Leisuring;
+                    addCustomer = true;
+                } else if (EntityManager.TryGetComponent<TravelPurpose>(
+                               citizen,
+                               out TravelPurpose travelPurpose) &&
+                           travelPurpose.m_Purpose == Purpose.Leisure &&
+                           targetEntity == selectedEntity) {
+
+                    customerInfo.Status = LeisureStatus.GoingToLeisure;
+                    addCustomer = true;
+                }
+
+                if (addCustomer) {
+                    m_Customers.Add(customerInfo);
                 }
             }
         }
@@ -170,6 +187,15 @@ namespace BitulaMod {
 
                 writer.PropertyName("status");
                 writer.Write((int)customer.Status);
+
+                writer.PropertyName("desire");
+                writer.Write((int)customer.LeisureDesire);
+
+                writer.PropertyName("age");
+                writer.Write((int)customer.Age);
+
+                writer.PropertyName("wealth");
+                writer.Write((int)customer.Wealth);
 
                 writer.TypeEnd();
             }

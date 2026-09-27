@@ -11,17 +11,40 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Added Normal Leisure setting, making citizens visit leisure locations such as parks and cinemas at a more realistic frequency. The vanilla leisure chance is very low, which can leave smaller cities feeling lifeless.
-- Added new Life Path messages for leisure behavior. Some are flavor messages with 3 random variants.
-- Added followed-citizen messages when a citizen decides to go out for leisure or decides not to.
-- Added messages explaining when no suitable city park can be found.
-- Added messages explaining when no suitable leisure provider is available.
-- Added a dedicated message when a citizen wants a meal but cannot find a suitable place.
-- Added a message when the desired leisure service exists but is currently full or unavailable.
-- Added a message showing the actual place a citizen found and decided to visit.
-- Added messages explaining when no suitable indoor leisure destination can be found.
-- Fixed a vanilla bug where citizens could be routed to ghost companies for leisure.
-- Changed main text
+- Added a Customers tab to leisure locations, showing citizens currently visiting or travelling to the selected leisure provider.
+- Added leisure desire, age and household wealth information to the Customers tab.
+- Added 16 new icons for leisure customers.
+- Added separate Job Seeking and Leisure Seeking option tabs.
+- Added Minimum Leisure Desire and Maximum Leisure Desire options to configure the individual leisure chance range used by Small City leisure behavior.
+- Customer status icons:
+- Leisuring – the citizen is currently at the selected leisure location.
+- Going to leisure – the citizen is travelling to the selected leisure location.
+
+- Leisure desire icons:
+- Desire 1 – very low leisure desire.
+- Desire 2 – low leisure desire.
+- Desire 3 – moderate leisure desire.
+- Desire 4 – high leisure desire.
+- Desire 5 – very high leisure desire.
+- For citizens using Small City leisure behavior, the desire level reflects their individual leisure chance within the configured Minimum and Maximum Leisure Desire range.
+- For citizens using vanilla leisure behavior, the desire level is more volatile because it reflects their current vanilla leisure need when they start looking for leisure.
+- Vanilla desire values are recorded only when a new leisure attempt begins, so after updating or switching behavior the icons may populate gradually as citizens start new leisure trips.
+- Vanilla: Citizens already in an existing leisure trip may temporarily show no leisure desire icon until their next leisure attempt.
+
+- Age icons:
+- Child – child citizen.
+- Teen – teenage citizen.
+- Adult – adult citizen.
+- Elderly – elderly citizen.
+
+- Household wealth icons:
+- Wretched – lowest household wealth level.
+- Poor – poor household.
+- Modest – modest household wealth.
+- Comfortable – comfortable household wealth.
+- Wealthy – highest household wealth level.
+
+- Added/updated screenshots, changed default milestone to 500
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -40,7 +63,7 @@ The mod adds UI and Life Path improvements for both employment and leisure. Thes
 The overall aim is to make villages and small towns feel more active and believable without making employment artificially easy or replacing the game's existing simulation in larger cities.
 
 The progression of the employment changes and the Normal Leisure behaviour can be configured in the game options.
-		
+
 Several vanilla issues are also addressed, some I also posted in official bugfix forum.
 
 Detailed mechanics, settings and individual changes are documented in the forum discussion.
@@ -49,14 +72,17 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<Thumbnail Value="Properties/smalljob.png" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/lifepath.png" />
-	<Screenshot Value="Properties/options.png" />
+	<Screenshot Value="Properties/options_job.png" />
+	<Screenshot Value="Properties/options_leisure.png" />
 	<Screenshot Value="Properties/workers.png" />
+	<Screenshot Value="Properties/customers.png" />
+	
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.12" />
+	<ModVersion Value="1.4.13" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -66,17 +92,36 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Added Normal Leisure setting, making citizens visit leisure locations such as parks and cinemas at a more realistic frequency. The vanilla leisure chance is very low, which can leave smaller cities feeling lifeless.
-- Added new Life Path messages for leisure behavior. Some are flavor messages with 3 random variants.
-- Added followed-citizen messages when a citizen decides to go out for leisure or decides not to.
-- Added messages explaining when no suitable city park can be found.
-- Added messages explaining when no suitable leisure provider is available.
-- Added a dedicated message when a citizen wants a meal but cannot find a suitable place.
-- Added a message when the desired leisure service exists but is currently full or unavailable.
-- Added a message showing the actual place a citizen found and decided to visit.
-- Added messages explaining when no suitable indoor leisure destination can be found.
-- Fixed a vanilla bug where citizens could be routed to ghost companies for leisure.
-- Changed main text
+- Added a Customers tab to leisure locations, showing citizens currently visiting or travelling to the selected leisure provider.
+- Added leisure desire, age and household wealth information to the Customers tab.
+- Added 16 new icons for leisure customers.
+- Added separate Job Seeking and Leisure Seeking option tabs.
+- Added Minimum Leisure Desire and Maximum Leisure Desire options to configure the individual leisure chance range used by Small City leisure behavior.
+- Customer status icons:
+- Leisuring – the citizen is currently at the selected leisure location.
+- Going to leisure – the citizen is travelling to the selected leisure location.
+
+- Leisure desire icons:
+- Desire 1 – very low leisure desire.
+- Desire 2 – low leisure desire.
+- Desire 3 – moderate leisure desire.
+- Desire 4 – high leisure desire.
+- Desire 5 – very high leisure desire.
+
+- Age icons:
+- Child – child citizen.
+- Teen – teenage citizen.
+- Adult – adult citizen.
+- Elderly – elderly citizen.
+
+- Household wealth icons:
+- Wretched – lowest household wealth level.
+- Poor – poor household.
+- Modest – modest household wealth.
+- Comfortable – comfortable household wealth.
+- Wealthy – highest household wealth level.
+
+- Added/updated screenshots
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
