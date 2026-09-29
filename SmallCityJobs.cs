@@ -21,6 +21,10 @@ namespace BitulaMod
         public LeisureType m_Type;
         public byte m_Desire;
     }
+
+    public struct LeisureStartComponent : IComponentData {
+        public uint m_StartFrame;
+    }
     public struct DesiredProviderFound : IComponentData {
         public bool m_Value;
     }
@@ -33,6 +37,7 @@ namespace BitulaMod
     {
         private const int VanillaWorkspaceThreshold = 100;
         private const int VanillaSwitchDesireThreshold = 500;
+        private const uint kFramesPerDay = 262144u;
         private Entity m_Citizen;
         private bool m_UseSmallCityBehaviour;
         private SmallCityJobsPhase m_Phase;
@@ -47,6 +52,8 @@ namespace BitulaMod
         private bool m_NormalLeisure;
         private int m_NormalLeisureMin;
         private int m_NormalLeisureMax;
+        private int m_LeisureIntervalMin;
+        private int m_LeisureIntervalMax;
         private Unity.Mathematics.Random m_Random;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
@@ -66,6 +73,7 @@ namespace BitulaMod
         private ComponentLookup<DesiredLeisureTypeComponent> m_DesiredLeisureTypes;
         public ComponentLookup<DesiredProviderFound> m_DesiredProviderFound;
         public ComponentLookup<AvailableProviderFound> m_AvailableProviderFound;
+        private ComponentLookup<LeisureStartComponent> m_LeisureStarts;
 
 
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
@@ -115,6 +123,7 @@ namespace BitulaMod
                 m_DesiredLeisureTypes = state.GetComponentLookup<DesiredLeisureTypeComponent>(true),
                 m_DesiredProviderFound = state.GetComponentLookup<DesiredProviderFound>(true),
                 m_AvailableProviderFound = state.GetComponentLookup<AvailableProviderFound>(true),
+                m_LeisureStarts = state.GetComponentLookup<LeisureStartComponent>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
                 m_Random = new Unity.Mathematics.Random(smallCityJobsSeed),
@@ -130,6 +139,8 @@ namespace BitulaMod
                 m_NormalLeisure = Mod.Settings.NormalLeisure,
                 m_NormalLeisureMin = Mod.Settings.NormalLeisureMin,
                 m_NormalLeisureMax = Mod.Settings.NormalLeisureMax,
+                m_LeisureIntervalMin = Mod.Settings.LeisureIntervalMin,
+                m_LeisureIntervalMax = Mod.Settings.LeisureIntervalMax,
 
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
                 m_Workplaces = localFreeWorkplaces,
@@ -624,13 +635,14 @@ namespace BitulaMod
                 case LeisureType.Meals:
                     Send(citizen, CustomEventType.NoMeals);
                     break;
-
                 case LeisureType.CityPark:
                     Send(citizen, CustomEventType.NoCityPark);
                     break;
-
                 case LeisureType.CityIndoors:
                     Send(citizen, CustomEventType.NoCityIndoors);
+                    break;
+                case LeisureType.Entertainment:
+                    Send(citizen, CustomEventType.NoEntertainment);
                     break;
 
                 default:
@@ -656,6 +668,24 @@ namespace BitulaMod
                 return LeisureType.Count;
 
             return m_DesiredLeisureTypes[citizen].m_Type;
+        }
+
+        public void SetLeisureStartFrame(Entity citizen, uint startFrame) {
+            LeisureStartComponent component = new LeisureStartComponent {
+                m_StartFrame = startFrame
+            };
+
+            if (m_LeisureStarts.HasComponent(citizen))
+                m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
+            else
+                m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+        }
+
+        public uint GetLeisureStartFrame(Entity citizen) {
+            if (!m_LeisureStarts.HasComponent(citizen))
+                return 0;
+
+            return m_LeisureStarts[citizen].m_StartFrame;
         }
 
         public void SetDesiredProviderFound(Entity citizen) {
@@ -706,6 +736,27 @@ namespace BitulaMod
         public bool GetAvailableProviderFound(Entity citizen) {
             return m_AvailableProviderFound.HasComponent(citizen) &&
                    m_AvailableProviderFound[citizen].m_Value;
+        }
+
+        public bool IsEndOfLeisure( Entity citizen, uint simulationFrame, uint lastPossibleFrame) {
+            bool useSCJ = UseSmallCityBehavior(citizen);
+            if (!useSCJ)
+                return false;
+            Citizen citizenData = m_Citizens[citizen];
+
+            uint startFrame = GetLeisureStartFrame(citizen);
+            if (startFrame == 0)
+                return simulationFrame >= lastPossibleFrame;
+            uint day = startFrame / kFramesPerDay;
+
+            float percent = Unity.Mathematics.Random.CreateFromIndex(
+                (uint)citizenData.m_PseudoRandom + 30000u + day
+            ).NextFloat( m_LeisureIntervalMin / 100f, m_LeisureIntervalMax / 100f);
+
+            uint duration = lastPossibleFrame - startFrame;
+            uint endFrame = startFrame + (uint)(duration * percent);
+
+            return simulationFrame >= endFrame;
         }
 
 

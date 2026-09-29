@@ -6,6 +6,8 @@ import { bindValue, useValue } from "cs2/api";
 import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected, selectCustomTab } from "mods/common/state";
 import customersIcon from "./icons/customers-group.svg";
 import leisuringIcon from "./icons/leisuring.svg";
+import goingHomeIcon from "./icons/going-home.svg";
+import idlingIcon from "./icons/idling.svg";
 import goingToLeisureIcon from "./icons/going-to-leisure.svg";
 import leisureDesire1 from "./icons/leisure-desire1.svg";
 import leisureDesire2 from "./icons/leisure-desire2.svg";
@@ -17,7 +19,6 @@ import wealthPoor from "./icons/wealth-poor.svg";
 import wealthModest from "./icons/wealth-modest.svg";
 import wealthComfortable from "./icons/wealth-comfortable.svg";
 import wealthWealthy from "./icons/wealth-wealthy.svg";
-
 import ageChild from "./icons/age-child.svg";
 import ageTeen from "./icons/age-teen.svg";
 import ageAdult from "./icons/age-adult.svg";
@@ -28,7 +29,9 @@ import "./CustomersTab.css";
 enum CustomerStatus {
     None = 0,
     Leisuring = 1,
-    GoingToLeisure = 2
+    GoingToLeisure = 2,
+    Idling = 3,
+    GoingToHome = 4
 }
 
 enum Desire {
@@ -67,6 +70,9 @@ type Customer = {
     desire: Desire;
     wealth: Wealth;
     age: Age;
+    leisureHours: string;
+    resource: number;
+    service: boolean;
 };
 
 const customers$ = bindValue<Customer[]>(
@@ -107,7 +113,9 @@ const useLocalizedName: any = getModule(
 
 const statusIcons: Partial<Record<CustomerStatus, string>> = {
     [CustomerStatus.Leisuring]: leisuringIcon,
-    [CustomerStatus.GoingToLeisure]: goingToLeisureIcon
+    [CustomerStatus.GoingToLeisure]: goingToLeisureIcon,
+    [CustomerStatus.GoingToHome]: goingHomeIcon,
+    [CustomerStatus.Idling]: idlingIcon
 };
 
 const desireIcons: Record<Desire, string> = {
@@ -137,10 +145,25 @@ export const ACTIONS_SECTION = selectedInfo.SectionType.Actions;
 
 const CustomerRow = ({ customer }: { customer: Customer }) => {
     const name = useLocalizedName(customer.name);
+    const leisureHoursRef = useRef<string>("");
+
+    if (customer.leisureHours) {
+        leisureHoursRef.current = customer.leisureHours;
+    }
+
+    const leisureHours = customer.leisureHours || leisureHoursRef.current;
 
     return (
         <div
             className={`${householdStyles.item} customer-row`}
+            style={{
+                backgroundColor:
+                    customer.resource === 0
+                        ? "red"
+                        : !customer.service
+                            ? "orange"
+                            : undefined
+            }}
             onClick={() => selectedInfo.selectEntity(customer.entity)}
         >
             <Avatar
@@ -148,9 +171,18 @@ const CustomerRow = ({ customer }: { customer: Customer }) => {
                 className={householdStyles.avatar}
             />
 
-            <div className={householdStyles.itemLabel}>
-                {name}
-            </div>
+            <span
+                style={{
+                    whiteSpace: "nowrap",
+                    display: "inline",
+                    margin: 0,
+                    padding: 0,
+                    lineHeight: "inherit",
+                    fontSize: "inherit"
+                }}
+            >
+                {name}{leisureHours ? `\u00A0[${leisureHours}]` : ""}
+            </span>
 
             <img
                 src={desireIcons[customer.desire]}

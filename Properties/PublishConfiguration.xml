@@ -11,41 +11,16 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Added a Customers tab to leisure locations, showing citizens currently visiting or travelling to the selected leisure provider.
-- Added leisure desire, age and household wealth information to the Customers tab.
-- Added 16 new icons for leisure customers.
-- Added separate Job Seeking and Leisure Seeking option tabs.
-- Added Minimum Leisure Desire and Maximum Leisure Desire options to configure the individual leisure chance range used by Small City leisure behavior.
-- Customer status icons:
-- Leisuring – the citizen is currently at the selected leisure location.
-- Going to leisure – the citizen is travelling to the selected leisure location.
-
-- Leisure desire icons:
-- Desire 1 – very low leisure desire.
-- Desire 2 – low leisure desire.
-- Desire 3 – moderate leisure desire.
-- Desire 4 – high leisure desire.
-- Desire 5 – very high leisure desire.
-- For citizens using Small City leisure behavior, the desire level reflects their individual leisure chance within the configured Minimum and Maximum Leisure Desire range.
-- For citizens using vanilla leisure behavior, the desire level is more volatile because it reflects their current vanilla leisure need when they start looking for leisure.
-- Vanilla desire values are recorded only when a new leisure attempt begins, so after updating or switching behavior the icons may populate gradually as citizens start new leisure trips.
-- Vanilla: Citizens already in an existing leisure trip may temporarily show no leisure desire icon until their next leisure attempt.
-
-- Age icons:
-- Child – child citizen.
-- Teen – teenage citizen.
-- Adult – adult citizen.
-- Elderly – elderly citizen.
-
-- Household wealth icons:
-- Wretched – lowest household wealth level.
-- Poor – poor household.
-- Modest – modest household wealth.
-- Comfortable – comfortable household wealth.
-- Wealthy – highest household wealth level.
-
-- Added/updated screenshots, changed default milestone to 500
-
+- Added new leisure-spending mechanics: Small City citizens now spend a randomized percentage of their available leisure time at a provider instead of relying on the vanilla leisure counter.
+- Added Minimum Leisure Duration and Maximum Leisure Duration settings to control the percentage of available leisure time spent at leisure providers.
+- Added remaining leisure time to the customer tab rows.
+- Added provider availability indicators to the Customers list: red when the provider is out of resources and orange when no service is available.
+- Added new Going Home and Idling customer statuses. Going Home is kept visible for 5 seconds after the game stops reporting the trip, preventing the customer from disappearing immediately during the transition.
+- Fixed day-off handling in the citizen behavior system.
+- Added flavor messages when citizens cannot find a suitable entertainment provider.
+- Improved leisure customer tracking and status handling.
+- Fixed several leisure behavior and UI issues.
+		
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
 In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
@@ -82,7 +57,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.13" />
+	<ModVersion Value="1.4.14" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -92,36 +67,15 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Added a Customers tab to leisure locations, showing citizens currently visiting or travelling to the selected leisure provider.
-- Added leisure desire, age and household wealth information to the Customers tab.
-- Added 16 new icons for leisure customers.
-- Added separate Job Seeking and Leisure Seeking option tabs.
-- Added Minimum Leisure Desire and Maximum Leisure Desire options to configure the individual leisure chance range used by Small City leisure behavior.
-- Customer status icons:
-- Leisuring – the citizen is currently at the selected leisure location.
-- Going to leisure – the citizen is travelling to the selected leisure location.
-
-- Leisure desire icons:
-- Desire 1 – very low leisure desire.
-- Desire 2 – low leisure desire.
-- Desire 3 – moderate leisure desire.
-- Desire 4 – high leisure desire.
-- Desire 5 – very high leisure desire.
-
-- Age icons:
-- Child – child citizen.
-- Teen – teenage citizen.
-- Adult – adult citizen.
-- Elderly – elderly citizen.
-
-- Household wealth icons:
-- Wretched – lowest household wealth level.
-- Poor – poor household.
-- Modest – modest household wealth.
-- Comfortable – comfortable household wealth.
-- Wealthy – highest household wealth level.
-
-- Added/updated screenshots
+- Added new leisure-spending mechanics: Small City citizens now spend a randomized percentage of their available leisure time at a provider instead of relying on the vanilla leisure counter.
+- Added Minimum Leisure Duration and Maximum Leisure Duration settings to control the percentage of available leisure time spent at leisure providers.
+- Added remaining leisure time to the Customers list.
+- Added provider availability indicators to the Customers list: red when the provider is out of resources and orange when no service is available.
+- Added new Going Home and Idling customer statuses. Going Home is kept visible for 5 seconds after the game stops reporting the trip, preventing the customer from disappearing immediately during the transition.
+- Fixed day-off handling in the citizen behavior system.
+- Added flavor messages when citizens cannot find a suitable entertainment provider.
+- Improved leisure customer tracking and status handling.
+- Fixed several smaller leisure behavior and UI issues.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

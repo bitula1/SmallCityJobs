@@ -244,7 +244,7 @@ namespace BitulaMod
 			citizenAITickJob.m_MailSenderQueue = nativeQueue.AsParallelWriter();
 			citizenAITickJob.m_SleepQueue = nativeQueue2.AsParallelWriter();
 			citizenAITickJob.m_RandomSeed = RandomSeed.Next();
-            citizenAITickJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
+            citizenAITickJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
             CitizenBehaviorSystem.CitizenAITickJob citizenAITickJob2 = citizenAITickJob;
 			JobHandle jobHandle2 = citizenAITickJob2.ScheduleParallel(this.m_CitizenQuery, JobHandle.CombineDependencies(this.m_CarReserveWriters, JobHandle.CombineDependencies(base.Dependency, jobHandle)));
             SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle2);
@@ -745,6 +745,7 @@ namespace BitulaMod
 				{
 					m_LastPossibleFrame = this.m_SimulationFrame + num4
 				};
+				m_SmallCityJobs.SetLeisureStartFrame(citizenEntity, this.m_SimulationFrame);
 				this.m_CommandBuffer.AddComponent<Leisure>(chunkIndex, citizenEntity, leisure);
 				return true;
 			}
@@ -1018,7 +1019,7 @@ namespace BitulaMod
 										{
 											Worker worker = (flag3 ? nativeArray7[i] : default(Worker));
 											Game.Citizens.Student student = (flag4 ? nativeArray8[i] : default(Game.Citizens.Student));
-											if ((flag3 && !WorkerSystem.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, worker, ref this.m_EconomyParameters, this.m_NormalizedTime)) || (flag4 && StudentSystem.IsTimeToStudy(citizen, student, ref this.m_EconomyParameters, this.m_NormalizedTime, this.m_SimulationFrame, this.m_TimeData, population)))
+											if ((flag3 && !m_SmallCityJobs.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, worker, ref this.m_EconomyParameters, this.m_NormalizedTime)) || (flag4 && StudentSystem.IsTimeToStudy(citizen, student, ref this.m_EconomyParameters, this.m_NormalizedTime, this.m_SimulationFrame, this.m_TimeData, population)))
 											{
 												if (flag2)
 												{

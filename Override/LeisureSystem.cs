@@ -416,6 +416,7 @@ namespace BitulaMod
             // Token: 0x06006860 RID: 26720 RVA: 0x0038CE74 File Offset: 0x0038B074
             private void SpendLeisure(int index, Entity entity, ref Citizen citizen, ref Leisure leisure, Entity providerEntity, LeisureProviderData provider)
 			{
+				m_SmallCityJobs.init(entity, SmallCityJobsPhase.SpendLeisure);
 				bool flag = this.m_BuildingData.HasComponent(providerEntity) && BuildingUtils.CheckOption(this.m_BuildingData[providerEntity], BuildingOption.Inactive);
 				if (this.m_ServiceAvailables.HasComponent(providerEntity) && this.m_ServiceAvailables[providerEntity].m_ServiceAvailable <= 0)
 				{
@@ -439,9 +440,13 @@ namespace BitulaMod
 						m_Efficiency = provider.m_Efficiency
 					});
 				}
-				if ((float)citizen.m_LeisureCounter > 255f - (float)provider.m_Efficiency / LeisureSystem.kUpdateInterval || this.m_SimulationFrame >= leisure.m_LastPossibleFrame || flag)
-				{
-					this.m_CommandBuffer.RemoveComponent<Leisure>(index, entity);
+				bool useSCJ = m_SmallCityJobs.UseSmallCityBehavior(entity);
+				bool removeVanilla = (float)citizen.m_LeisureCounter > 255f - (float)provider.m_Efficiency / LeisureSystem.kUpdateInterval || this.m_SimulationFrame >= leisure.m_LastPossibleFrame;
+				bool removeSCJ = m_SmallCityJobs.IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
+
+                if ((useSCJ ? removeSCJ : removeVanilla) || flag) {
+                    this.m_CommandBuffer.RemoveComponent<LeisureStartComponent>(index, entity);
+                    this.m_CommandBuffer.RemoveComponent<Leisure>(index, entity);
 				}
 			}
 

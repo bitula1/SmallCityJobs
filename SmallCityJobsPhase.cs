@@ -11,6 +11,7 @@ namespace BitulaMod {
         FindJob,
         SetupPath,
         StartWorking,
-        StartLeisure
+        StartLeisure,
+        SpendLeisure
     }
 }

@@ -80,6 +80,14 @@ namespace BitulaMod
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
         public int NormalLeisureMax { get; set; } = 46;
 
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int LeisureIntervalMin { get; set; } = 20;
+
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int LeisureIntervalMax { get; set; } = 80;
+
 
 
         public override void SetDefaults()
@@ -99,6 +107,8 @@ namespace BitulaMod
             NormalLeisure = true;
             NormalLeisureMin = 5;
             NormalLeisureMax = 46;
+            LeisureIntervalMin = 20;
+            LeisureIntervalMax = 80;
         }
     }
 
@@ -134,6 +144,7 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_NoCityPark"] = 3;
             indexCounts["BitulaMod.LIFEPATH_NoMeals"] = 3;
             indexCounts["BitulaMod.LIFEPATH_NoCityIndoors"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_NoEntertainment"] = 3;
             indexCounts["BitulaMod.LIFEPATH_ServiceFull"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundLeisureAt"] = 1;
             return new Dictionary<string, string>
@@ -147,6 +158,10 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMin)), "Sets the minimum leisure desire percentage assigned to citizens using Small City leisure behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMax)), "Maximum leisure desire" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMax)), "Sets the maximum leisure desire percentage assigned to citizens using Small City leisure behavior." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.LeisureIntervalMin)), "Minimum leisure duration" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMin)), "Sets the minimum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.LeisureIntervalMax)), "Maximum leisure duration" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMax)), "Sets the maximum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },
@@ -201,6 +216,9 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_NoCityIndoors:0", "I was hoping for some culture or recreation, but nothing caught my interest." },
                 { "BitulaMod.LIFEPATH_NoCityIndoors:1", "I felt like doing something cultural or active, but there wasn't much on offer." },
                 { "BitulaMod.LIFEPATH_NoCityIndoors:2", "I was looking for somewhere to enjoy some culture, sport or recreation, but came up empty." },
+                { "BitulaMod.LIFEPATH_NoEntertainment:0", "I was in the mood for some entertainment, but there was nowhere interesting to go." },
+                { "BitulaMod.LIFEPATH_NoEntertainment:1", "I wanted a little fun, but the city didn't have anything that caught my attention." },
+                { "BitulaMod.LIFEPATH_NoEntertainment:2", "I went looking for something entertaining to do, but apparently tonight's show was cancelled." },
                 { "BitulaMod.LIFEPATH_ServiceFull:0", "I found a place I wanted to visit, but it was already full." },
                 { "BitulaMod.LIFEPATH_FoundLeisureAt:0", "I found a place I wanted to visit. Let's go to {LINK_1}." },
 

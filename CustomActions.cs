@@ -29,6 +29,7 @@ namespace BitulaMod
         ServiceFull = 118,
         FoundLeisureAt = 119,
         NoCityIndoors = 120,
+        NoEntertainment = 121,
         DebugMessage = 200,
     }
 }
