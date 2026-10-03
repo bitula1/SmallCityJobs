@@ -14,6 +14,7 @@ using Game.Tools;
 using System;
 using System.Globalization;
 using Game.Agents;
+using Game.Economy;
 
 namespace BitulaMod
 {
@@ -24,6 +25,7 @@ namespace BitulaMod
 
     public struct LeisureStartComponent : IComponentData {
         public uint m_StartFrame;
+        public int m_StartMoney;
     }
     public struct DesiredProviderFound : IComponentData {
         public bool m_Value;
@@ -54,6 +56,8 @@ namespace BitulaMod
         private int m_NormalLeisureMax;
         private int m_LeisureIntervalMin;
         private int m_LeisureIntervalMax;
+        private int m_SpendingLeisureMin;
+        private int m_SpendingLeisureMax;
         private Unity.Mathematics.Random m_Random;
         private FixedString64Bytes m_Parameters;
         private byte m_Hint;
@@ -74,6 +78,7 @@ namespace BitulaMod
         public ComponentLookup<DesiredProviderFound> m_DesiredProviderFound;
         public ComponentLookup<AvailableProviderFound> m_AvailableProviderFound;
         private ComponentLookup<LeisureStartComponent> m_LeisureStarts;
+        private BufferLookup<Game.Economy.Resources> m_Resources;
 
 
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
@@ -124,6 +129,7 @@ namespace BitulaMod
                 m_DesiredProviderFound = state.GetComponentLookup<DesiredProviderFound>(true),
                 m_AvailableProviderFound = state.GetComponentLookup<AvailableProviderFound>(true),
                 m_LeisureStarts = state.GetComponentLookup<LeisureStartComponent>(true),
+                m_Resources = state.GetBufferLookup<Game.Economy.Resources>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
                 m_Random = new Unity.Mathematics.Random(smallCityJobsSeed),
@@ -141,6 +147,8 @@ namespace BitulaMod
                 m_NormalLeisureMax = Mod.Settings.NormalLeisureMax,
                 m_LeisureIntervalMin = Mod.Settings.LeisureIntervalMin,
                 m_LeisureIntervalMax = Mod.Settings.LeisureIntervalMax,
+                m_SpendingLeisureMin = Mod.Settings.SpendingLeisureMin,
+                m_SpendingLeisureMax = Mod.Settings.SpendingLeisureMax,
 
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
                 m_Workplaces = localFreeWorkplaces,
@@ -670,15 +678,28 @@ namespace BitulaMod
             return m_DesiredLeisureTypes[citizen].m_Type;
         }
 
-        public void SetLeisureStartFrame(Entity citizen, uint startFrame) {
+        private void SetLeisureStart(Entity citizen, uint startFrame, int startMoney) {
             LeisureStartComponent component = new LeisureStartComponent {
-                m_StartFrame = startFrame
+                m_StartFrame = startFrame,
+                m_StartMoney = startMoney
             };
 
             if (m_LeisureStarts.HasComponent(citizen))
                 m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
             else
                 m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+        }
+
+        public void SetLeisureStart(Entity citizen, uint simulationFrame) {
+            int startMoney = 0;
+
+            if (m_HouseholdMembers.TryGetComponent(citizen, out HouseholdMember householdMember) &&
+                m_Resources.TryGetBuffer(householdMember.m_Household, out DynamicBuffer<Game.Economy.Resources> resources)) {
+
+                startMoney = EconomyUtils.GetResources(Resource.Money, resources);
+            }
+
+            SetLeisureStart(citizen, simulationFrame, startMoney);
         }
 
         public uint GetLeisureStartFrame(Entity citizen) {
@@ -757,6 +778,41 @@ namespace BitulaMod
             uint endFrame = startFrame + (uint)(duration * percent);
 
             return simulationFrame >= endFrame;
+        }
+
+        public bool IsEndOfSpending(Entity citizen) {
+            if (!UseSmallCityBehavior(citizen))
+                return false;
+
+            if (!m_LeisureStarts.TryGetComponent(citizen, out LeisureStartComponent leisureStart))
+                return false;
+
+            if (leisureStart.m_StartMoney <= 0)
+                return true;
+
+            if (!m_HouseholdMembers.TryGetComponent(citizen, out HouseholdMember householdMember))
+                return false;
+
+            if (!m_Resources.TryGetBuffer(householdMember.m_Household, out DynamicBuffer<Game.Economy.Resources> resources))
+                return false;
+
+            int currentMoney = EconomyUtils.GetResources(Resource.Money, resources);
+
+            Citizen citizenData = m_Citizens[citizen];
+
+            uint day = leisureStart.m_StartFrame / kFramesPerDay;
+
+            float percent = Unity.Mathematics.Random.CreateFromIndex(
+                (uint)citizenData.m_PseudoRandom + 40000u + day
+            ).NextFloat(
+                m_SpendingLeisureMin / 100f,
+                m_SpendingLeisureMax / 100f
+            );
+
+            int maxSpend = (int)(leisureStart.m_StartMoney * percent);
+            int spent = leisureStart.m_StartMoney - currentMoney;
+
+            return spent >= maxSpend;
         }
 
 

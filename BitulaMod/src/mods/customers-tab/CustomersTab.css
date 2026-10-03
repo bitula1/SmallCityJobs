@@ -38,3 +38,15 @@
     height: 24rem;
 }
 
+.customer-leisure-hours {
+    position: absolute;
+    right: 122rem;
+    top: 50%;
+    transform: translateY(-50%) scaleX(0.75) scaleY(1.25);
+    transform-origin: right center;
+    white-space: nowrap;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 300;
+    font-size: 15rem;
+}
+

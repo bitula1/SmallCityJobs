@@ -416,7 +416,7 @@ namespace BitulaMod
             // Token: 0x06006860 RID: 26720 RVA: 0x0038CE74 File Offset: 0x0038B074
             private void SpendLeisure(int index, Entity entity, ref Citizen citizen, ref Leisure leisure, Entity providerEntity, LeisureProviderData provider)
 			{
-				m_SmallCityJobs.init(entity, SmallCityJobsPhase.SpendLeisure);
+				//m_SmallCityJobs.init(entity, SmallCityJobsPhase.SpendLeisure);
 				bool flag = this.m_BuildingData.HasComponent(providerEntity) && BuildingUtils.CheckOption(this.m_BuildingData[providerEntity], BuildingOption.Inactive);
 				if (this.m_ServiceAvailables.HasComponent(providerEntity) && this.m_ServiceAvailables[providerEntity].m_ServiceAvailable <= 0)
 				{
@@ -433,6 +433,7 @@ namespace BitulaMod
 				}
 				if (!flag)
 				{
+					if (!m_SmallCityJobs.IsEndOfSpending(entity))
 					this.m_LeisureQueue.Enqueue(new LeisureEvent
 					{
 						m_Citizen = entity,
@@ -464,9 +465,10 @@ namespace BitulaMod
 				int population = this.m_PopulationData[this.m_PopulationEntity].m_Population;
 				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
 				for (int i = 0; i < nativeArray.Length; i++)
-				{
+				{					
 					Entity entity = nativeArray[i];
-					Leisure leisure = nativeArray2[i];
+                    m_SmallCityJobs.init(entity, SmallCityJobsPhase.SpendLeisure);
+                    Leisure leisure = nativeArray2[i];
 					DynamicBuffer<TripNeeded> dynamicBuffer = bufferAccessor[i];
 					Citizen citizen = this.m_CitizenDatas[entity];
 					bool flag = this.m_Purposes.HasComponent(entity) && this.m_Purposes[entity].m_Purpose == Purpose.Traveling;
@@ -574,7 +576,11 @@ namespace BitulaMod
 					}
 					else if (!this.m_Purposes.HasComponent(entity))
 					{
-						Entity household = nativeArray3[i].m_Household;
+                        if (leisure.m_TargetAgent != Entity.Null && m_SmallCityJobs.UseSmallCityBehavior(entity) && !m_SmallCityJobs.IsEndOfLeisure(
+							entity,  m_SimulationFrame, leisure.m_LastPossibleFrame)) {
+                            continue;
+                        }
+                        Entity household = nativeArray3[i].m_Household;
 						this.FindLeisure(unfilteredChunkIndex, entity, household, citizen, ref random, this.m_TouristHouseholds.HasComponent(household));
 						nativeArray2[i] = leisure;
 					}

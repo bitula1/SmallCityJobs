@@ -88,6 +88,14 @@ namespace BitulaMod
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
         public int LeisureIntervalMax { get; set; } = 80;
 
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int SpendingLeisureMin { get; set; } = 5;
+
+        [SettingsUISection("LeisureSeeking", "LeisureSeeking")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int SpendingLeisureMax { get; set; } = 50;
+
 
 
         public override void SetDefaults()
@@ -109,6 +117,8 @@ namespace BitulaMod
             NormalLeisureMax = 46;
             LeisureIntervalMin = 20;
             LeisureIntervalMax = 80;
+            SpendingLeisureMin = 5;
+            SpendingLeisureMax = 50;
         }
     }
 
@@ -162,6 +172,10 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMin)), "Sets the minimum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.LeisureIntervalMax)), "Maximum leisure duration" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMax)), "Sets the maximum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SpendingLeisureMin)), "Minimum leisure spending" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SpendingLeisureMin)), "Sets the minimum percentage of household money that citizens using Small City leisure behavior may spend during a leisure visit." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SpendingLeisureMax)), "Maximum leisure spending" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SpendingLeisureMax)), "Sets the maximum percentage of household money that citizens using Small City leisure behavior may spend during a leisure visit." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },

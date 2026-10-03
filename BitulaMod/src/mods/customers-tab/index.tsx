@@ -7,6 +7,9 @@ import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected,
 import customersIcon from "./icons/customers-group.svg";
 import leisuringIcon from "./icons/leisuring.svg";
 import goingHomeIcon from "./icons/going-home.svg";
+import goingToAnotherLeisureIcon from "./icons/going-to-another-leisure.svg";
+import goingToWorkIcon from "./icons/leisure-going-to-work.svg";
+import goingToShopIcon from "./icons/leisure-shopping.svg";
 import idlingIcon from "./icons/idling.svg";
 import goingToLeisureIcon from "./icons/going-to-leisure.svg";
 import leisureDesire1 from "./icons/leisure-desire1.svg";
@@ -31,7 +34,10 @@ enum CustomerStatus {
     Leisuring = 1,
     GoingToLeisure = 2,
     Idling = 3,
-    GoingToHome = 4
+    GoingToHome = 4,
+    GoingToAnotherLeisure = 5,
+    GoingToWork = 6,
+    GoingToShop = 7,
 }
 
 enum Desire {
@@ -72,6 +78,7 @@ type Customer = {
     age: Age;
     leisureHours: string;
     resource: number;
+    money: number;
     service: boolean;
 };
 
@@ -111,11 +118,24 @@ const useLocalizedName: any = getModule(
     "useLocalizedName"
 );
 
+const LocalizedNumber: any = getModule(
+    "game-ui/common/localization/localized-number.tsx",
+    "LocalizedNumber"
+);
+
+const Tooltip: any = getModule(
+    "game-ui/common/tooltip/tooltip.tsx",
+    "Tooltip"
+);
+
 const statusIcons: Partial<Record<CustomerStatus, string>> = {
     [CustomerStatus.Leisuring]: leisuringIcon,
     [CustomerStatus.GoingToLeisure]: goingToLeisureIcon,
+    [CustomerStatus.GoingToAnotherLeisure]: goingToAnotherLeisureIcon,
+    [CustomerStatus.GoingToWork]: goingToWorkIcon,
     [CustomerStatus.GoingToHome]: goingHomeIcon,
-    [CustomerStatus.Idling]: idlingIcon
+    [CustomerStatus.GoingToShop]: goingToShopIcon,
+    [CustomerStatus.Idling]: idlingIcon,
 };
 
 const desireIcons: Record<Desire, string> = {
@@ -171,18 +191,15 @@ const CustomerRow = ({ customer }: { customer: Customer }) => {
                 className={householdStyles.avatar}
             />
 
-            <span
-                style={{
-                    whiteSpace: "nowrap",
-                    display: "inline",
-                    margin: 0,
-                    padding: 0,
-                    lineHeight: "inherit",
-                    fontSize: "inherit"
-                }}
-            >
-                {name}{leisureHours ? `\u00A0[${leisureHours}]` : ""}
-            </span>
+            <div className={householdStyles.itemLabel}>
+                {name}
+            </div>
+
+            {leisureHours && (
+                <span className="customer-leisure-hours">
+                    [{leisureHours}]
+                </span>
+            )}           
 
             <img
                 src={desireIcons[customer.desire]}
@@ -199,10 +216,19 @@ const CustomerRow = ({ customer }: { customer: Customer }) => {
                 className="customer-age-icon"
             />
 
-            <img
-                src={wealthIcons[customer.wealth]}
-                className="customer-wealth-icon"
-            />
+            <Tooltip
+                tooltip={
+                    <LocalizedNumber
+                        value={customer.money}
+                        unit="money"
+                    />
+                }
+            >
+                <img
+                    src={wealthIcons[customer.wealth]}
+                    className="customer-wealth-icon"
+                />
+            </Tooltip>
         </div>
     );
 };

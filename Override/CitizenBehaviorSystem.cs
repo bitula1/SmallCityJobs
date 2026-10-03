@@ -695,8 +695,18 @@ namespace BitulaMod
 			private bool DoLeisure(int chunkIndex, int citizenIndex, Entity citizenEntity, Entity householdEntity, Entity currentBuilding, Entity homeEntity, bool isTourist, ref Citizen citizenData, int population, ref Unity.Mathematics.Random random, ref EconomyParameterData economyParameters, bool isWorker, Worker worker, bool isStudent, Game.Citizens.Student student, ref NativeArray<LeisureSeekerCooldown> leisureSeekerCooldown)
 			{
 				bool scjLeisure = m_SmallCityJobs.DoLeisure(citizenEntity, this.m_SimulationFrame);
+				bool useSCJ = m_SmallCityJobs.UseSmallCityBehavior(citizenEntity);
+                if (useSCJ && !scjLeisure) {
+                    return false;
+                }
+                LeisureSeekerCooldown debugCooldown;
+                bool hasCooldown = CollectionUtils.TryGet(
+                    leisureSeekerCooldown,
+                    citizenIndex,
+                    out debugCooldown
+                );
 
-				bool flag = homeEntity == Entity.Null && CitizenUtils.HasMovedIn(householdEntity, this.m_Households);
+                bool flag = homeEntity == Entity.Null && CitizenUtils.HasMovedIn(householdEntity, this.m_Households);
 				if (isTourist)
 				{
 					if (this.m_OutsideConnections.HasComponent(currentBuilding) && this.m_TouristHouseholds[householdEntity].m_Hotel != Entity.Null)
@@ -707,18 +717,18 @@ namespace BitulaMod
 				else if (!flag)
 				{
 					LeisureSeekerCooldown leisureSeekerCooldown2;
-					if (!scjLeisure && CollectionUtils.TryGet<LeisureSeekerCooldown>(leisureSeekerCooldown, citizenIndex, out leisureSeekerCooldown2) && this.m_SimulationFrame < leisureSeekerCooldown2.m_SimulationFrame + CitizenBehaviorSystem.kLeisureSeekerCooldownFrames)
+					if (!useSCJ && CollectionUtils.TryGet<LeisureSeekerCooldown>(leisureSeekerCooldown, citizenIndex, out leisureSeekerCooldown2) && this.m_SimulationFrame < leisureSeekerCooldown2.m_SimulationFrame + CitizenBehaviorSystem.kLeisureSeekerCooldownFrames)
 					{
 						return false;
 					}
 					int num = (int)(128 - citizenData.m_LeisureCounter);
-					if (this.m_OutsideConnections.HasComponent(currentBuilding) || (!scjLeisure && random.NextInt(this.m_LeisureParameters.m_LeisureRandomFactor) > num))
+					if (this.m_OutsideConnections.HasComponent(currentBuilding) || (!useSCJ && random.NextInt(this.m_LeisureParameters.m_LeisureRandomFactor) > num))
 					{
 						return false;
 					}
 				}
 				int num2 = math.min(CitizenBehaviorSystem.kMinLeisurePossibility, Mathf.RoundToInt(200f / math.max(1f, math.sqrt(economyParameters.m_TrafficReduction * (float)population))));
-                if (!isTourist && !flag && !scjLeisure && random.NextInt(100) > num2) {
+                if (!isTourist && !flag && !useSCJ && random.NextInt(100) > num2) {
 					citizenData.m_LeisureCounter = byte.MaxValue;
 					return true;
 				}
@@ -745,7 +755,7 @@ namespace BitulaMod
 				{
 					m_LastPossibleFrame = this.m_SimulationFrame + num4
 				};
-				m_SmallCityJobs.SetLeisureStartFrame(citizenEntity, this.m_SimulationFrame);
+                m_SmallCityJobs.SetLeisureStart(citizenEntity, this.m_SimulationFrame);
 				this.m_CommandBuffer.AddComponent<Leisure>(chunkIndex, citizenEntity, leisure);
 				return true;
 			}
