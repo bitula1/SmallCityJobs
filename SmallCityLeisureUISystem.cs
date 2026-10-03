@@ -26,7 +26,9 @@ namespace BitulaMod {
         GoingToHome = 4,
         GoingToAnotherLeisure = 5,
         GoingToWork = 6,
-        GoingToShop = 7
+        GoingToShop = 7,
+        NotAnotherLeisure = 8,
+        NotShopping = 9
     }
     enum VisualDelay {
         None = 0,
@@ -36,6 +38,8 @@ namespace BitulaMod {
         GoingToWork = 8,
         GoingToAnotherLeisure = 16,
         GoingToShop = 32,
+        NotAnotherLeisure = 64,
+        NotShopping = 128
     }
 
 
@@ -73,10 +77,8 @@ namespace BitulaMod {
                     return;
 
                 delay.m_Target &=
-                    ~(VisualDelay.GoingHome |
-                        VisualDelay.GoingToWork |
-                        VisualDelay.GoingToShop |
-                        VisualDelay.GoingToAnotherLeisure);
+                    ~(VisualDelay.GoingHome | VisualDelay.GoingToWork | VisualDelay.GoingToShop | VisualDelay.GoingToAnotherLeisure 
+                    | VisualDelay.NotShopping | VisualDelay.NotAnotherLeisure);
 
                 if (delay.m_Target == 0) {
                     delay = null;
@@ -269,6 +271,10 @@ namespace BitulaMod {
         }
 
         private bool isValid(Entity citizen, Entity selectedEntity) {
+            if (!EntityManager.Exists(citizen) || !EntityManager.HasComponent<Citizen>(citizen) || !EntityManager.HasComponent<HouseholdMember>(citizen)) {
+                return false;
+            }
+
             bool hasLeisure = EntityManager.TryGetComponent<Leisure>(citizen, out Leisure leisure);
             bool hasTravelPurpose = EntityManager.TryGetComponent<TravelPurpose>(citizen, out TravelPurpose travelPurpose);
 
@@ -329,7 +335,7 @@ namespace BitulaMod {
 
                     customer.LeisureHours = $"{hours:00}:{minutes:00}";
                 } else {
-                    customer.LeisureHours = "";
+                    customer.LeisureHours = "00:00";
                 }
             }
 
@@ -353,9 +359,9 @@ namespace BitulaMod {
                 citizen,
                 out Leisure leisure
             );
-
+            Entity targetEntity = Entity.Null;
             if (hasLeisure) {
-                Entity targetEntity = leisure.m_TargetAgent;
+                targetEntity = leisure.m_TargetAgent;
 
                 if (m_PropertyRenters.TryGetComponent(
                         targetEntity,
@@ -379,8 +385,8 @@ namespace BitulaMod {
             }
 
             bool liveStatus = false;
-            bool isInSelectedBuilding =  (m_LeisureVisitBuilding.TryGetValue(citizen, out Entity leisureBuilding) &&
-             leisureBuilding == selectedEntity);
+            bool isInSelectedBuilding = m_CurrentBuildings.TryGetComponent(citizen, out CurrentBuilding currentBuilding) &&
+                currentBuilding.m_CurrentBuilding == selectedEntity;
 
             if (HasTripPurpose(citizen, Purpose.GoingHome)) {
                 customer.Status = LeisureStatus.GoingToHome;
@@ -398,7 +404,15 @@ namespace BitulaMod {
                 customer.Status = LeisureStatus.GoingToAnotherLeisure;
                 SetVisualDelay(customer, VisualDelay.GoingToAnotherLeisure);
                 liveStatus = true;
-            }
+            } else if (m_Shopping.HasComponent(citizen) && isInSelectedBuilding && !HasTripPurpose(citizen, Purpose.Shopping)) {
+                customer.Status = LeisureStatus.NotShopping;
+                SetVisualDelay(customer, VisualDelay.NotShopping);
+                liveStatus = true;
+            } else if (hasLeisure && isInSelectedBuilding && targetEntity != selectedEntity) {
+                customer.Status = LeisureStatus.NotAnotherLeisure;
+                SetVisualDelay(customer, VisualDelay.NotAnotherLeisure);
+                liveStatus = true;
+            } 
 
             if (customer.delay == null || DateTime.UtcNow >= customer.delay.m_Time) {
                 customer.RemoveDelay();
@@ -418,6 +432,8 @@ namespace BitulaMod {
                 return true;
             }
 
+            
+
             if ((customer.delay.m_Target & VisualDelay.GoingHome) != 0) {
                 customer.Status = LeisureStatus.GoingToHome;
                 return true;
@@ -435,6 +451,16 @@ namespace BitulaMod {
 
             if ((customer.delay.m_Target & VisualDelay.GoingToAnotherLeisure) != 0) {
                 customer.Status = LeisureStatus.GoingToAnotherLeisure;
+                return true;
+            }
+
+            if ((customer.delay.m_Target & VisualDelay.NotShopping) != 0) {
+                customer.Status = LeisureStatus.NotShopping;
+                return true;
+            }
+
+            if ((customer.delay.m_Target & VisualDelay.NotAnotherLeisure) != 0) {
+                customer.Status = LeisureStatus.NotAnotherLeisure;
                 return true;
             }
 

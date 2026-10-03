@@ -15,6 +15,8 @@ Unsupported mods: Code mods that override the same game systems are generally in
 - Fixed several leisure behavior issues.
 - Reworked and fixed the leisure Customers UI, including status handling and display delays.
 - Added a shopping status icon.
+- Fixed exception caused by citizens without home
+- Added no shopping and no other leisure icons
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -52,7 +54,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.17" />
+	<ModVersion Value="1.4.19" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -62,10 +64,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Fixed duplicate BehaviorSystem processing.
-- Fixed several leisure behavior issues.
-- Reworked and fixed the leisure Customers UI, including status handling and display delays.
-- Added a shopping status icon.
+- Fixed no shopping icon overriding normal icons
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

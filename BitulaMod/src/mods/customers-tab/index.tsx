@@ -12,6 +12,8 @@ import goingToWorkIcon from "./icons/leisure-going-to-work.svg";
 import goingToShopIcon from "./icons/leisure-shopping.svg";
 import idlingIcon from "./icons/idling.svg";
 import goingToLeisureIcon from "./icons/going-to-leisure.svg";
+import notAnotherLeisureIcon from "./icons/not-another-leisure.svg";
+import notShoppingIcon from "./icons/not-shopping.svg";
 import leisureDesire1 from "./icons/leisure-desire1.svg";
 import leisureDesire2 from "./icons/leisure-desire2.svg";
 import leisureDesire3 from "./icons/leisure-desire3.svg";
@@ -38,6 +40,8 @@ enum CustomerStatus {
     GoingToAnotherLeisure = 5,
     GoingToWork = 6,
     GoingToShop = 7,
+    NotAnotherLeisure = 8,
+    NotShopping = 9
 }
 
 enum Desire {
@@ -135,6 +139,8 @@ const statusIcons: Partial<Record<CustomerStatus, string>> = {
     [CustomerStatus.GoingToWork]: goingToWorkIcon,
     [CustomerStatus.GoingToHome]: goingHomeIcon,
     [CustomerStatus.GoingToShop]: goingToShopIcon,
+    [CustomerStatus.NotAnotherLeisure]: notAnotherLeisureIcon,
+    [CustomerStatus.NotShopping]: notShoppingIcon,
     [CustomerStatus.Idling]: idlingIcon,
 };
 

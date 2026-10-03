@@ -767,7 +767,7 @@ namespace BitulaMod
 
             uint startFrame = GetLeisureStartFrame(citizen);
             if (startFrame == 0)
-                return simulationFrame >= lastPossibleFrame;
+                return true;
             uint day = startFrame / kFramesPerDay;
 
             float percent = Unity.Mathematics.Random.CreateFromIndex(
