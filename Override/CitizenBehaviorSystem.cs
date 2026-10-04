@@ -1048,8 +1048,10 @@ namespace BitulaMod
 												}
 												else
 												{
-													if (age == CitizenAge.Adult || age == CitizenAge.Elderly)
-													{
+													if ((age == CitizenAge.Adult || age == CitizenAge.Elderly) 
+														&& (!flag2 || !m_SmallCityJobs.UseSmallCityBehavior(entity2)))
+
+                                                    {
 														HouseholdNeed householdNeed = this.m_HouseholdNeeds[entity];
 														if (householdNeed.m_Resource != Resource.NoResource && this.m_Transforms.HasComponent(currentBuilding))
 														{

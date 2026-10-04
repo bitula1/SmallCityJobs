@@ -50,7 +50,7 @@ namespace BitulaMod {
         }
         private class CustomerInfo {
             public CustomerInfo(Entity citizen) {
-                m_EndTime = DateTime.UtcNow.AddSeconds(5);
+                m_EndTime = DateTime.UtcNow.AddSeconds(10);
                 Customer = citizen;
                 LeisureHours = "";
                 Resource = -1;
@@ -195,14 +195,17 @@ namespace BitulaMod {
         private void ClearCustomers(Entity selectedEntity) {
             DateTime now = DateTime.UtcNow;
 
-            m_Customers
-                .Where(x =>
-                    !isValid(x.Key, selectedEntity) &&
-                    (x.Value.delay == null || now >= x.Value.delay.m_Time) &&
-                    now >= x.Value.m_EndTime)
-                .Select(x => x.Key)
-                .ToList()
-                .ForEach(x => m_Customers.Remove(x));
+            m_Customers.Where(x => {
+                bool valid = isValid(x.Key, selectedEntity);
+
+               if (valid) {
+                   x.Value.m_EndTime = now.AddSeconds(10);
+                   return false;
+               }
+
+               return (x.Value.delay == null || now >= x.Value.delay.m_Time) &&
+                  now >= x.Value.m_EndTime;
+            }).Select(x => x.Key).ToList().ForEach(x => m_Customers.Remove(x));
         }
 
 
@@ -311,19 +314,9 @@ namespace BitulaMod {
             Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
             if (useSCJ && hasLeisure && EntityManager.TryGetComponent<LeisureStartComponent>(
                 citizen, out LeisureStartComponent leisureStart)) {                
-
-                uint startFrame = leisureStart.m_StartFrame;
-                uint day = startFrame / 262144u;
-
-                float percent = Unity.Mathematics.Random.CreateFromIndex(
-                    (uint)citizenData.m_PseudoRandom + 30000u + day
-                ).NextFloat(
-                    Mod.Settings.LeisureIntervalMin / 100f,
-                    Mod.Settings.LeisureIntervalMax / 100f
-                );
-
-                uint duration = leisure.m_LastPossibleFrame - startFrame;
-                uint endFrame = startFrame + (uint)(duration * percent);
+                
+                //uint endFrame = startFrame + (uint)(duration * percent);
+                uint endFrame = scj.LeisureEndFrame(citizenData, citizen, leisure.m_LastPossibleFrame, leisureStart.m_StartFrame);
 
                 long remainingFrames = Math.Max(0, (long)endFrame - currentFrame);
 

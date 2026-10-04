@@ -173,7 +173,9 @@ namespace BitulaMod
                 m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
                 m_NormalLeisure = Mod.Settings.NormalLeisure,
                 m_NormalLeisureMin = Mod.Settings.NormalLeisureMin,
-                m_NormalLeisureMax = Mod.Settings.NormalLeisureMax
+                m_NormalLeisureMax = Mod.Settings.NormalLeisureMax,
+                m_LeisureIntervalMin = Mod.Settings.LeisureIntervalMin,
+                m_LeisureIntervalMax = Mod.Settings.LeisureIntervalMax,
             };
         }
 
@@ -602,13 +604,7 @@ namespace BitulaMod
 
         public byte GetLeisureDesireLevel(Citizen citizen) {
             int chance = GetLeisureChance(citizen);
-
-            return (byte)(1 + math.clamp(
-                (chance - m_NormalLeisureMin) * 5 /
-                (m_NormalLeisureMax - m_NormalLeisureMin + 1),
-                0,
-                4
-            ));
+            return (byte)(1 + math.clamp( (chance - m_NormalLeisureMin) * 5 / (m_NormalLeisureMax - m_NormalLeisureMin + 1), 0, 4));
         }
 
         public bool DoLeisure(Entity citizen, uint simulationFrame) {
@@ -759,25 +755,50 @@ namespace BitulaMod
                    m_AvailableProviderFound[citizen].m_Value;
         }
 
-        public bool IsEndOfLeisure( Entity citizen, uint simulationFrame, uint lastPossibleFrame) {
-            bool useSCJ = UseSmallCityBehavior(citizen);
-            if (!useSCJ)
-                return false;
+        public uint LeisureEndFrame( Entity citizen, uint lastPossibleFrame) {
             Citizen citizenData = m_Citizens[citizen];
-
             uint startFrame = GetLeisureStartFrame(citizen);
-            if (startFrame == 0)
-                return true;
+            return LeisureEndFrame(citizenData, citizen, lastPossibleFrame, startFrame);
+        }
+        public uint LeisureEndFrame(Citizen citizenData, Entity citizen, uint lastPossibleFrame, uint startFrame) {                        
+            if (startFrame == 0 || lastPossibleFrame <= startFrame)
+                return 0;
+
             uint day = startFrame / kFramesPerDay;
 
             float percent = Unity.Mathematics.Random.CreateFromIndex(
                 (uint)citizenData.m_PseudoRandom + 30000u + day
-            ).NextFloat( m_LeisureIntervalMin / 100f, m_LeisureIntervalMax / 100f);
+            ).NextFloat(m_LeisureIntervalMin / 100f, (m_LeisureIntervalMax - DesireLengthPercentReduction(citizenData)) / 100f);
 
             uint duration = lastPossibleFrame - startFrame;
             uint endFrame = startFrame + (uint)(duration * percent);
 
+            return endFrame;
+        }
+
+        public bool IsEndOfLeisure(Entity citizen, uint simulationFrame, uint lastPossibleFrame) {
+            if (!UseSmallCityBehavior(citizen))
+                return false;
+
+            uint endFrame = LeisureEndFrame(citizen, lastPossibleFrame);
+
+            if (endFrame == 0)
+                return true;
             return simulationFrame >= endFrame;
+        }
+
+
+        private float DesireLengthPercentReduction(Citizen citizen) {
+            if (m_NormalLeisureMax <= m_NormalLeisureMin)
+                return 0f;
+
+            int desire = GetLeisureChance(citizen);
+
+            float desireFactor =
+                (desire - m_NormalLeisureMin) /
+                (float)(m_NormalLeisureMax - m_NormalLeisureMin);
+
+            return (m_LeisureIntervalMax - m_LeisureIntervalMin) * (1f - desireFactor);
         }
 
         public bool IsEndOfSpending(Entity citizen) {
