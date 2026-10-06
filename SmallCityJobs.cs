@@ -60,9 +60,10 @@ namespace BitulaMod
         private int m_SpendingLeisureMax;
         private Unity.Mathematics.Random m_Random;
         private FixedString64Bytes m_Parameters;
-        private byte m_Hint;
+        private EventHint m_WatchHint;
+        private EventHint m_Hint;
         private Workplaces m_Workplaces;
-        private CustomEventType m_WatchedEvent;
+        private FixedList128Bytes<CustomEventType> m_WatchedEvents;
         private ComponentLookup<Followed> m_Followed;
         private ComponentLookup<Building> m_Buildings;
         private ComponentLookup<CompanyData> m_CompanyDatas;
@@ -198,14 +199,15 @@ namespace BitulaMod
                     m_EventType = eventType,
                     m_Param = m_Parameters,
                     m_Hint = this.m_Hint,
-                    m_WatchedEventType = m_WatchedEvent,
+                    m_WatchHint = this.m_WatchHint,
+                    m_WatchedEventTypes = m_WatchedEvents,
                     m_Target = target ?? Entity.Null,
                 });
             }
 
             m_Parameters = default;
             m_Hint = default;
-            m_WatchedEvent = default;
+            m_WatchedEvents = default;
         }
 
         public static void AddProducer(ref SystemState state, JobHandle dependency)
@@ -339,7 +341,7 @@ namespace BitulaMod
             if (hasBetterJob && vanillaSkipped && !useSmallCityBehavior) {
                 if (numJobs <= VanillaWorkspaceThreshold) {
                     AddParameter(numJobs);
-                    SetHint(CustomEvent.IgnoreParameterInFilter);
+                    SetHint(EventHint.IgnoreParameters);
                     Send(citizen, CustomEventType.TooFewBetterJobs);
                 } else {
                     AddParameter(numJobs);
@@ -358,13 +360,22 @@ namespace BitulaMod
             return noSuitableJobs;
         }
 
-        public void SetHint(byte hint) {
+        public void SetWatchHint(EventHint hint) {
+            m_WatchHint |= hint;
+        }
+
+        public void SetHint(EventHint hint) {
             m_Hint |= hint;
         }
 
 
         public void SendOnlyIfWatchedEvent(CustomEventType eventType) {
-            m_WatchedEvent = eventType;
+            for (int i = 0; i < m_WatchedEvents.Length; i++) {
+                if (m_WatchedEvents[i] == eventType)
+                    return;
+            }
+
+            m_WatchedEvents.Add(eventType);
         }
 
         public bool IsTodayOffDay(Citizen citizen, ref EconomyParameterData economyParameters, uint frame, TimeData timeData, int population) {
@@ -618,9 +629,15 @@ namespace BitulaMod
                 (uint)citizenData.m_PseudoRandom + 20000u + period
             ).NextInt(100);
             bool result = roll < chance;
-            if (result)
+            if (result) {
+                SendOnlyIfWatchedEvent(CustomEventType.NoCityIndoors);
+                SendOnlyIfWatchedEvent(CustomEventType.NoEntertainment);
+                SendOnlyIfWatchedEvent(CustomEventType.NoCityPark);
+                SendOnlyIfWatchedEvent(CustomEventType.NoMeals);
+                SetHint(EventHint.CounterWatchEvent);
+                SetHint(EventHint.DirectPreviousMessage);
                 Send(citizen, CustomEventType.DoLeisure);
-            else
+            } else
                 Send(citizen, CustomEventType.WantNoLeisure);
             return result;
         }
@@ -637,15 +654,19 @@ namespace BitulaMod
 
             switch (desired) {
                 case LeisureType.Meals:
+                    SetWatchHint(EventHint.CounterWatchEvent);
                     Send(citizen, CustomEventType.NoMeals);
                     break;
                 case LeisureType.CityPark:
+                    SetWatchHint(EventHint.CounterWatchEvent);
                     Send(citizen, CustomEventType.NoCityPark);
                     break;
                 case LeisureType.CityIndoors:
+                    SetWatchHint(EventHint.CounterWatchEvent);
                     Send(citizen, CustomEventType.NoCityIndoors);
                     break;
                 case LeisureType.Entertainment:
+                    SetWatchHint(EventHint.CounterWatchEvent);
                     Send(citizen, CustomEventType.NoEntertainment);
                     break;
 

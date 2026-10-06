@@ -274,10 +274,11 @@ namespace BitulaMod
 								if (m_SmallCityJobs.IsCompany(workplace)) {
 									if (!m_PropertyRenters.TryGetComponent(workplace, out PropertyRenter renter) ||
 										renter.m_Property == Entity.Null) {
-										m_SmallCityJobs.SetHint(CustomEvent.WatchEvent);
+										m_SmallCityJobs.SetWatchHint(EventHint.WatchEvent);
 										m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerGone);
 									} else {
-										m_SmallCityJobs.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
+                                        m_SmallCityJobs.SetHint(EventHint.WatchEvent);
+                                        m_SmallCityJobs.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
                                         m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerReturned);
                                     }
 								} else if (!m_SmallCityJobs.HasBuilding(workplace) &&

@@ -11,12 +11,9 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Fixed duplicate BehaviorSystem processing.
-- Fixed several leisure behavior issues.
-- Reworked and fixed the leisure Customers UI, including status handling and display delays.
-- Added a shopping status icon.
-- Fixed exception caused by citizens without home
-- Added no shopping and no other leisure icons
+- Leisure session length now depends on the citizen's leisure desire
+- Fixed citizens disappearing from the customer list without showing the reason they left
+- Citizens will no longer start shopping while they are already spending leisure time
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -54,7 +51,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.19" />
+	<ModVersion Value="1.4.20" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -64,7 +61,9 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Fixed no shopping icon overriding normal icons
+- Leisure session length now depends on the citizen's leisure desire
+- Fixed citizens disappearing from the customer list without showing the reason they left
+- Citizens will no longer start shopping while they are already spending leisure time
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

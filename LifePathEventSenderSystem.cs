@@ -8,6 +8,8 @@ using Game.Triggers;
 using Game.UI;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Unity.Burst.CompilerServices;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -18,6 +20,9 @@ namespace BitulaMod
     public partial class LifePathEventSenderSystem : GameSystemBase {
 
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
+        
+        
+
         private Dictionary<CustomEventType, TriggerPrefab> m_EventPrefabs;
         private PrefabSystem m_PrefabSystem;
         private CreateChirpSystem m_CreateChirpSystem;
@@ -26,8 +31,7 @@ namespace BitulaMod
         private JobHandle m_ProducerDependency;
         private NameSystem m_NameSystem;
         private LocalizationManager m_LocaleManager;
-        private readonly Dictionary<Entity, string> m_LastCitizenEvents = new();
-        private readonly Dictionary<Entity, CustomEventType> m_WatchedCitizenEvents = new();
+        private readonly Dictionary<Entity, MessageInfo> m_Events = new();
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         
 
@@ -119,38 +123,39 @@ namespace BitulaMod
 
             deps.Complete();
 
-            // Check watched-event requirement first.
-            if (cevent.m_WatchedEventType != CustomEventType.None) {
-                if (!m_WatchedCitizenEvents.TryGetValue(cevent.m_Citizen, out CustomEventType watchedEvent) ||
-                    watchedEvent != cevent.m_WatchedEventType)
+            MessageInfo message;
+
+            if (!m_Events.TryGetValue(cevent.m_Citizen, out message)) {
+                message = new MessageInfo(cevent);
+                m_Events.Add(cevent.m_Citizen, message);
+            } else {
+                message.SetEvent(cevent);
+            }
+
+            if (message.HasEventsToWatch()) {
+                if (message.HasHint(EventHint.CounterWatchEvent)) {
+                    if (message.HasHint(EventHint.DirectPreviousMessage)) {
+                        if (message.LastEventMatchesWatch(EventHint.CounterWatchEvent))
+                            return;
+                    } else if (message.HasMatchingWatchedEvent(EventHint.CounterWatchEvent)) {
+                        return;
+                    }
+                }
+
+                if (message.HasHint(EventHint.WatchEvent) &&
+                    !message.HasMatchingWatchedEvent(EventHint.WatchEvent)) {
                     return;
+                }
             }
 
-            string[] parameters = cevent.m_Param.ToString().Split(',');
-
-            string key = $"BitulaMod.LIFEPATH_LINK_{cevent.m_EventType}";
-
-            if (!m_LocaleManager.activeDictionary.TryGetValue(key, out string template)) {
-                template = key;
-            }
-
-            string parameterText;
-
-            if (parameters.Length > 0)
-                parameterText = string.Format(template, parameters);
-            else
-                parameterText = template;
+            
 
             if (cevent.m_EventType != CustomEventType.DebugMessage) {
-                string eventKey = (cevent.m_Hint & CustomEvent.IgnoreParameterInFilter) != 0
-                    ? cevent.m_EventType.ToString()
-                    : $"{cevent.m_EventType}:{parameterText}";
+                string eventKey = message.GetEventText();
+                string lastEventKey = message.GetLastEventText();
 
-                if (m_LastCitizenEvents.TryGetValue(cevent.m_Citizen, out string lastEvent) &&
-                    lastEvent == eventKey)
-                    return;
-
-                m_LastCitizenEvents[cevent.m_Citizen] = eventKey;
+                if (lastEventKey == eventKey)
+                    return;                
             }
 
             Entity parameterEntity;
@@ -174,7 +179,7 @@ namespace BitulaMod
 
             m_NameSystem.SetCustomName(
                 parameterEntity,
-                parameterText
+                message.GetParameterText()
             );
 
 
@@ -184,14 +189,10 @@ namespace BitulaMod
                 m_Target = parameterEntity
             });
 
-            if ((cevent.m_Hint & CustomEvent.WatchEvent) != 0)
-                m_WatchedCitizenEvents[cevent.m_Citizen] = cevent.m_EventType;
-
-            if (cevent.m_WatchedEventType != CustomEventType.None)
-                m_WatchedCitizenEvents.Remove(cevent.m_Citizen);
-
-            string citizenName =
-                m_NameSystem.GetRenderedLabelName(cevent.m_Citizen);
+            if (message.HasEventsToWatch())
+                message.RemoveEventsWatched();
+            if (cevent.m_EventType != CustomEventType.DebugMessage)
+                message.StoreCurrentEvent();
         }
     }
 }
