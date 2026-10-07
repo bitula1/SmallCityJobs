@@ -8,6 +8,7 @@ using Game.Triggers;
 using Game.UI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Burst.CompilerServices;
 using Unity.Collections;
@@ -31,7 +32,9 @@ namespace BitulaMod
         private JobHandle m_ProducerDependency;
         private NameSystem m_NameSystem;
         private LocalizationManager m_LocaleManager;
-        private readonly Dictionary<Entity, MessageInfo> m_Events = new();
+        private readonly Dictionary<Entity, EventInfo> m_LastEvent = new();
+        private readonly Dictionary<Entity, Dictionary<CustomEventType, MessageInfo>> m_Events = new();
+        private readonly Dictionary<(Entity Citizen, CustomEventType Event), bool> m_FirstSend = new();
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         
 
@@ -125,30 +128,29 @@ namespace BitulaMod
 
             MessageInfo message;
 
-            if (!m_Events.TryGetValue(cevent.m_Citizen, out message)) {
-                message = new MessageInfo(cevent);
-                m_Events.Add(cevent.m_Citizen, message);
+            if (!m_Events.TryGetValue(cevent.m_Citizen, out var citizenEvents)) {
+                citizenEvents = new Dictionary<CustomEventType, MessageInfo>();
+                m_Events.Add(cevent.m_Citizen, citizenEvents);
+            }
+            m_LastEvent.TryGetValue(cevent.m_Citizen, out EventInfo lastEvent);
+
+
+            if (!citizenEvents.TryGetValue(cevent.m_EventType, out message)) {
+                message = new MessageInfo(cevent, lastEvent);
+                citizenEvents.Add(cevent.m_EventType, message);
             } else {
-                message.SetEvent(cevent);
+                message.SetEvent(cevent, lastEvent);
             }
 
-            if (message.HasEventsToWatch()) {
-                if (message.HasHint(EventHint.CounterWatchEvent)) {
-                    if (message.HasHint(EventHint.DirectPreviousMessage)) {
-                        if (message.LastEventMatchesWatch(EventHint.CounterWatchEvent))
-                            return;
-                    } else if (message.HasMatchingWatchedEvent(EventHint.CounterWatchEvent)) {
-                        return;
-                    }
-                }
+            var key = (cevent.m_Citizen, cevent.m_EventType);
 
-                if (message.HasHint(EventHint.WatchEvent) &&
-                    !message.HasMatchingWatchedEvent(EventHint.WatchEvent)) {
-                    return;
-                }
+            if (!m_FirstSend.TryGetValue(key, out bool firstSend)) {
+                firstSend = true;
+                m_FirstSend.Add(key, true);
             }
 
-            
+            if (!message.canSend(firstSend))
+                return;
 
             if (cevent.m_EventType != CustomEventType.DebugMessage) {
                 string eventKey = message.GetEventText();
@@ -172,27 +174,34 @@ namespace BitulaMod
                     m_Target = cevent.m_Target
                 });
 
-                return;
+
+            } else {
+                parameterEntity = EntityManager.CreateEntity();
+
+                m_NameSystem.SetCustomName(
+                    parameterEntity,
+                    message.GetParameterText()
+                );
+
+
+                queue.Enqueue(new LifePathEventCreationData {
+                    m_EventPrefab = eventPrefab,
+                    m_Sender = cevent.m_Citizen,
+                    m_Target = parameterEntity
+                });
             }
 
-            parameterEntity = EntityManager.CreateEntity();
+            foreach (MessageInfo watcher in citizenEvents.Values) {
+                watcher.StoreWatchedEvent(message);
+            }
 
-            m_NameSystem.SetCustomName(
-                parameterEntity,
-                message.GetParameterText()
-            );
+            if (firstSend)
+                m_FirstSend[key] = false;
 
+            if (message.CanRemove())
+                citizenEvents.Remove(cevent.m_EventType);
 
-            queue.Enqueue(new LifePathEventCreationData {
-                m_EventPrefab = eventPrefab,
-                m_Sender = cevent.m_Citizen,
-                m_Target = parameterEntity
-            });
-
-            if (message.HasEventsToWatch())
-                message.RemoveEventsWatched();
-            if (cevent.m_EventType != CustomEventType.DebugMessage)
-                message.StoreCurrentEvent();
+            m_LastEvent[cevent.m_Citizen] = message.GetEventInfo();
         }
     }
 }

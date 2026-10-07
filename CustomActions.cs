@@ -30,6 +30,11 @@ namespace BitulaMod
         FoundLeisureAt = 119,
         NoCityIndoors = 120,
         NoEntertainment = 121,
+        SwitchJobWorse = 122,
+        SwitchJobNone = 123,
+        SwitchJobNoTake = 124,
+        NoCommercial = 125,
+        NoCityBeach = 126,
         DebugMessage = 200,
     }
 }

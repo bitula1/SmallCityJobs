@@ -6,9 +6,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Unity.Collections;
+using static UnityEngine.InputSystem.InputRemoting;
 
 namespace BitulaMod {
     public class EventInfo {
+        private CustomEventType m_Event;
+        private String m_EventText;
+        private String m_ParameterText;
+        private EventHint m_Hints;
+        private EventHint m_WatchHints;
 
         public EventInfo(CustomEventType cevent) {
             m_Event = cevent;            
@@ -30,16 +36,24 @@ namespace BitulaMod {
                     ? cevent.m_EventType.ToString()
                     : $"{cevent.m_EventType}:{m_ParameterText}";
         }
-        private CustomEventType m_Event;
-        private String m_EventText;
-        private String m_ParameterText;
-        private EventHint m_Hints;
-        private EventHint m_WatchHints;
+        public override bool Equals(object obj) {
+            return obj is EventInfo other &&
+                   m_Event == other.m_Event;
+        }
+
+        public override int GetHashCode() {
+            return m_Event.GetHashCode();
+        }
         public CustomEventType GetEvent() {
             return m_Event;
         }
         public void AddHint(EventHint hint) {
             m_Hints |= hint;
+        }
+
+        public void ReplaceHint(EventHint source, EventHint target) {
+            m_Hints &= ~source;
+            m_Hints |= target;
         }
 
         public void AddWatchHint(EventHint hint) {
@@ -65,28 +79,72 @@ namespace BitulaMod {
     public class MessageInfo {
         private EventInfo m_Event;
         private EventInfo m_LastEvent;
-        private readonly List<EventInfo> m_EventsToWatch = new();
-        private readonly List<EventInfo> m_WatchedEvents = new();
-        public MessageInfo(CustomEvent cevent) {
-            SetEvent(cevent);
+        private readonly HashSet<EventInfo> m_EventsToWatch = new();
+        private readonly HashSet<EventInfo> m_WatchedEvents = new();
+        public MessageInfo(CustomEvent currentEvent, EventInfo lastEvent) {
+            SetEvent(currentEvent, lastEvent);
         }
 
-        public void SetEvent(CustomEvent cevent) {
-            m_Event = new EventInfo(cevent);
-
+        public void SetEvent(CustomEvent currentEvent, EventInfo lastEvent) {
+            m_Event = new EventInfo(currentEvent);
+            m_LastEvent = lastEvent;
             m_EventsToWatch.Clear();
+            setSendIfWatched(currentEvent.m_WatchedEventTypes, currentEvent.m_Hint & (EventHint.WatchEvent | EventHint.CounterWatchEvent | EventHint.SendThenWatchEvent));
+            m_Event.AddHint(currentEvent.m_Hint);
+            m_Event.AddWatchHint(currentEvent.m_WatchHint);
+        }
 
-            setSendIfWatched(
-                cevent.m_WatchedEventTypes,
-                cevent.m_Hint &
-                    (EventHint.WatchEvent | EventHint.CounterWatchEvent));
+        public void StoreWatchedEvent(MessageInfo message) {
+            foreach (EventInfo eventToWatch in m_EventsToWatch) {
+                if (eventToWatch.GetEvent() == message.m_Event.GetEvent()) {
+                    m_WatchedEvents.Add(message.m_Event);
+                    return;
+                }
+            }
+        }
 
-            m_Event.AddHint(cevent.m_Hint);
-            m_Event.AddWatchHint(cevent.m_WatchHint);
+        public void ReplaceHint(EventHint source, EventHint target) {
+            m_Event.ReplaceHint(source, target);
+
+            foreach (EventInfo eventInfo in m_EventsToWatch) {
+                if (eventInfo.HasHint(source))
+                    eventInfo.ReplaceHint(source, target);
+            }
+        }
+
+        public bool canSend(bool firstSend) {
+            if (!firstSend && HasHint(EventHint.SendThenWatchEvent))
+                ReplaceHint(EventHint.SendThenWatchEvent, EventHint.WatchEvent);
+
+            if (HasEventsToWatch()) {
+                if (HasHint(EventHint.CounterWatchEvent)) {
+                    if (HasHint(EventHint.DirectPreviousMessage)) {
+                        if (LastEventMatchesWatch(EventHint.CounterWatchEvent))
+                            return false;
+                    } else if (HasMatchingWatchedEvent(EventHint.CounterWatchEvent)) {
+                        return false;
+                    }
+                }
+
+                if (HasHint(EventHint.WatchEvent) &&
+                    !HasMatchingWatchedEvent(EventHint.WatchEvent)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool CanRemove() { 
+            return !HasHint(EventHint.SendThenWatchEvent); 
         }
 
         public CustomEventType GetEvent() {
             return m_Event.GetEvent();
+        }
+
+        public EventInfo GetEventInfo() {
+            return m_Event;
         }
 
         public void SetLastEvent(MessageInfo message) {
@@ -159,15 +217,6 @@ namespace BitulaMod {
             return m_LastEvent.GetEvent();
         }
 
-        public void StoreCurrentEvent() {
-            m_LastEvent = m_Event;
-
-            if (m_Event.HasWatchHint(
-                    EventHint.WatchEvent | EventHint.CounterWatchEvent)) {
-                m_WatchedEvents.Add(m_Event);
-            }
-        }
-
         public bool LastEventMatchesWatch(EventHint hint) {
             if (m_LastEvent == null ||
                 !m_LastEvent.HasWatchHint(hint))
@@ -209,24 +258,6 @@ namespace BitulaMod {
 
         public string GetParameterText() {
             return m_Event.GetParameterText();
-        }
-
-        public void RemoveEventsWatched() {
-            for (int i = m_WatchedEvents.Count - 1; i >= 0; i--) {
-                EventInfo watchedEvent = m_WatchedEvents[i];
-
-                foreach (EventInfo eventToWatch in m_EventsToWatch) {
-                    if (eventToWatch.GetEvent() == watchedEvent.GetEvent() &&
-                        ((eventToWatch.HasHint(EventHint.WatchEvent) &&
-                          watchedEvent.HasWatchHint(EventHint.WatchEvent)) ||
-                         (eventToWatch.HasHint(EventHint.CounterWatchEvent) &&
-                          watchedEvent.HasWatchHint(EventHint.CounterWatchEvent)))) {
-
-                        m_WatchedEvents.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-        }
+        }        
     }
 }

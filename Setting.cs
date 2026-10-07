@@ -139,6 +139,9 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_StartedLookingForAnotherJob"] = 1;
             indexCounts["BitulaMod.LIFEPATH_TooFewBetterJobs"] = 1;
             indexCounts["BitulaMod.LIFEPATH_DoesntWantBetterJob"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_SwitchJobWorse"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_SwitchJobNone"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_SwitchJobNoTake"] = 1;
             indexCounts["BitulaMod.LIFEPATH_WorkplaceGone"] = 1;
             indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
             indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
@@ -155,6 +158,8 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_NoMeals"] = 3;
             indexCounts["BitulaMod.LIFEPATH_NoCityIndoors"] = 3;
             indexCounts["BitulaMod.LIFEPATH_NoEntertainment"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_NoCommercial"] = 3;
+            indexCounts["BitulaMod.LIFEPATH_NoCityBeach"] = 3;
             indexCounts["BitulaMod.LIFEPATH_ServiceFull"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundLeisureAt"] = 1;
             return new Dictionary<string, string>
@@ -211,6 +216,9 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_TooFewBetterJobs:0", "{LINK_NAME_1}, but that's too few to make looking for another job worthwhile." },
                 { "BitulaMod.LIFEPATH_LINK_TooFewBetterJobs", "I found {0} suitable positions" },
                 { "BitulaMod.LIFEPATH_DoesntWantBetterJob:0", "Some of these are better jobs, but I don't want to change jobs right now." },
+                { "BitulaMod.LIFEPATH_SwitchJobWorse:0", "I looked for another job, but all the available ones are worse than my current job." },
+                { "BitulaMod.LIFEPATH_SwitchJobNone:0", "I looked for another job, but there aren't any available jobs right now." },
+                { "BitulaMod.LIFEPATH_SwitchJobNoTake:0", "I found another job, but I'm not qualified enough to take it." },
                 { "BitulaMod.LIFEPATH_WorkplaceGone:0", "Looks like my workplace is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
                 { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
@@ -233,6 +241,12 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_NoEntertainment:0", "I was in the mood for some entertainment, but there was nowhere interesting to go." },
                 { "BitulaMod.LIFEPATH_NoEntertainment:1", "I wanted a little fun, but the city didn't have anything that caught my attention." },
                 { "BitulaMod.LIFEPATH_NoEntertainment:2", "I went looking for something entertaining to do, but apparently tonight's show was cancelled." },
+                { "BitulaMod.LIFEPATH_NoCommercial:0", "I felt like going shopping, but there wasn't anywhere suitable to go." },
+                { "BitulaMod.LIFEPATH_NoCommercial:1", "I wanted to browse the shops, but nothing around here caught my interest." },
+                { "BitulaMod.LIFEPATH_NoCommercial:2", "I was in the mood to spend some money, but the city gave me nowhere to spend it." },
+                { "BitulaMod.LIFEPATH_NoCityBeach:0", "I wanted to spend some time by the water, but there wasn't a suitable beach to go to." },
+                { "BitulaMod.LIFEPATH_NoCityBeach:1", "I felt like relaxing at the beach, but I couldn't find anywhere to do it." },
+                { "BitulaMod.LIFEPATH_NoCityBeach:2", "I was ready for sand, sun, and a little escape, but there was nowhere to put down a towel." },
                 { "BitulaMod.LIFEPATH_ServiceFull:0", "I found a place I wanted to visit, but it was already full." },
                 { "BitulaMod.LIFEPATH_FoundLeisureAt:0", "I found a place I wanted to visit. Let's go to {LINK_1}." },
 

@@ -79,6 +79,7 @@ namespace BitulaMod
         public ComponentLookup<DesiredProviderFound> m_DesiredProviderFound;
         public ComponentLookup<AvailableProviderFound> m_AvailableProviderFound;
         private ComponentLookup<LeisureStartComponent> m_LeisureStarts;
+        private ComponentLookup<Leisure> m_Leisure;
         private BufferLookup<Game.Economy.Resources> m_Resources;
 
 
@@ -130,6 +131,7 @@ namespace BitulaMod
                 m_DesiredProviderFound = state.GetComponentLookup<DesiredProviderFound>(true),
                 m_AvailableProviderFound = state.GetComponentLookup<AvailableProviderFound>(true),
                 m_LeisureStarts = state.GetComponentLookup<LeisureStartComponent>(true),
+                m_Leisure = state.GetComponentLookup<Leisure>(true),
                 m_Resources = state.GetBufferLookup<Game.Economy.Resources>(true),
 
                 m_WorkplaceEntities = workplaceQuery.ToEntityArray(state.WorldUpdateAllocator),
@@ -310,12 +312,19 @@ namespace BitulaMod
             m_CommandBuffer.RemoveComponent<SmallCityJobsComponent>(citizen.Index, citizen);
         }
 
-        public bool EmployedSkippedApplication(int numJobs, int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
+        public bool EmployedSkippedApplication(int numJobs, int totalAvailableJobs, int worseJobs, 
+            int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
 
-            if (!IsIdle(citizen)) return true;
+            if (!IsIdle(citizen) || m_Leisure.HasComponent(citizen)) return true;
 
             if (numJobs <= 0) {
-                Send(citizen, CustomEventType.CantSwitchJob);
+                if (totalAvailableJobs <= 0)
+                    Send(citizen, CustomEventType.SwitchJobNone);
+                else if (worseJobs == totalAvailableJobs)
+                    Send(citizen, CustomEventType.SwitchJobWorse);
+                else
+                    Send(citizen, CustomEventType.SwitchJobNoTake);
+
                 return true;
             }
 
@@ -349,15 +358,15 @@ namespace BitulaMod
                     Send(citizen, CustomEventType.DoesntWantBetterJob);
                 }
             }
-            bool noSuitableJobs = !hasBetterJob && !hasCloserJob;
-            
-            if (noSuitableJobs)
+            bool noBetterOrCloserJobs = !hasBetterJob && !hasCloserJob;
+
+            if (noBetterOrCloserJobs)
                 Send(citizen, CustomEventType.NoSuitableSwitch);
 
             if (!useSmallCityBehavior)
                 return vanillaSkipped;
 
-            return noSuitableJobs;
+            return noBetterOrCloserJobs;
         }
 
         public void SetWatchHint(EventHint hint) {
@@ -369,7 +378,7 @@ namespace BitulaMod
         }
 
 
-        public void SendOnlyIfWatchedEvent(CustomEventType eventType) {
+        public void SetEventToWatch(CustomEventType eventType) {
             for (int i = 0; i < m_WatchedEvents.Length; i++) {
                 if (m_WatchedEvents[i] == eventType)
                     return;
@@ -630,15 +639,21 @@ namespace BitulaMod
             ).NextInt(100);
             bool result = roll < chance;
             if (result) {
-                SendOnlyIfWatchedEvent(CustomEventType.NoCityIndoors);
-                SendOnlyIfWatchedEvent(CustomEventType.NoEntertainment);
-                SendOnlyIfWatchedEvent(CustomEventType.NoCityPark);
-                SendOnlyIfWatchedEvent(CustomEventType.NoMeals);
+                SetEventToWatch(CustomEventType.NoCityIndoors);
+                SetEventToWatch(CustomEventType.NoEntertainment);
+                SetEventToWatch(CustomEventType.NoCityPark);
+                SetEventToWatch(CustomEventType.NoMeals);
+                SetEventToWatch(CustomEventType.NoCommercial);
+                SetEventToWatch(CustomEventType.NoCityBeach);
                 SetHint(EventHint.CounterWatchEvent);
                 SetHint(EventHint.DirectPreviousMessage);
+                SetWatchHint(EventHint.WatchEvent);
                 Send(citizen, CustomEventType.DoLeisure);
-            } else
+            } else {
+                SetHint(EventHint.SendThenWatchEvent);
+                SetEventToWatch(CustomEventType.DoLeisure);
                 Send(citizen, CustomEventType.WantNoLeisure);
+            }
             return result;
         }
 
@@ -668,6 +683,14 @@ namespace BitulaMod
                 case LeisureType.Entertainment:
                     SetWatchHint(EventHint.CounterWatchEvent);
                     Send(citizen, CustomEventType.NoEntertainment);
+                    break;
+                case LeisureType.Commercial:
+                    SetWatchHint(EventHint.CounterWatchEvent);
+                    Send(citizen, CustomEventType.NoCommercial);
+                    break;
+                case LeisureType.CityBeach:
+                    SetWatchHint(EventHint.CounterWatchEvent);
+                    Send(citizen, CustomEventType.NoCityBeach);
                     break;
 
                 default:

@@ -11,9 +11,13 @@
 Supported/recommended mods: Progression Control and Hard Mode Continued.
 Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
 
-- Leisure session length now depends on the citizen's leisure desire
-- Fixed citizens disappearing from the customer list without showing the reason they left
-- Citizens will no longer start shopping while they are already spending leisure time
+- Reworked life path message handling to make messages more consistent and reduce unnecessary repeats.
+- Added a life path message when a citizen wants to switch jobs but no jobs are available in the city.
+- Added a life path message when a citizen wants to switch jobs but none of the available jobs are suitable for them.
+- Added a life path message when a citizen wants to switch jobs but all available alternatives are worse than their current job.
+- Added new flavor messages when no suitable commercial leisure option is available.
+- Citizens will no longer start looking for a job while they are engaged in leisure.
+- Added new flavor messages when no city beach is available.
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -41,8 +45,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<Thumbnail Value="Properties/smalljob.png" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/lifepath.png" />
-	<Screenshot Value="Properties/options_job.png" />
-	<Screenshot Value="Properties/options_leisure.png" />
+	<Screenshot Value="Properties/options.png" />
 	<Screenshot Value="Properties/workers.png" />
 	<Screenshot Value="Properties/customers.png" />
 	
@@ -51,7 +54,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.20" />
+	<ModVersion Value="1.4.21" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -61,9 +64,13 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Leisure session length now depends on the citizen's leisure desire
-- Fixed citizens disappearing from the customer list without showing the reason they left
-- Citizens will no longer start shopping while they are already spending leisure time
+- Reworked life path message handling to make messages more consistent and reduce unnecessary repeats.
+- Added a life path message when a citizen wants to switch jobs but no jobs are available in the city.
+- Added a life path message when a citizen wants to switch jobs but none of the available jobs are suitable for them.
+- Added a life path message when a citizen wants to switch jobs but all available alternatives are worse than their current job.
+- Added new flavor messages when no suitable commercial leisure option is available.
+- Citizens will no longer start looking for a job while they are engaged in leisure.
+- Added new flavor messages when no city beach is available.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

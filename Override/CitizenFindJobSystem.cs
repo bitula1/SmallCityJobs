@@ -278,7 +278,7 @@ namespace BitulaMod
 										m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerGone);
 									} else {
                                         m_SmallCityJobs.SetHint(EventHint.WatchEvent);
-                                        m_SmallCityJobs.SendOnlyIfWatchedEvent(CustomEventType.EmployerGone);
+                                        m_SmallCityJobs.SetEventToWatch(CustomEventType.EmployerGone);
                                         m_SmallCityJobs.Send(citizenEntity, CustomEventType.EmployerReturned);
                                     }
 								} else if (!m_SmallCityJobs.HasBuilding(workplace) &&
@@ -299,11 +299,19 @@ namespace BitulaMod
                                     highestAvailableJobLevel = k;
                                 }
                             }
+                            int totalAvailableJobs = 0;
 
+                            for (int k = 0; k < 5; k++)
+                                totalAvailableJobs += this.m_AvailableWorkspacesByLevel[k];
+
+                            int worseJobs = 0;
+
+                            for (int k = 0; k < num2; k++)
+                                worseJobs += this.m_AvailableWorkspacesByLevel[k];
 
 
                             //if (num3 <= 100 || num3 < random.NextInt(500))
-                            if (m_SmallCityJobs.EmployedSkippedApplication(num3, num2, highestAvailableJobLevel,  citizenEntity)) {
+                            if (m_SmallCityJobs.EmployedSkippedApplication(num3, totalAvailableJobs, worseJobs, num2, highestAvailableJobLevel,  citizenEntity)) {
                                 this.m_CommandBuffer.SetComponent<HasJobSeeker>(unfilteredChunkIndex, nativeArray[i], new HasJobSeeker
 								{
 									m_Seeker = Entity.Null,

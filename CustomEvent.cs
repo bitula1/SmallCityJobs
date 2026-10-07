@@ -12,7 +12,8 @@ namespace BitulaMod {
         WatchEvent = 1,
         CounterWatchEvent = 2,
         IgnoreParameters = 4,
-        DirectPreviousMessage = 8
+        DirectPreviousMessage = 8,
+        SendThenWatchEvent = 16
     }
     public struct CustomEvent {
         public Entity m_Citizen;
