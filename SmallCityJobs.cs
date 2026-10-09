@@ -15,25 +15,10 @@ using System;
 using System.Globalization;
 using Game.Agents;
 using Game.Economy;
+using BitulaMod.Components;
 
 namespace BitulaMod
 {
-    public struct DesiredLeisureTypeComponent : IComponentData {
-        public LeisureType m_Type;
-        public byte m_Desire;
-    }
-
-    public struct LeisureStartComponent : IComponentData {
-        public uint m_StartFrame;
-        public int m_StartMoney;
-    }
-    public struct DesiredProviderFound : IComponentData {
-        public bool m_Value;
-    }
-
-    public struct AvailableProviderFound : IComponentData {
-        public bool m_Value;
-    }
 
     public struct SmallCityJobs
     {
@@ -73,12 +58,12 @@ namespace BitulaMod
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         private ComponentLookup<Game.Objects.Transform> m_Transforms;
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
-        private ComponentLookup<SmallCityJobsComponent> m_SmallCitySearch;
+        private ComponentLookup<CmpSmallCityJobs> m_SmallCitySearch;
         private ComponentLookup<TravelPurpose> m_TravelPurposes;
-        private ComponentLookup<DesiredLeisureTypeComponent> m_DesiredLeisureTypes;
-        public ComponentLookup<DesiredProviderFound> m_DesiredProviderFound;
-        public ComponentLookup<AvailableProviderFound> m_AvailableProviderFound;
-        private ComponentLookup<LeisureStartComponent> m_LeisureStarts;
+        private ComponentLookup<CmpDesiredLeisureType> m_DesiredLeisureTypes;
+        public ComponentLookup<CmpDesiredProviderFound> m_DesiredProviderFound;
+        public ComponentLookup<CmpAvailableProviderFound> m_AvailableProviderFound;
+        private ComponentLookup<CmpLeisureStart> m_LeisureStarts;
         private ComponentLookup<Leisure> m_Leisure;
         private BufferLookup<Game.Economy.Resources> m_Resources;
 
@@ -125,12 +110,12 @@ namespace BitulaMod
                 m_PropertyRenters = state.GetComponentLookup<PropertyRenter>(true),
                 m_Transforms = state.GetComponentLookup<Game.Objects.Transform>(true),
                 m_FreeWorkplaces = state.GetComponentLookup<FreeWorkplaces>(true),
-                m_SmallCitySearch = state.GetComponentLookup<SmallCityJobsComponent>(true),
+                m_SmallCitySearch = state.GetComponentLookup<CmpSmallCityJobs>(true),
                 m_TravelPurposes = state.GetComponentLookup<TravelPurpose>(true),
-                m_DesiredLeisureTypes = state.GetComponentLookup<DesiredLeisureTypeComponent>(true),
-                m_DesiredProviderFound = state.GetComponentLookup<DesiredProviderFound>(true),
-                m_AvailableProviderFound = state.GetComponentLookup<AvailableProviderFound>(true),
-                m_LeisureStarts = state.GetComponentLookup<LeisureStartComponent>(true),
+                m_DesiredLeisureTypes = state.GetComponentLookup<CmpDesiredLeisureType>(true),
+                m_DesiredProviderFound = state.GetComponentLookup<CmpDesiredProviderFound>(true),
+                m_AvailableProviderFound = state.GetComponentLookup<CmpAvailableProviderFound>(true),
+                m_LeisureStarts = state.GetComponentLookup<CmpLeisureStart>(true),
                 m_Leisure = state.GetComponentLookup<Leisure>(true),
                 m_Resources = state.GetBufferLookup<Game.Economy.Resources>(true),
 
@@ -254,7 +239,7 @@ namespace BitulaMod
             bool failed = applicationFailed && !useSmallCityBehavior;
 
             if (!failed && useSmallCityBehavior && m_AcceptCloserJobsUnemployed) {
-                SmallCityJobsComponent cmp = m_SmallCitySearch[citizen];
+                CmpSmallCityJobs cmp = m_SmallCitySearch[citizen];
                 cmp.m_FoundCloserJob = true;
                 cmp.m_FoundHigherJob = false;
                 cmp.m_UseSmallCityBehaviour = m_UseSmallCityBehaviour;
@@ -279,7 +264,7 @@ namespace BitulaMod
                 return false;
             }
 
-            SmallCityJobsComponent cmp = m_SmallCitySearch[citizen];
+            CmpSmallCityJobs cmp = m_SmallCitySearch[citizen];
             m_UseSmallCityBehaviour = cmp.m_UseSmallCityBehaviour;
 
             if (phase == SmallCityJobsPhase.LookingForJob &&  (m_Citizen == Entity.Null || m_Citizen != citizen)) {
@@ -309,7 +294,7 @@ namespace BitulaMod
 
 
         public void RemoveSmallCityJobs(Entity citizen) {
-            m_CommandBuffer.RemoveComponent<SmallCityJobsComponent>(citizen.Index, citizen);
+            m_CommandBuffer.RemoveComponent<CmpSmallCityJobs>(citizen.Index, citizen);
         }
 
         public bool EmployedSkippedApplication(int numJobs, int totalAvailableJobs, int worseJobs, 
@@ -338,7 +323,7 @@ namespace BitulaMod
             bool hasCloserJob = useSmallCityBehavior && m_AcceptCloserJobsEmployed && HasClosestJob(citizen, currentJobLevel);
 
             if (useSmallCityBehavior) {
-                SmallCityJobsComponent cmp = m_SmallCitySearch[citizen];
+                CmpSmallCityJobs cmp = m_SmallCitySearch[citizen];
                 cmp.m_FoundHigherJob = hasBetterJob;
                 cmp.m_FoundCloserJob = hasCloserJob;
                 cmp.m_UseSmallCityBehaviour = m_UseSmallCityBehaviour;
@@ -700,7 +685,7 @@ namespace BitulaMod
         }
 
         public void SetDesiredLeisureType(Entity citizen, LeisureType type, byte desire) {
-            DesiredLeisureTypeComponent component = new DesiredLeisureTypeComponent {
+            CmpDesiredLeisureType component = new CmpDesiredLeisureType {
                 m_Type = type,
                 m_Desire = desire
             };
@@ -719,7 +704,7 @@ namespace BitulaMod
         }
 
         private void SetLeisureStart(Entity citizen, uint startFrame, int startMoney) {
-            LeisureStartComponent component = new LeisureStartComponent {
+            CmpLeisureStart component = new CmpLeisureStart {
                 m_StartFrame = startFrame,
                 m_StartMoney = startMoney
             };
@@ -753,7 +738,7 @@ namespace BitulaMod
             m_CommandBuffer.SetComponent(
                 citizen.Index,
                 citizen,
-                new DesiredProviderFound {
+                new CmpDesiredProviderFound {
                     m_Value = true
                 });
         }
@@ -762,13 +747,13 @@ namespace BitulaMod
             m_CommandBuffer.SetComponent(
                 citizen.Index,
                 citizen,
-                new AvailableProviderFound {
+                new CmpAvailableProviderFound {
                     m_Value = true
                 });
         }
 
         public void CreateDesiredProviderFound(Entity citizen) {
-            DesiredProviderFound component = new DesiredProviderFound {
+            CmpDesiredProviderFound component = new CmpDesiredProviderFound {
                 m_Value = false
             };
 
@@ -779,7 +764,7 @@ namespace BitulaMod
         }
 
         public void CreateAvailableProviderFound(Entity citizen) {
-            AvailableProviderFound component = new AvailableProviderFound {
+            CmpAvailableProviderFound component = new CmpAvailableProviderFound {
                 m_Value = false
             };
 
@@ -849,7 +834,7 @@ namespace BitulaMod
             if (!UseSmallCityBehavior(citizen))
                 return false;
 
-            if (!m_LeisureStarts.TryGetComponent(citizen, out LeisureStartComponent leisureStart))
+            if (!m_LeisureStarts.TryGetComponent(citizen, out CmpLeisureStart leisureStart))
                 return false;
 
             if (leisureStart.m_StartMoney <= 0)

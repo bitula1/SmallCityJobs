@@ -1,10 +1,12 @@
-﻿using Game;
+﻿using BitulaMod.Components;
+using Game;
 using Game.Citizens;
 using Game.City;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace BitulaMod {
+namespace BitulaMod
+{
     public partial class SmallCityJobsSystem : GameSystemBase {
         private Unity.Mathematics.Random m_Random;
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
@@ -19,12 +21,12 @@ namespace BitulaMod {
 
             m_NewCitizenQuery = GetEntityQuery(
                 ComponentType.ReadOnly<Citizen>(),
-                ComponentType.Exclude<SmallCityJobsComponent>()
+                ComponentType.Exclude<CmpSmallCityJobs>()
             );
 
             m_AllCitizenQuery = GetEntityQuery(
                 ComponentType.ReadOnly<Citizen>(),
-                ComponentType.ReadWrite<SmallCityJobsComponent>()
+                ComponentType.ReadWrite<CmpSmallCityJobs>()
             );
 
             uint seed = (uint)System.Environment.TickCount;
@@ -47,15 +49,15 @@ namespace BitulaMod {
             NativeArray<Entity> newCitizens =
                 m_NewCitizenQuery.ToEntityArray(Allocator.Temp);
 
-            EntityManager.AddComponent<SmallCityJobsComponent>(m_NewCitizenQuery);
+            EntityManager.AddComponent<CmpSmallCityJobs>(m_NewCitizenQuery);
 
             if (progression != m_LastProgression) {
                 NativeArray<Entity> allCitizens =
                     m_AllCitizenQuery.ToEntityArray(Allocator.Temp);
 
                 foreach (Entity citizen in allCitizens) {
-                    SmallCityJobsComponent cmp =
-                        EntityManager.GetComponentData<SmallCityJobsComponent>(citizen);
+                    CmpSmallCityJobs cmp =
+                        EntityManager.GetComponentData<CmpSmallCityJobs>(citizen);
 
                     cmp.m_UseSmallCityBehaviour =
                         m_Random.NextInt(100) >= progression;
@@ -67,8 +69,8 @@ namespace BitulaMod {
                 m_LastProgression = progression;
             } else {
                 foreach (Entity citizen in newCitizens) {
-                    SmallCityJobsComponent cmp =
-                        EntityManager.GetComponentData<SmallCityJobsComponent>(citizen);
+                    CmpSmallCityJobs cmp =
+                        EntityManager.GetComponentData<CmpSmallCityJobs>(citizen);
 
                     cmp.m_UseSmallCityBehaviour =
                         m_Random.NextInt(100) >= progression;

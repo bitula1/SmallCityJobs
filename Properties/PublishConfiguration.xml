@@ -9,15 +9,13 @@
 	<!--LongDescription Value="Bitulas mod" /-->
 	<LongDescription>
 Supported/recommended mods: Progression Control and Hard Mode Continued.
-Unsupported mods: Code mods that override the same game systems are generally incompatible. Check the Override folder on GitHub for the systems overridden by this mod.
+Unsupported mods: Code mods that override the same game systems are generally incompatible.
+Check the Override folder on GitHub for the systems overridden by this mod.
+From version 1.4.22 mod saves data directly in the savegame.
 
-- Reworked life path message handling to make messages more consistent and reduce unnecessary repeats.
-- Added a life path message when a citizen wants to switch jobs but no jobs are available in the city.
-- Added a life path message when a citizen wants to switch jobs but none of the available jobs are suitable for them.
-- Added a life path message when a citizen wants to switch jobs but all available alternatives are worse than their current job.
-- Added new flavor messages when no suitable commercial leisure option is available.
-- Citizens will no longer start looking for a job while they are engaged in leisure.
-- Added new flavor messages when no city beach is available.
+- What's New popup: Added an in-game changelog popup that appears when loading a city after installing or updating Small City Jobs. It is shown only once per mod version.
+- Save-game support: Citizens now retain important information about their job searches and leisure activities when saving a city. After reloading, they can continue from where they left off instead of restarting these activities or losing their previous decisions.
+- Save-game safety: Added versioned serialization for mod-specific data to support future updates and reduce compatibility issues. Although these changes are designed to be safe, creating a separate backup save is still recommended as a precaution.
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -46,15 +44,14 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/lifepath.png" />
 	<Screenshot Value="Properties/options.png" />
-	<Screenshot Value="Properties/workers.png" />
-	<Screenshot Value="Properties/customers.png" />
+	<Screenshot Value="Properties/tabs.png" />
 	
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.21" />
+	<ModVersion Value="1.4.22" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -64,13 +61,9 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- Reworked life path message handling to make messages more consistent and reduce unnecessary repeats.
-- Added a life path message when a citizen wants to switch jobs but no jobs are available in the city.
-- Added a life path message when a citizen wants to switch jobs but none of the available jobs are suitable for them.
-- Added a life path message when a citizen wants to switch jobs but all available alternatives are worse than their current job.
-- Added new flavor messages when no suitable commercial leisure option is available.
-- Citizens will no longer start looking for a job while they are engaged in leisure.
-- Added new flavor messages when no city beach is available.
+- What's New popup: Added an in-game changelog popup that appears when loading a city after installing or updating Small City Jobs. It is shown only once per mod version.
+- Added save-game support: Citizens now retain important information about their job searches and leisure activities when saving a city. After reloading, they can continue from where they left off instead of restarting these activities or losing their previous decisions.
+- Save-game safety: Added versioned serialization for mod-specific data to support future updates and reduce compatibility issues. Although these changes are designed to be safe, creating a separate backup save is still recommended as a precaution.
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

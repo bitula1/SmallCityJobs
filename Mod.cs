@@ -50,6 +50,7 @@ namespace BitulaMod
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.GameSimulation);
             //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
 
 

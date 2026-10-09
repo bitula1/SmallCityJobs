@@ -28,11 +28,12 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
+using BitulaMod.Components;
 
 namespace BitulaMod
 {
-	// Token: 0x02001533 RID: 5427
-	public partial class LeisureSystem : GameSystemBase
+    // Token: 0x02001533 RID: 5427
+    public partial class LeisureSystem : GameSystemBase
 	{
 		// Token: 0x06006856 RID: 26710 RVA: 0x0038C062 File Offset: 0x0038A262
 		public override int GetUpdateInterval(SystemUpdatePhase phase)
@@ -446,7 +447,7 @@ namespace BitulaMod
 				bool removeSCJ = m_SmallCityJobs.IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
 
                 if ((useSCJ ? removeSCJ : removeVanilla) || flag) {
-                    this.m_CommandBuffer.RemoveComponent<LeisureStartComponent>(index, entity);
+                    this.m_CommandBuffer.RemoveComponent<CmpLeisureStart>(index, entity);
                     this.m_CommandBuffer.RemoveComponent<Leisure>(index, entity);
 				}
 			}

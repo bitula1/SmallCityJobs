@@ -1,4 +1,5 @@
-﻿using Colossal.Entities;
+﻿using BitulaMod.Components;
+using Colossal.Entities;
 using Colossal.UI.Binding;
 using Game;
 using Game.Buildings;
@@ -17,7 +18,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace BitulaMod {
+namespace BitulaMod
+{
     enum LeisureStatus {
         None = 0,
         Leisuring = 1,
@@ -96,8 +98,8 @@ namespace BitulaMod {
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
         private ComponentLookup<Target> m_Targets;
         private ComponentLookup<PropertyRenter> m_PropertyRenters;        
-        private ComponentLookup<SmallCityJobsComponent> m_UseSCJ;
-        private ComponentLookup<DesiredLeisureTypeComponent> m_Desire;
+        private ComponentLookup<CmpSmallCityJobs> m_UseSCJ;
+        private ComponentLookup<CmpDesiredLeisureType> m_Desire;
         private ComponentLookup<PrefabRef> m_PrefabRefs;
         private ComponentLookup<IndustrialProcessData> m_IndustrialProcesses;
         private ComponentLookup<ServiceAvailable> m_ServiceAvailables;
@@ -128,8 +130,8 @@ namespace BitulaMod {
                  ComponentType.ReadOnly<TravelPurpose>()
              );
             m_HappinessParameterQuery = GetEntityQuery( ComponentType.ReadOnly<CitizenHappinessParameterData>());
-            m_UseSCJ = GetComponentLookup<SmallCityJobsComponent>(true);
-            m_Desire = GetComponentLookup<DesiredLeisureTypeComponent>(true);
+            m_UseSCJ = GetComponentLookup<CmpSmallCityJobs>(true);
+            m_Desire = GetComponentLookup<CmpDesiredLeisureType>(true);
             m_PrefabRefs = GetComponentLookup<PrefabRef>(true);
             m_IndustrialProcesses = GetComponentLookup<IndustrialProcessData>(true);
             m_Resources = GetBufferLookup<Resources>(true);
@@ -309,11 +311,11 @@ namespace BitulaMod {
                 m_HappinessParameterQuery.GetSingleton<CitizenHappinessParameterData>());
             customer.Age = CitizenUIUtils.GetAge(EntityManager, citizen);
             customer.Money = GetAvailableMoney(householdMember.m_Household);
-            bool useSCJ = m_UseSCJ.TryGetComponent(citizen, out SmallCityJobsComponent scjComponent) &&
+            bool useSCJ = m_UseSCJ.TryGetComponent(citizen, out CmpSmallCityJobs scjComponent) &&
                               scjComponent.m_UseSmallCityBehaviour;
             Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
-            if (useSCJ && hasLeisure && EntityManager.TryGetComponent<LeisureStartComponent>(
-                citizen, out LeisureStartComponent leisureStart)) {                
+            if (useSCJ && hasLeisure && EntityManager.TryGetComponent<CmpLeisureStart>(
+                citizen, out CmpLeisureStart leisureStart)) {                
                 
                 //uint endFrame = startFrame + (uint)(duration * percent);
                 uint endFrame = scj.LeisureEndFrame(citizenData, citizen, leisure.m_LastPossibleFrame, leisureStart.m_StartFrame);
@@ -337,7 +339,7 @@ namespace BitulaMod {
                 customer.LeisureDesire = scj.GetLeisureDesireLevel(citizenData);
             } else if (m_Desire.TryGetComponent(
                            citizen,
-                           out DesiredLeisureTypeComponent desireComponent)) {
+                           out CmpDesiredLeisureType desireComponent)) {
 
                 customer.LeisureDesire = desireComponent.m_Desire;
             }

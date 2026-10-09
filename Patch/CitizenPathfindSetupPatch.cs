@@ -13,8 +13,10 @@ using Game.Prefabs;
 using Game.Economy;
 using Game.Buildings;
 using Game;
+using BitulaMod.Components;
 
-namespace BitulaMod {
+namespace BitulaMod
+{
     [HarmonyPatch]
     public static class PathfindSetupSystemPatch {
         private static readonly AccessTools.StructFieldRef<CitizenPathfindSetup, EntityTypeHandle> EntityType =
@@ -158,7 +160,7 @@ namespace BitulaMod {
             cityServiceType.Update(system);
             outsideConnections.Update(system);
 
-            ComponentLookup<SmallCityJobsComponent> smallCitySearch = GetComponentLookup<SmallCityJobsComponent>(system, true);
+            ComponentLookup<CmpSmallCityJobs> smallCitySearch = GetComponentLookup<CmpSmallCityJobs>(system, true);
 
             return new SetupJobSeekerToJob {
                 m_EntityType = entityType,

@@ -1,4 +1,5 @@
-﻿using Game.Buildings;
+﻿using BitulaMod.Components;
+using Game.Buildings;
 using Game.City;
 using Game.Common;
 using Game.Companies;
@@ -11,7 +12,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-namespace BitulaMod {
+namespace BitulaMod
+{
     [BurstCompile]
     public struct SetupJobSeekerToJob : IJobChunk {
         [ReadOnly]
@@ -31,7 +33,7 @@ namespace BitulaMod {
 
         public PathfindSetupSystem.SetupData m_SetupData;
         [ReadOnly]
-        public ComponentLookup<SmallCityJobsComponent> m_SmallCitySearch;
+        public ComponentLookup<CmpSmallCityJobs> m_SmallCitySearch;
 
         public void Execute(
             in ArchetypeChunk chunk,
