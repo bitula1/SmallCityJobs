@@ -32,7 +32,7 @@ namespace BitulaMod
         NotAnotherLeisure = 8,
         NotShopping = 9
     }
-    enum VisualDelay {
+    enum VisualLeisureDelay {
         None = 0,
         GoingHome = 1,
         NoService = 2,
@@ -48,7 +48,7 @@ namespace BitulaMod
     public partial class SmallCityLeisureUISystem : UISystemBase {
         private class Delay {
             public DateTime m_Time;
-            public VisualDelay m_Target;
+            public VisualLeisureDelay m_Target;
         }
         private class CustomerInfo {
             public CustomerInfo(Entity citizen) {
@@ -79,8 +79,8 @@ namespace BitulaMod
                     return;
 
                 delay.m_Target &=
-                    ~(VisualDelay.GoingHome | VisualDelay.GoingToWork | VisualDelay.GoingToShop | VisualDelay.GoingToAnotherLeisure 
-                    | VisualDelay.NotShopping | VisualDelay.NotAnotherLeisure);
+                    ~(VisualLeisureDelay.GoingHome | VisualLeisureDelay.GoingToWork | VisualLeisureDelay.GoingToShop | VisualLeisureDelay.GoingToAnotherLeisure 
+                    | VisualLeisureDelay.NotShopping | VisualLeisureDelay.NotAnotherLeisure);
 
                 if (delay.m_Target == 0) {
                     delay = null;
@@ -369,12 +369,12 @@ namespace BitulaMod
 
                     if (HasNoResource(providerEntity)) {
                         customer.Resource = 0;
-                        SetVisualDelay(customer, VisualDelay.NoResource);
+                        SetVisualDelay(customer, VisualLeisureDelay.NoResource);
                     }
 
                     if (HasNoService(providerEntity)) {
                         customer.NoService = true;
-                        SetVisualDelay(customer, VisualDelay.NoService);
+                        SetVisualDelay(customer, VisualLeisureDelay.NoService);
                     }
                 }
             }
@@ -385,27 +385,27 @@ namespace BitulaMod
 
             if (HasTripPurpose(citizen, Purpose.GoingHome)) {
                 customer.Status = LeisureStatus.GoingToHome;
-                SetVisualDelay(customer, VisualDelay.GoingHome);
+                SetVisualDelay(customer, VisualLeisureDelay.GoingHome);
                 liveStatus = true;
             } else if (HasTripPurpose(citizen, Purpose.GoingToWork)) {
                 customer.Status = LeisureStatus.GoingToWork;
-                SetVisualDelay(customer, VisualDelay.GoingToWork);
+                SetVisualDelay(customer, VisualLeisureDelay.GoingToWork);
                 liveStatus = true;
             } else if (HasTripPurpose(citizen, Purpose.Shopping)) {
                 customer.Status = LeisureStatus.GoingToShop;
-                SetVisualDelay(customer, VisualDelay.GoingToShop);
+                SetVisualDelay(customer, VisualLeisureDelay.GoingToShop);
                 liveStatus = true;
             } else if (GoingToOtherLeisure(citizen, selectedEntity)) {
                 customer.Status = LeisureStatus.GoingToAnotherLeisure;
-                SetVisualDelay(customer, VisualDelay.GoingToAnotherLeisure);
+                SetVisualDelay(customer, VisualLeisureDelay.GoingToAnotherLeisure);
                 liveStatus = true;
             } else if (m_Shopping.HasComponent(citizen) && isInSelectedBuilding && !HasTripPurpose(citizen, Purpose.Shopping)) {
                 customer.Status = LeisureStatus.NotShopping;
-                SetVisualDelay(customer, VisualDelay.NotShopping);
+                SetVisualDelay(customer, VisualLeisureDelay.NotShopping);
                 liveStatus = true;
             } else if (hasLeisure && isInSelectedBuilding && targetEntity != selectedEntity) {
                 customer.Status = LeisureStatus.NotAnotherLeisure;
-                SetVisualDelay(customer, VisualDelay.NotAnotherLeisure);
+                SetVisualDelay(customer, VisualLeisureDelay.NotAnotherLeisure);
                 liveStatus = true;
             } 
 
@@ -414,11 +414,11 @@ namespace BitulaMod
                 return liveStatus;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.NoService) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.NoService) != 0) {
                 customer.NoService = true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.NoResource) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.NoResource) != 0) {
                 customer.Resource = 0;
             }
 
@@ -429,32 +429,32 @@ namespace BitulaMod
 
             
 
-            if ((customer.delay.m_Target & VisualDelay.GoingHome) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.GoingHome) != 0) {
                 customer.Status = LeisureStatus.GoingToHome;
                 return true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.GoingToWork) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.GoingToWork) != 0) {
                 customer.Status = LeisureStatus.GoingToWork;
                 return true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.GoingToShop) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.GoingToShop) != 0) {
                 customer.Status = LeisureStatus.GoingToShop;
                 return true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.GoingToAnotherLeisure) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.GoingToAnotherLeisure) != 0) {
                 customer.Status = LeisureStatus.GoingToAnotherLeisure;
                 return true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.NotShopping) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.NotShopping) != 0) {
                 customer.Status = LeisureStatus.NotShopping;
                 return true;
             }
 
-            if ((customer.delay.m_Target & VisualDelay.NotAnotherLeisure) != 0) {
+            if ((customer.delay.m_Target & VisualLeisureDelay.NotAnotherLeisure) != 0) {
                 customer.Status = LeisureStatus.NotAnotherLeisure;
                 return true;
             }
@@ -516,7 +516,7 @@ namespace BitulaMod
                 m_Resources[household]);
         }
 
-        private void SetVisualDelay(CustomerInfo customer, VisualDelay target) {
+        private void SetVisualDelay(CustomerInfo customer, VisualLeisureDelay target) {
             DateTime now = DateTime.UtcNow;
 
             if (customer.delay == null || now >= customer.delay.m_Time) {

@@ -26,7 +26,7 @@ import satisfactionMinus1Icon from "./icons/satisfaction-minus1.svg";
 import satisfactionMinus2Icon from "./icons/satisfaction-minus2.svg";
 import satisfactionMinus3Icon from "./icons/satisfaction-minus3.svg";
 import satisfactionMinus4Icon from "./icons/satisfaction-minus4.svg";
-import workersIcon from "./icons/workers-group.svg";
+import workersIcon from "./icons/WorkersTab.svg";
 
 import "./WorkersTab.css";
 

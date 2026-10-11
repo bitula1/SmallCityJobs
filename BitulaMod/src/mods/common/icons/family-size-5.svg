@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Family size: 5 or more — colorful</title>
+  <defs>
+    <linearGradient id="shirtBlue5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#59CFF1"/><stop offset="1" stop-color="#3185E8"/></linearGradient>
+    <linearGradient id="shirtCoral5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFBD8E"/><stop offset="1" stop-color="#F07391"/></linearGradient>
+    <linearGradient id="shirtGreen5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B2E884"/><stop offset="1" stop-color="#4EBD8A"/></linearGradient>
+    <linearGradient id="shirtPurple5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C8A6FA"/><stop offset="1" stop-color="#8D77DB"/></linearGradient>
+    <linearGradient id="shirtYellow5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE694"/><stop offset="1" stop-color="#F4A84F"/></linearGradient>
+  </defs>
+  <path d="M2.6 12.15c-1.28 0-2.15 1.25-2.15 3.1v4.7c0 .58.38.95.92.95h2.46c.54 0 .92-.37.92-.95v-4.7c0-1.85-.87-3.1-2.15-3.1Z" fill="url(#shirtBlue5)" stroke="#354252" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M7.3 12.15c-1.28 0-2.15 1.25-2.15 3.1v4.7c0 .58.38.95.92.95h2.46c.54 0 .92-.37.92-.95v-4.7c0-1.85-.87-3.1-2.15-3.1Z" fill="url(#shirtCoral5)" stroke="#354252" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M12 12.15c-1.28 0-2.15 1.25-2.15 3.1v4.7c0 .58.38.95.92.95h2.46c.54 0 .92-.37.92-.95v-4.7c0-1.85-.87-3.1-2.15-3.1Z" fill="url(#shirtGreen5)" stroke="#354252" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M16.7 12.15c-1.28 0-2.15 1.25-2.15 3.1v4.7c0 .58.38.95.92.95h2.46c.54 0 .92-.37.92-.95v-4.7c0-1.85-.87-3.1-2.15-3.1Z" fill="url(#shirtPurple5)" stroke="#354252" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M21.4 12.15c-1.28 0-2.15 1.25-2.15 3.1v4.7c0 .58.38.95.92.95h2.46c.54 0 .92-.37.92-.95v-4.7c0-1.85-.87-3.1-2.15-3.1Z" fill="url(#shirtYellow5)" stroke="#354252" stroke-width="0.8" stroke-linejoin="round"/>
+  <circle cx="2.6" cy="8.15" r="1.65" fill="#FFC68D" stroke="#354252" stroke-width="0.8"/>
+  <circle cx="7.3" cy="8.15" r="1.65" fill="#C98A64" stroke="#354252" stroke-width="0.8"/>
+  <circle cx="12" cy="8.15" r="1.65" fill="#E9A77C" stroke="#354252" stroke-width="0.8"/>
+  <circle cx="16.7" cy="8.15" r="1.65" fill="#F1B785" stroke="#354252" stroke-width="0.8"/>
+  <circle cx="21.4" cy="8.15" r="1.65" fill="#D69A6A" stroke="#354252" stroke-width="0.8"/>
+  <path d="M1.4 14.65c.22-.2.44-.31.66-.37" fill="none" stroke="#B0ECFF" stroke-opacity=".8" stroke-width=".45" stroke-linecap="round"/>
+  <path d="M6.1 14.65c.22-.2.44-.31.66-.37" fill="none" stroke="#FFE2BE" stroke-opacity=".8" stroke-width=".45" stroke-linecap="round"/>
+  <path d="M10.8 14.65c.22-.2.44-.31.66-.37" fill="none" stroke="#E0FFD0" stroke-opacity=".8" stroke-width=".45" stroke-linecap="round"/>
+  <path d="M15.5 14.65c.22-.2.44-.31.66-.37" fill="none" stroke="#EEE0FF" stroke-opacity=".8" stroke-width=".45" stroke-linecap="round"/>
+  <path d="M20.2 14.65c.22-.2.44-.31.66-.37" fill="none" stroke="#FFF5D0" stroke-opacity=".8" stroke-width=".45" stroke-linecap="round"/>
+</svg>

@@ -51,6 +51,9 @@ namespace BitulaMod
             m_PropertyRenters = SystemAPI.GetComponentLookup<PropertyRenter>(true);
 
             foreach (CustomEventType type in Enum.GetValues(typeof(CustomEventType))) {
+                if (type == CustomEventType.None)
+                    continue;
+                
                 TriggerPrefab prefab = new TriggerPrefab {
                     name = $"BitulaMod_{type}"
                 };

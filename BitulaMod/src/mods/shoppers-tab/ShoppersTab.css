@@ -1,0 +1,52 @@
+.shopper-row {
+    position: relative;
+}
+
+.shopper-status-icon {
+    position: absolute;
+    right: 12rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.shopper-wealth-icon {
+    position: absolute;
+    right: 39rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.shopper-age-icon {
+    position: absolute;
+    right: 66rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.shopper-family-icon {
+    position: absolute;
+    right: 93rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+}
+
+.shopper-leisure-hours {
+    position: absolute;
+    right: 122rem;
+    top: 50%;
+    transform: translateY(-50%) scaleX(0.75) scaleY(1.25);
+    transform-origin: right center;
+    white-space: nowrap;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 300;
+    font-size: 15rem;
+}
+

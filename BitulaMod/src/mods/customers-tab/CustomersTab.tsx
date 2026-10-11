@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { bindValue, useValue } from "cs2/api";
 import { setCustomersTabSelected, subscribeCustomersTab, isCustomersTabSelected, selectCustomTab } from "mods/common/state";
-import customersIcon from "./icons/customers-group.svg";
+import customersIcon from "./icons/CustomersTab.svg";
 import leisuringIcon from "./icons/leisuring.svg";
 import goingHomeIcon from "./icons/going-home.svg";
 import goingToAnotherLeisureIcon from "./icons/going-to-another-leisure.svg";
@@ -19,16 +19,7 @@ import leisureDesire2 from "./icons/leisure-desire2.svg";
 import leisureDesire3 from "./icons/leisure-desire3.svg";
 import leisureDesire4 from "./icons/leisure-desire4.svg";
 import leisureDesire5 from "./icons/leisure-desire5.svg";
-import wealthWretched from "./icons/wealth-wretched.svg";
-import wealthPoor from "./icons/wealth-poor.svg";
-import wealthModest from "./icons/wealth-modest.svg";
-import wealthComfortable from "./icons/wealth-comfortable.svg";
-import wealthWealthy from "./icons/wealth-wealthy.svg";
-import ageChild from "./icons/age-child.svg";
-import ageTeen from "./icons/age-teen.svg";
-import ageAdult from "./icons/age-adult.svg";
-import ageElderly from "./icons/age-elderly.svg";
-
+import { Age, Wealth, ageIcons, wealthIcons } from "../common/state";
 import "./CustomersTab.css";
 
 enum CustomerStatus {
@@ -50,21 +41,6 @@ enum Desire {
     Desire3 = 3,
     Desire4 = 4,
     Desire5 = 5,
-}
-
-enum Age {
-    Child = 0,
-    Teen = 1,
-    Adult = 2,
-    Elderly = 3
-}
-
-enum Wealth {
-    Wretched = 0,
-    Poor = 1,
-    Modest = 2,
-    Comfortable = 3,
-    Wealthy = 4
 }
 
 type Entity = {
@@ -150,21 +126,6 @@ const desireIcons: Record<Desire, string> = {
     [Desire.Desire3]: leisureDesire3,
     [Desire.Desire4]: leisureDesire4,
     [Desire.Desire5]: leisureDesire5
-};
-
-const ageIcons: Record<Age, string> = {
-    [Age.Child]: ageChild,
-    [Age.Teen]: ageTeen,
-    [Age.Adult]: ageAdult,
-    [Age.Elderly]: ageElderly
-};
-
-const wealthIcons: Record<Wealth, string> = {
-    [Wealth.Wretched]: wealthWretched,
-    [Wealth.Poor]: wealthPoor,
-    [Wealth.Modest]: wealthModest,
-    [Wealth.Comfortable]: wealthComfortable,
-    [Wealth.Wealthy]: wealthWealthy
 };
 
 export const ACTIONS_SECTION = selectedInfo.SectionType.Actions;

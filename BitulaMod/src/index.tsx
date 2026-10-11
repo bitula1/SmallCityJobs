@@ -2,8 +2,9 @@ import { ModRegistrar } from "cs2/modding";
 import { WorkShiftSection } from "mods/work-shift-section";
 import { ResidentsSection } from "mods/resident-section";
 import { useEffect, useState } from "react";
-import { WorkersTab, WorkersPanel } from "mods/workers-tab/index";
-import { CustomersTab, CustomersPanel } from "mods/customers-tab/index";
+import { WorkersTab, WorkersPanel } from "mods/workers-tab/WorkersTab";
+import { CustomersTab, CustomersPanel } from "mods/customers-tab/CustomersTab";
+import { ShoppersTab, ShoppersPanel } from "mods/shoppers-tab/ShoppersTab";
 
 
 import {
@@ -11,6 +12,8 @@ import {
     isWorkersTabSelected,
     subscribeCustomersTab,
     isCustomersTabSelected,
+    subscribeShoppersTab,
+    isShoppersTabSelected,
     selectCustomTab
 } from "mods/common/state";
 
@@ -30,12 +33,19 @@ const register: ModRegistrar = (moduleRegistry) => {
                 const [customersSelected, setCustomersSelected] =
                     useState(isCustomersTabSelected());
 
+                const [shoppersSelected, setShoppersSelected] =
+                    useState(isShoppersTabSelected());
+
                 useEffect(() => {
                     return subscribeWorkersTab(setWorkersSelected);
                 }, []);
 
                 useEffect(() => {
                     return subscribeCustomersTab(setCustomersSelected);
+                }, []);
+
+                useEffect(() => {
+                    return subscribeShoppersTab(setShoppersSelected);
                 }, []);
 
                 const isSelectedInfoMiddleList =
@@ -54,6 +64,10 @@ const register: ModRegistrar = (moduleRegistry) => {
                     return <CustomersPanel />;
                 }
 
+                if (shoppersSelected && isSelectedInfoMiddleList) {
+                    return <ShoppersPanel />;
+                }
+
                 return <Original {...props} />;
             };
         }
@@ -70,12 +84,19 @@ const register: ModRegistrar = (moduleRegistry) => {
                 const [customersSelected, setCustomersSelected] =
                     useState(isCustomersTabSelected());
 
+                const [shoppersSelected, setShoppersSelected] =
+                    useState(isShoppersTabSelected());
+
                 useEffect(() => {
                     return subscribeWorkersTab(setWorkersSelected);
                 }, []);
 
                 useEffect(() => {
                     return subscribeCustomersTab(setCustomersSelected);
+                }, []);
+
+                useEffect(() => {
+                    return subscribeShoppersTab(setShoppersSelected);
                 }, []);
 
                 const nativeSelectedInfoTab =
@@ -85,7 +106,7 @@ const register: ModRegistrar = (moduleRegistry) => {
                     <Original
                         {...props}
                         selectedId={
-                            (workersSelected || customersSelected) && nativeSelectedInfoTab
+                            (workersSelected || customersSelected || shoppersSelected) && nativeSelectedInfoTab
                                 ? -1
                                 : props.selectedId
                         }
@@ -122,6 +143,15 @@ const register: ModRegistrar = (moduleRegistry) => {
         } catch (error) {
             console.error(
                 "BitulaMod: CustomersTab failed:",
+                error
+            );
+        }
+
+        try {
+            ShoppersTab(componentList);
+        } catch (error) {
+            console.error(
+                "BitulaMod: ShoppersTab failed:",
                 error
             );
         }

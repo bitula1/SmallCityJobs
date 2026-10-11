@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Family size: 2 — colorful</title>
+  <defs>
+    <linearGradient id="shirtBlue2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#59CFF1"/>
+      <stop offset="1" stop-color="#3185E8"/>
+    </linearGradient>
+    <linearGradient id="shirtCoral2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFBD8E"/>
+      <stop offset="1" stop-color="#F07391"/>
+    </linearGradient>
+  </defs>
+  <path d="M7.25 12c-3.2 0-5.75 2.35-5.75 5.35v2.5c0 .65.53 1.18 1.18 1.18h9.14c.65 0 1.18-.53 1.18-1.18v-2.5C13 14.35 10.45 12 7.25 12Z"
+        fill="url(#shirtBlue2)" stroke="#354252" stroke-width="1.25" stroke-linejoin="round"/>
+  <path d="M16.75 12c-3.2 0-5.75 2.35-5.75 5.35v2.5c0 .65.53 1.18 1.18 1.18h9.14c.65 0 1.18-.53 1.18-1.18v-2.5c0-3-2.55-5.35-5.75-5.35Z"
+        fill="url(#shirtCoral2)" stroke="#354252" stroke-width="1.25" stroke-linejoin="round"/>
+  <circle cx="7.25" cy="7" r="3" fill="#FFC68D" stroke="#354252" stroke-width="1.25"/>
+  <circle cx="16.75" cy="7" r="3" fill="#E9A77C" stroke="#354252" stroke-width="1.25"/>
+  <path d="M4.2 15.2c.8-.65 1.65-.96 2.65-.99" fill="none" stroke="#B0ECFF" stroke-opacity=".8" stroke-width=".9" stroke-linecap="round"/>
+  <path d="M13.8 15.2c.8-.65 1.65-.96 2.65-.99" fill="none" stroke="#FFE2BE" stroke-opacity=".8" stroke-width=".9" stroke-linecap="round"/>
+</svg>

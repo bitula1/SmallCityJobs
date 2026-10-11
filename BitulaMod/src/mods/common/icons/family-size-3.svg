@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <title>Family size: 3 — colorful</title>
+  <defs>
+    <linearGradient id="shirtBlue3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#59CFF1"/>
+      <stop offset="1" stop-color="#3185E8"/>
+    </linearGradient>
+    <linearGradient id="shirtGreen3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B2E884"/>
+      <stop offset="1" stop-color="#4EBD8A"/>
+    </linearGradient>
+    <linearGradient id="shirtCoral3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFBD8E"/>
+      <stop offset="1" stop-color="#F07391"/>
+    </linearGradient>
+  </defs>
+  <path d="M4.7 12c-2.45 0-4.2 1.85-4.2 4.45v3.45c0 .67.53 1.2 1.2 1.2h6c.67 0 1.2-.53 1.2-1.2v-3.45C8.9 13.85 7.15 12 4.7 12Z"
+        fill="url(#shirtBlue3)" stroke="#354252" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M19.3 12c-2.45 0-4.2 1.85-4.2 4.45v3.45c0 .67.53 1.2 1.2 1.2h6c.67 0 1.2-.53 1.2-1.2v-3.45c0-2.6-1.75-4.45-4.2-4.45Z"
+        fill="url(#shirtGreen3)" stroke="#354252" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M12 12c-2.45 0-4.2 1.85-4.2 4.45v3.45c0 .67.53 1.2 1.2 1.2h6c.67 0 1.2-.53 1.2-1.2v-3.45c0-2.6-1.75-4.45-4.2-4.45Z"
+        fill="url(#shirtCoral3)" stroke="#354252" stroke-width="1.1" stroke-linejoin="round"/>
+  <circle cx="4.7" cy="7.2" r="2.4" fill="#FFC68D" stroke="#354252" stroke-width="1.1"/>
+  <circle cx="19.3" cy="7.2" r="2.4" fill="#C98A64" stroke="#354252" stroke-width="1.1"/>
+  <circle cx="12" cy="7.2" r="2.4" fill="#E9A77C" stroke="#354252" stroke-width="1.1"/>
+  <path d="M2.2 15.1c.53-.4 1.12-.63 1.82-.7" fill="none" stroke="#B0ECFF" stroke-opacity=".8" stroke-width=".7" stroke-linecap="round"/>
+  <path d="M16.7 15.1c.53-.4 1.12-.63 1.82-.7" fill="none" stroke="#E0FFD0" stroke-opacity=".8" stroke-width=".7" stroke-linecap="round"/>
+  <path d="M9.5 15.1c.53-.4 1.12-.63 1.82-.7" fill="none" stroke="#FFE2BE" stroke-opacity=".8" stroke-width=".7" stroke-linecap="round"/>
+</svg>

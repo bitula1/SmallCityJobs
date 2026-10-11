@@ -47,10 +47,11 @@ namespace BitulaMod
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityJobsUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityLeisureUISystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateAt<SmallCityShoppingUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
-            updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.UIUpdate);
             //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
 
 

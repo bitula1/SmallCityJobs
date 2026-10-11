@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Idling</title>
+  <circle cx="32" cy="32" r="23"
+          fill="#FFFFFF"
+          stroke="#E9AC4D"
+          stroke-width="6"/>
+  <g fill="none"
+     stroke="#E9AC4D"
+     stroke-width="6"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    <path d="M32 18v15l10 7"/>
+  </g>
+</svg>
