@@ -1,4 +1,5 @@
-﻿using Game;
+﻿using BitulaMod.SmallCity;
+using Game;
 using Game.Buildings;
 using Game.Citizens;
 using Game.Common;
@@ -20,8 +21,8 @@ namespace BitulaMod {
         protected override void OnUpdate() {
 
 
-            SmallCityJobs customEventData =
-                SmallCityJobs.Create(ref CheckedStateRef);
+            /*SmallCity<SCJob> customEventData =
+                SmallCity<SCJob>.Create(ref CheckedStateRef);
 
 
             NativeArray<Entity> citizens =
@@ -30,7 +31,7 @@ namespace BitulaMod {
             for (int i = 0; i < citizens.Length; i++) {
                 Entity citizenEntity = citizens[i];
 
-                if (!customEventData.IsFollowed(citizenEntity))
+                if (!customEventData.Get().IsFollowed(citizenEntity))
                     continue;
 
                 if (!EntityManager.HasComponent<Worker>(citizenEntity)) {
@@ -124,7 +125,7 @@ namespace BitulaMod {
                 }
             }
 
-            citizens.Dispose();
+            citizens.Dispose();*/
         }
     }
 }

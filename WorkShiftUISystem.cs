@@ -1,4 +1,5 @@
-﻿using Colossal.UI.Binding;
+﻿using BitulaMod.SmallCity;
+using Colossal.UI.Binding;
 using Game;
 using Game.Citizens;
 using Game.City;
@@ -37,7 +38,7 @@ namespace BitulaMod
         private CitySystem m_CitySystem;
         private EntityQuery m_TimeQuery;
         private Game.Common.TimeData m_TimeData;
-        private SmallCityJobs m_SmallCityJobs;
+        private SmallCity<SCJob> m_SmallCityJobs;
 
 
         protected override void OnCreate()
@@ -85,7 +86,7 @@ namespace BitulaMod
 
         protected override void OnUpdate()
         {
-            m_SmallCityJobs = SmallCityJobs.Create();
+            m_SmallCityJobs = SmallCity<SCJob>.Create();
             updatePrevResourceCost();
             updateWorkHours();
             UpdateDaysOff();
@@ -247,7 +248,7 @@ namespace BitulaMod
             int population = populationData.m_Population;
             uint frame = m_SimulationSystem.frameIndex;
 
-            bool isDaysOff = m_SmallCityJobs.IsTodayOffDay(
+            bool isDaysOff = m_SmallCityJobs.Get().IsTodayOffDay(
                 citizen,
                 ref economyParameters,
                 frame,
@@ -287,7 +288,7 @@ namespace BitulaMod
             int population = populationData.m_Population;
             uint frame = m_SimulationSystem.frameIndex;
 
-            return m_SmallCityJobs.IsTodayOffDay(
+            return m_SmallCityJobs.Get().IsTodayOffDay(
                 citizen,
                 ref economyParameters,
                 frame,

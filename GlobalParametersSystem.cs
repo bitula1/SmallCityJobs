@@ -1,4 +1,5 @@
-﻿using Colossal.Serialization.Entities;
+﻿using BitulaMod.SmallCity;
+using Colossal.Serialization.Entities;
 using Game;
 using Game.City;
 using Game.Companies;
@@ -67,7 +68,7 @@ namespace BitulaMod {
                 int population =
                     m_PopulationQuery.GetSingleton<Population>().m_Population;
 
-                int appliedPercentage = SmallCityJobs.GetAppliedPercentage(
+                int appliedPercentage = SmallCity<SCJob>.GetAppliedPercentage(
                     population,
                     Mod.Settings.JobSeekerMilestone,
                     Mod.Settings.JobSeekerFailureIncrement);

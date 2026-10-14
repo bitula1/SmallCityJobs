@@ -15,10 +15,13 @@ Check the Override folder on GitHub for the systems overridden by this mod.
 From version 1.4.22 mod saves data directly in the savegame.
 
 - Fixed localizationID BitulaMod.LIFEPATH_None not found warning
+- Fixed endofleisure not checking settings
 - new tab icons
 - Shopper tab
 - status icons, delay icons
 - family size
+- Major code rewrite
+- Shopper behaviour + related settings
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 

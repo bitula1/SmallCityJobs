@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Xml;
+using BitulaMod.SmallCity;
 using Colossal.Collections;
 using Game;
 using Game.Agents;
@@ -117,13 +118,13 @@ namespace BitulaMod
 				findJobJob.m_EmployableByEducation = this.m_CountHouseholdDataSystem.GetEmployables(out jobHandle2);
 				findJobJob.m_RandomSeed = RandomSeed.Next();
 				findJobJob.m_TripPriorityParameters = this.m_TripPriorityParametersQuery.GetSingleton<TripPriorityParametersData>();
-                findJobJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, findJobJob.m_CommandBuffer);
+                findJobJob.m_SmallCityJobs = SmallCity<SCJob>.Create(ref base.CheckedStateRef, findJobJob.m_CommandBuffer);
                 FindJobSystem.FindJobJob findJobJob2 = findJobJob;
 				base.Dependency = findJobJob2.ScheduleParallel(this.m_JobSeekerQuery, JobHandle.CombineDependencies(jobHandle, base.Dependency, jobHandle2));
 				this.m_PathfindSetupSystem.AddQueueWriter(base.Dependency);
 				this.m_EndFrameBarrier.AddJobHandleForProducer(base.Dependency);
 				this.m_CountHouseholdDataSystem.AddHouseholdDataReader(base.Dependency);
-                SmallCityJobs.AddProducer(ref base.CheckedStateRef, base.Dependency);
+                SmallCity<SCJob>.AddProducer(ref base.CheckedStateRef, base.Dependency);
             }
 			if (!this.m_ResultsQuery.IsEmptyIgnoreFilter)
 			{
@@ -148,13 +149,13 @@ namespace BitulaMod
 				startWorkingJob.m_SimulationFrame = this.m_SimulationSystem.frameIndex;
 				startWorkingJob.m_CommandBuffer = this.m_EndFrameBarrier.CreateCommandBuffer();
 				startWorkingJob.m_StartedWorking = this.m_StartedWorking;
-                startWorkingJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
+                startWorkingJob.m_SmallCityJobs = SmallCity<SCJob>.Create(ref base.CheckedStateRef);
                 FindJobSystem.StartWorkingJob startWorkingJob2 = startWorkingJob;
 				base.Dependency = startWorkingJob2.Schedule(JobHandle.CombineDependencies(jobHandle3, base.Dependency));
 				this.m_TriggerSystem.AddActionBufferWriter(base.Dependency);
 				this.m_EndFrameBarrier.AddJobHandleForProducer(base.Dependency);
 				this.m_WriteDeps = JobHandle.CombineDependencies(base.Dependency, this.m_WriteDeps);
-                SmallCityJobs.AddProducer(ref base.CheckedStateRef, base.Dependency);
+                SmallCity<SCJob>.AddProducer(ref base.CheckedStateRef, base.Dependency);
             }
 		}
 
@@ -263,7 +264,7 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct FindJobJob : IJobChunk
 		{
-            public SmallCityJobs m_SmallCityJobs;
+            public SmallCity<SCJob> m_SmallCityJobs;
             // Token: 0x060067DE RID: 26590 RVA: 0x00383028 File Offset: 0x00381228
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
@@ -276,7 +277,7 @@ namespace BitulaMod
 				{
 					
 					Entity owner = nativeArray2[i].m_Owner;
-                    if (!m_SmallCityJobs.init(owner, SmallCityJobsPhase.FindJob)) continue;
+                    if (!m_SmallCityJobs.Get().init(owner, SmallCityJobsPhase.FindJob)) continue;
                     if (this.m_Deleteds.HasComponent(owner) || !this.m_CitizenDatas.HasComponent(owner))
 					{
 						this.m_CommandBuffer.AddComponent<Deleted>(unfilteredChunkIndex, nativeArray[i], default(Deleted));
@@ -320,7 +321,7 @@ namespace BitulaMod
 							}
 							else
 							{
-                                while (num > num2 && (outsideSearch  ? this.m_FreeCache[num] : this.m_SmallCityJobs.GetFreeWorkplaces(num)) <= 0) {
+                                while (num > num2 && (outsideSearch  ? this.m_FreeCache[num] : this.m_SmallCityJobs.Get().GetFreeWorkplaces(num)) <= 0) {
                                     num--;
                                 }
                                 if (num == -1)
@@ -330,7 +331,7 @@ namespace BitulaMod
 								}
 								else
 								{
-                                    float num3 = outsideSearch  ? (float)this.m_FreeCache[num] : (float)this.m_SmallCityJobs.GetFreeWorkplaces(num);
+                                    float num3 = outsideSearch  ? (float)this.m_FreeCache[num] : (float)this.m_SmallCityJobs.Get().GetFreeWorkplaces(num);
                                     float num4 = (float)this.m_EmployableByEducation[num] / num3;
 
                                     if (num2 >= 0 && random.NextFloat(num4) > 2f)
@@ -366,17 +367,17 @@ namespace BitulaMod
 											m_Methods = PathMethod.Pedestrian
 										};
 										SetupQueueTarget setupQueueTarget2 = setupQueueTarget;
-                                        bool employed = m_SmallCityJobs.isEmployed(owner);
-                                        bool foundCloserJob = m_SmallCityJobs.FoundCloserJob(owner);
-                                        bool foundHigherJob = m_SmallCityJobs.FoundHigherJob(owner);
-                                        bool sm = m_SmallCityJobs.UseSmallCityBehavior(owner);                                        
-                                        bool removeOvereducationPenalty = m_SmallCityJobs.AcceptLowerJobs();
+                                        bool employed = m_SmallCityJobs.Get().isEmployed(owner);
+                                        bool foundCloserJob = m_SmallCityJobs.Get().FoundCloserJob(owner);
+                                        bool foundHigherJob = m_SmallCityJobs.Get().FoundHigherJob(owner);
+                                        bool sm = m_SmallCityJobs.Get().UseSmallCityBehavior();                                        
+                                        bool removeOvereducationPenalty = m_SmallCityJobs.Get().AcceptLowerJobs();
 
 										bool better = (num == num2 && foundCloserJob) || (!employed && sm) || (foundHigherJob);
                                         
 
                                         Entity closestJob = foundCloserJob 
-                                            ? m_SmallCityJobs.GetClosestJob(owner, num2)
+                                            ? m_SmallCityJobs.Get().GetClosestJob(owner, num2)
                                             : Entity.Null;
 
                                         setupQueueTarget = new SetupQueueTarget {
@@ -519,7 +520,7 @@ namespace BitulaMod
         [BurstCompile]
         private struct StartWorkingJob : IJob
 		{
-            public SmallCityJobs m_SmallCityJobs;
+            public SmallCity<SCJob> m_SmallCityJobs;
             // Token: 0x060067E0 RID: 26592 RVA: 0x003834D0 File Offset: 0x003816D0
             public void Execute()
 			{
@@ -547,7 +548,7 @@ namespace BitulaMod
 									Entity entity2 = (this.m_PropertyRenters.HasComponent(destination) ? this.m_PropertyRenters[destination].m_Property : destination);
 									Entity prefab = this.m_Prefabs[entity2].m_Prefab;
 									int num2 = (int)(this.m_SpawnableBuildings.HasComponent(prefab) ? this.m_SpawnableBuildings[prefab].m_Level : 1);
-									if (m_SmallCityJobs.IsWorkplaceAllowed(owner, destination, m_Prefabs))
+									if (m_SmallCityJobs.Get().IsWorkplaceAllowed(owner, destination, m_Prefabs))
 									{
 										Entity prefab2 = this.m_Prefabs[destination].m_Prefab;
 										if (this.m_WorkplaceDatas.HasComponent(prefab2))
@@ -578,9 +579,9 @@ namespace BitulaMod
 													{
 														workshift = Workshift.Night;
 													}
-                                                    bool promoted = m_SmallCityJobs.IsPromotionAllowed(owner, destination, m_Prefabs, bestFor);
+                                                    bool promoted = m_SmallCityJobs.Get().IsPromotionAllowed(owner, destination, m_Prefabs, bestFor);
                                                     if (promoted) {                                                        
-														m_SmallCityJobs.PromoteWorker(owner, dynamicBuffer, bestFor, this.m_CommandBuffer);
+														m_SmallCityJobs.Get().PromoteWorker(owner, dynamicBuffer, bestFor, this.m_CommandBuffer);
                                                     } else if (!this.m_Workers.HasComponent(owner) || destination != this.m_Workers[owner].m_Workplace) {
                                                         dynamicBuffer.Add(new Employee {
                                                             m_Worker = owner,

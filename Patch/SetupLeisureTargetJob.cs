@@ -10,6 +10,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using BitulaMod.SmallCity;
 
 namespace BitulaMod {
     [BurstCompile]
@@ -38,7 +39,7 @@ namespace BitulaMod {
                             LeisureProviderData leisureProviderData = this.m_LeisureProviderDatas[prefab];
                             float num = 0f;
                             if (value == leisureProviderData.m_LeisureType) {                              
-                                m_SmallCityJobs.SetDesiredProviderFound(entity);
+                                m_SmallCityLeisure.Get().SetDesiredProviderFound(entity);
                                 if ((value == LeisureType.Commercial || value == LeisureType.Meals) && nativeArray2.Length > 0 && this.m_ServiceDatas.HasComponent(prefab)) {
                                     int num2 = nativeArray2[j].m_ServiceAvailable;
                                     if ((float)num2 < value2) {
@@ -52,7 +53,7 @@ namespace BitulaMod {
                                         }
                                     }
                                 }
-                                m_SmallCityJobs.SetAvailableProviderFound(entity);
+                                m_SmallCityLeisure.Get().SetAvailableProviderFound(entity);
                                 pathfindTargetSeeker.FindTargets(entity2, num);
                             }
                         }
@@ -107,7 +108,7 @@ namespace BitulaMod {
         // Token: 0x0400C251 RID: 49745
         public int m_LeisureSystemUpdateInterval;
 
-        public SmallCityJobs m_SmallCityJobs;
+        public SmallCity<SCLeisure> m_SmallCityLeisure;
         [ReadOnly]
         public ComponentLookup<PropertyRenter> m_PropertyRenters;
 

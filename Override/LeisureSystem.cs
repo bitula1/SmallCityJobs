@@ -29,6 +29,7 @@ using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
 using BitulaMod.Components;
+using BitulaMod.SmallCity;
 
 namespace BitulaMod
 {
@@ -161,9 +162,10 @@ namespace BitulaMod
 			leisureJob.m_LeisureQueue = this.m_LeisureQueue.AsParallelWriter();
 			leisureJob.m_TimeData = this.m_TimeDataQuery.GetSingleton<TimeData>();
 			leisureJob.m_PopulationEntity = this.m_PopulationQuery.GetSingletonEntity();
-            leisureJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, leisureJob.m_CommandBuffer);
+            leisureJob.m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef, leisureJob.m_CommandBuffer);
+            leisureJob.m_SmallCityJobs = SmallCity<SCJob>.Create();
             JobHandle jobHandle4 = leisureJob.ScheduleParallel(this.m_LeisureQuery, JobUtils.CombineDependencies(base.Dependency, jobHandle2, jobHandle3, jobHandle));
-            SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle4);
+            SmallCity<SCLeisure>.AddProducer(ref base.CheckedStateRef, jobHandle4);
             this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle4);
 			this.m_PathFindSetupSystem.AddQueueWriter(jobHandle4);
 			this.m_PersonalCarSelectData.PostUpdate(jobHandle4);
@@ -413,7 +415,8 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct LeisureJob : IJobChunk
 		{
-            public SmallCityJobs m_SmallCityJobs;
+            public SmallCity<SCLeisure> m_SmallCityLeisure;
+            public SmallCity<SCJob> m_SmallCityJobs;
             // Token: 0x06006860 RID: 26720 RVA: 0x0038CE74 File Offset: 0x0038B074
             private void SpendLeisure(int index, Entity entity, ref Citizen citizen, ref Leisure leisure, Entity providerEntity, LeisureProviderData provider)
 			{
@@ -434,7 +437,7 @@ namespace BitulaMod
 				}
 				if (!flag)
 				{
-					if (!m_SmallCityJobs.IsEndOfSpending(entity))
+					if (!m_SmallCityLeisure.Get().IsEndOfSpending(entity))
 					this.m_LeisureQueue.Enqueue(new LeisureEvent
 					{
 						m_Citizen = entity,
@@ -442,9 +445,9 @@ namespace BitulaMod
 						m_Efficiency = provider.m_Efficiency
 					});
 				}
-				bool useSCJ = m_SmallCityJobs.UseSmallCityBehavior(entity);
+				bool useSCJ = m_SmallCityLeisure.Get().UseSmallCityBehavior();
 				bool removeVanilla = (float)citizen.m_LeisureCounter > 255f - (float)provider.m_Efficiency / LeisureSystem.kUpdateInterval || this.m_SimulationFrame >= leisure.m_LastPossibleFrame;
-				bool removeSCJ = m_SmallCityJobs.IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
+				bool removeSCJ = m_SmallCityLeisure.Get().IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
 
                 if ((useSCJ ? removeSCJ : removeVanilla) || flag) {
                     this.m_CommandBuffer.RemoveComponent<CmpLeisureStart>(index, entity);
@@ -468,7 +471,7 @@ namespace BitulaMod
 				for (int i = 0; i < nativeArray.Length; i++)
 				{					
 					Entity entity = nativeArray[i];
-                    m_SmallCityJobs.init(entity, SmallCityJobsPhase.SpendLeisure);
+                    m_SmallCityLeisure.Get().init(entity, SmallCityJobsPhase.SpendLeisure);
                     Leisure leisure = nativeArray2[i];
 					DynamicBuffer<TripNeeded> dynamicBuffer = bufferAccessor[i];
 					Citizen citizen = this.m_CitizenDatas[entity];
@@ -523,7 +526,7 @@ namespace BitulaMod
 							Entity destination = pathInformation.m_Destination;
 							if ((this.m_PropertyRenters.HasComponent(destination) || this.m_PrefabRefs.HasComponent(destination)) && !this.m_Targets.HasComponent(entity))
 							{
-								if ((!this.m_Workers.HasComponent(entity) || m_SmallCityJobs.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) || !WorkerSystem.IsTimeToWork(citizen, this.m_Workers[entity], ref this.m_EconomyParameters, this.m_TimeOfDay)) && (!this.m_Students.HasComponent(entity) || !StudentSystem.IsTimeToStudy(citizen, this.m_Students[entity], ref this.m_EconomyParameters, this.m_TimeOfDay, this.m_SimulationFrame, this.m_TimeData, population)))
+								if ((!this.m_Workers.HasComponent(entity) || m_SmallCityJobs.Get().IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) || !WorkerSystem.IsTimeToWork(citizen, this.m_Workers[entity], ref this.m_EconomyParameters, this.m_TimeOfDay)) && (!this.m_Students.HasComponent(entity) || !StudentSystem.IsTimeToStudy(citizen, this.m_Students[entity], ref this.m_EconomyParameters, this.m_TimeOfDay, this.m_SimulationFrame, this.m_TimeData, population)))
 								{
 									Entity prefab3 = this.m_PrefabRefs[destination].m_Prefab;
 									leisureProviderData = this.m_LeisureProviderDatas[prefab3];
@@ -533,7 +536,7 @@ namespace BitulaMod
 									}
 									leisure.m_TargetAgent = destination;
 									nativeArray2[i] = leisure;
-                                    m_SmallCityJobs.Send(entity, CustomEventType.FoundLeisureAt, destination);
+                                    m_SmallCityLeisure.Get().PrintDestination(entity, destination);
                                     dynamicBuffer.Add(new TripNeeded
 									{
 										m_TargetAgent = destination,
@@ -558,10 +561,10 @@ namespace BitulaMod
 							}
 							else if (!this.m_Targets.HasComponent(entity))
 							{
-                                LeisureType desired = m_SmallCityJobs.GetDesiredLeisureType(entity);
+                                LeisureType desired = m_SmallCityLeisure.Get().GetDesiredLeisureType(entity);
                                 //m_SmallCityJobs.AddParameter($"Leisure type={(int)desired}");
                                 //m_SmallCityJobs.Send(entity, CustomEventType.DebugMessage);								
-                                m_SmallCityJobs.PrintLeisureIssue(entity, desired);
+                                m_SmallCityLeisure.Get().PrintLeisureIssue(entity, desired);
                                 if (this.m_Purposes.HasComponent(entity) && (this.m_Purposes[entity].m_Purpose == Purpose.Leisure || this.m_Purposes[entity].m_Purpose == Purpose.Traveling))
 								{
 									this.m_CommandBuffer.RemoveComponent<TravelPurpose>(unfilteredChunkIndex, entity);
@@ -577,7 +580,8 @@ namespace BitulaMod
 					}
 					else if (!this.m_Purposes.HasComponent(entity))
 					{
-                        if (leisure.m_TargetAgent != Entity.Null && m_SmallCityJobs.UseSmallCityBehavior(entity) && !m_SmallCityJobs.IsEndOfLeisure(
+                        if (leisure.m_TargetAgent != Entity.Null && m_SmallCityLeisure.Get().UseSmallCityBehavior() 
+							&& !m_SmallCityLeisure.Get().IsEndOfLeisure(
 							entity,  m_SimulationFrame, leisure.m_LastPossibleFrame)) {
                             continue;
                         }
@@ -767,7 +771,7 @@ namespace BitulaMod
 				LeisureType leisureType = this.SelectLeisureType(household, tourist, citizenData, ref random);
 				float num = 255f - (float)citizenData.m_LeisureCounter;
                 byte desire = (byte)(1 + math.clamp((int)(num * 5f / 256f), 0, 4));
-                m_SmallCityJobs.SetDesiredLeisureType(citizen, leisureType, desire);
+                m_SmallCityLeisure.Get().SetDesiredLeisureType(citizen, leisureType, desire);
                 if (leisureType == LeisureType.Travel || leisureType == LeisureType.Sightseeing || leisureType == LeisureType.Attractions)
 				{
 					if (this.m_Purposes.HasComponent(citizen))
@@ -782,8 +786,8 @@ namespace BitulaMod
 					return;
 				}
                 
-                m_SmallCityJobs.CreateDesiredProviderFound(citizen);
-                m_SmallCityJobs.CreateAvailableProviderFound(citizen);
+                m_SmallCityLeisure.Get().CreateDesiredProviderFound(citizen);
+                m_SmallCityLeisure.Get().CreateAvailableProviderFound(citizen);
                 this.m_CommandBuffer.AddComponent(chunkIndex, citizen, in this.m_PathfindTypes);
 				this.m_CommandBuffer.SetComponent<PathInformation>(chunkIndex, citizen, new PathInformation
 				{

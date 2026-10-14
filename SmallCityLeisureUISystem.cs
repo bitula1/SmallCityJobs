@@ -1,4 +1,5 @@
 ﻿using BitulaMod.Components;
+using BitulaMod.SmallCity;
 using Colossal.Entities;
 using Colossal.UI.Binding;
 using Game;
@@ -179,7 +180,7 @@ namespace BitulaMod
             m_Resources.Update(this);
             m_Shopping.Update(this);
             m_ServiceAvailables.Update(this);
-            AddCustomers(selectedEntity, SmallCityJobs.Create());
+            AddCustomers(selectedEntity, SmallCity<SCLeisure>.Create());
             m_CustomersBinding.Update();
         }
         private static string FormatTime(float normalizedTime) {
@@ -211,7 +212,7 @@ namespace BitulaMod
         }
 
 
-        private void AddCustomers(Entity selectedEntity, SmallCityJobs scj) {
+        private void AddCustomers(Entity selectedEntity, SmallCity<SCLeisure> scj) {
             List<CustomerInfo> customers = new();
             using NativeArray<Entity> citizens = m_LeisureCitizenQuery.ToEntityArray(Allocator.Temp);
             SimulationSystem simulationSystem = World.GetOrCreateSystemManaged<SimulationSystem>();
@@ -303,7 +304,7 @@ namespace BitulaMod
             return (hasTravelPurpose && travelPurpose.m_Purpose == Purpose.Leisure && targetEntity == selectedEntity) || (knownLeisureVisit && isInSelectedBuilding);
         }
 
-        private void FillUIData(CustomerInfo customer, uint currentFrame, ref SmallCityJobs scj) {
+        private void FillUIData(CustomerInfo customer, uint currentFrame, ref SmallCity<SCLeisure> scj) {
             Entity citizen = customer.Customer;
             HouseholdMember householdMember = EntityManager.GetComponentData<HouseholdMember>(citizen);
             bool hasLeisure = EntityManager.TryGetComponent<Leisure>(citizen, out Leisure leisure);
@@ -318,7 +319,7 @@ namespace BitulaMod
                 citizen, out CmpLeisureStart leisureStart)) {                
                 
                 //uint endFrame = startFrame + (uint)(duration * percent);
-                uint endFrame = scj.LeisureEndFrame(citizenData, citizen, leisure.m_LastPossibleFrame, leisureStart.m_StartFrame);
+                uint endFrame = scj.Get().LeisureEndFrame(citizenData, leisure.m_LastPossibleFrame, leisureStart.m_StartFrame);
 
                 long remainingFrames = Math.Max(0, (long)endFrame - currentFrame);
 
@@ -336,7 +337,7 @@ namespace BitulaMod
 
             if (useSCJ) {
 
-                customer.LeisureDesire = scj.GetLeisureDesireLevel(citizenData);
+                customer.LeisureDesire = scj.Get().GetLeisureDesireLevel(citizenData);
             } else if (m_Desire.TryGetComponent(
                            citizen,
                            out CmpDesiredLeisureType desireComponent)) {

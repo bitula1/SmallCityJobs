@@ -19,7 +19,7 @@ namespace BitulaMod {
         public Entity m_Citizen;
         public CustomEventType m_EventType;
         public FixedList128Bytes<CustomEventType> m_WatchedEventTypes;
-        public FixedString64Bytes m_Param;
+        public FixedString128Bytes m_Param;
         public EventHint m_Hint;
         public EventHint m_WatchHint;
         public Entity m_Target;

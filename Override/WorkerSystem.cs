@@ -20,6 +20,7 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
+using BitulaMod.SmallCity;
 
 namespace BitulaMod
 {
@@ -148,12 +149,12 @@ namespace BitulaMod
 			goToWorkJob.m_Frame = this.m_SimulationSystem.frameIndex;
 			goToWorkJob.m_TimeData = this.m_TimeDataQuery.GetSingleton<TimeData>();
 			goToWorkJob.m_PopulationEntity = this.m_PopulationQuery.GetSingletonEntity();
-            goToWorkJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef);
+            goToWorkJob.m_SmallCityJobs = SmallCity<SCJob>.Create(ref base.CheckedStateRef);
             JobHandle jobHandle;
 			goToWorkJob.m_CarReserverQueue = this.m_CitizenBehaviorSystem.GetCarReserveQueue(out jobHandle);
 			goToWorkJob.m_CommandBuffer = this.m_EndFrameBarrier.CreateCommandBuffer().AsParallelWriter();
 			JobHandle jobHandle2 = goToWorkJob.ScheduleParallel(this.m_GotoWorkQuery, JobHandle.CombineDependencies(base.Dependency, jobHandle));
-            SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle2);
+            SmallCity<SCJob>.AddProducer(ref base.CheckedStateRef, jobHandle2);
             this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle2);
 			this.m_CitizenBehaviorSystem.AddCarReserveWriter(jobHandle2);
 			this.m_TriggerSystem.AddActionBufferWriter(jobHandle2);
@@ -238,7 +239,7 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct GoToWorkJob : IJobChunk
 		{
-            public SmallCityJobs m_SmallCityJobs;
+            public SmallCity<SCJob> m_SmallCityJobs;
             // Token: 0x060068CF RID: 26831 RVA: 0x003928D8 File Offset: 0x00390AD8
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
@@ -256,7 +257,7 @@ namespace BitulaMod
 				{
 					Entity entity = nativeArray[i];
 					Citizen citizen = nativeArray2[i];
-					if (!m_SmallCityJobs.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_Frame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, nativeArray3[i], ref this.m_EconomyParameters, this.m_TimeOfDay))
+					if (!m_SmallCityJobs.Get().IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_Frame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, nativeArray3[i], ref this.m_EconomyParameters, this.m_TimeOfDay))
 					{
 						DynamicBuffer<TripNeeded> dynamicBuffer = bufferAccessor[i];
 						if (!this.m_Attendings.HasComponent(entity) && (citizen.m_State & CitizenFlags.MovingAwayReachOC) == CitizenFlags.None)

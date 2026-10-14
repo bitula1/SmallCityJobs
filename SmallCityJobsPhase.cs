@@ -12,6 +12,8 @@ namespace BitulaMod {
         SetupPath,
         StartWorking,
         StartLeisure,
-        SpendLeisure
+        SpendLeisure,
+        StartShopping,
+        Shopping
     }
 }

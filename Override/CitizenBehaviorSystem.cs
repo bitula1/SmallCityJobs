@@ -27,6 +27,7 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
+using BitulaMod.SmallCity;
 
 namespace BitulaMod
 {
@@ -244,10 +245,12 @@ namespace BitulaMod
 			citizenAITickJob.m_MailSenderQueue = nativeQueue.AsParallelWriter();
 			citizenAITickJob.m_SleepQueue = nativeQueue2.AsParallelWriter();
 			citizenAITickJob.m_RandomSeed = RandomSeed.Next();
-            citizenAITickJob.m_SmallCityJobs = SmallCityJobs.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
+            citizenAITickJob.m_SmallCityJobs = SmallCity<SCJob>.Create();
+            citizenAITickJob.m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
+            citizenAITickJob.m_SmallCityShopping = SmallCity<SCShopping>.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
             CitizenBehaviorSystem.CitizenAITickJob citizenAITickJob2 = citizenAITickJob;
 			JobHandle jobHandle2 = citizenAITickJob2.ScheduleParallel(this.m_CitizenQuery, JobHandle.CombineDependencies(this.m_CarReserveWriters, JobHandle.CombineDependencies(base.Dependency, jobHandle)));
-            SmallCityJobs.AddProducer(ref base.CheckedStateRef, jobHandle2);
+            SmallCity<SCLeisure>.AddProducer(ref base.CheckedStateRef, jobHandle2);
             citizenAITickJob2.m_OutsideConnectionEntities.Dispose(jobHandle2);
 			this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle2);
 			this.AddCarReserveWriter(jobHandle2);
@@ -666,12 +669,14 @@ namespace BitulaMod
 			// Token: 0x0600689C RID: 26780 RVA: 0x0037EEB4 File Offset: 0x0037D0B4
 			private void GoShopping(int chunkIndex, Entity citizen, bool isCarKeeper, Entity household, HouseholdNeed need, float3 position)
 			{
-				if (!isCarKeeper)
+                m_SmallCityLeisure.Get().init(citizen, SmallCityJobsPhase.StartShopping);
+                if (!isCarKeeper)
 				{
 					this.m_CarReserverQueue.Enqueue(citizen);
 				}
 				this.m_MailSenderQueue.Enqueue(citizen);
-				this.m_CommandBuffer.AddComponent<ResourceBuyer>(chunkIndex, citizen, new ResourceBuyer
+                m_SmallCityShopping.Get().SetShoppingStart(citizen, m_SimulationFrame);
+                this.m_CommandBuffer.AddComponent<ResourceBuyer>(chunkIndex, citizen, new ResourceBuyer
 				{
 					m_Payer = household,
 					m_Flags = SetupTargetFlags.Commercial,
@@ -694,8 +699,9 @@ namespace BitulaMod
 			// Token: 0x0600689E RID: 26782 RVA: 0x0037EF5C File Offset: 0x0037D15C
 			private bool DoLeisure(int chunkIndex, int citizenIndex, Entity citizenEntity, Entity householdEntity, Entity currentBuilding, Entity homeEntity, bool isTourist, ref Citizen citizenData, int population, ref Unity.Mathematics.Random random, ref EconomyParameterData economyParameters, bool isWorker, Worker worker, bool isStudent, Game.Citizens.Student student, ref NativeArray<LeisureSeekerCooldown> leisureSeekerCooldown)
 			{
-				bool scjLeisure = m_SmallCityJobs.DoLeisure(citizenEntity, this.m_SimulationFrame);
-				bool useSCJ = m_SmallCityJobs.UseSmallCityBehavior(citizenEntity);
+                m_SmallCityLeisure.Get().init(citizenEntity, SmallCityJobsPhase.StartLeisure);
+                bool scjLeisure = m_SmallCityLeisure.Get().DoLeisure(citizenEntity, this.m_SimulationFrame);
+				bool useSCJ = m_SmallCityLeisure.Get().UseSmallCityBehavior();
                 if (useSCJ && !scjLeisure) {
                     return false;
                 }
@@ -755,7 +761,7 @@ namespace BitulaMod
 				{
 					m_LastPossibleFrame = this.m_SimulationFrame + num4
 				};
-                m_SmallCityJobs.SetLeisureStart(citizenEntity, this.m_SimulationFrame);
+                m_SmallCityLeisure.Get().SetLeisureStart(citizenEntity, this.m_SimulationFrame);
 				this.m_CommandBuffer.AddComponent<Leisure>(chunkIndex, citizenEntity, leisure);
 				return true;
 			}
@@ -912,8 +918,7 @@ namespace BitulaMod
 					if (!flag || !CitizenUtils.IsDead(nativeArray5[i]))
 					{
 						Entity entity = nativeArray3[i].m_Household;
-						Entity entity2 = nativeArray[i];
-                        m_SmallCityJobs.init(entity2, SmallCityJobsPhase.StartLeisure);
+						Entity entity2 = nativeArray[i];                        
                         bool flag6 = (citizen.m_State & CitizenFlags.Tourist) > CitizenFlags.None;
 						Criminal criminal;
 						if (!CollectionUtils.TryGet<Criminal>(nativeArray6, i, out criminal) || (criminal.m_Flags & (CriminalFlags.Prisoner | CriminalFlags.Arrested | CriminalFlags.Sentenced)) == (CriminalFlags)0)
@@ -1026,10 +1031,10 @@ namespace BitulaMod
 											}
 										}
 										else if (!CollectionUtils.TryGet<AttendingMeeting>(nativeArray9, i, out attendingMeeting) || !this.AttendMeeting(unfilteredChunkIndex, entity2, ref citizen, attendingMeeting, flag8, entity, currentBuilding, dynamicBuffer, ref random))
-										{
-											Worker worker = (flag3 ? nativeArray7[i] : default(Worker));
+										{                                            
+                                            Worker worker = (flag3 ? nativeArray7[i] : default(Worker));
 											Game.Citizens.Student student = (flag4 ? nativeArray8[i] : default(Game.Citizens.Student));
-											if ((flag3 && !m_SmallCityJobs.IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, worker, ref this.m_EconomyParameters, this.m_NormalizedTime)) || (flag4 && StudentSystem.IsTimeToStudy(citizen, student, ref this.m_EconomyParameters, this.m_NormalizedTime, this.m_SimulationFrame, this.m_TimeData, population)))
+											if ((flag3 && !m_SmallCityJobs.Get().IsTodayOffDay(citizen, ref this.m_EconomyParameters, this.m_SimulationFrame, this.m_TimeData, population) && WorkerSystem.IsTimeToWork(citizen, worker, ref this.m_EconomyParameters, this.m_NormalizedTime)) || (flag4 && StudentSystem.IsTimeToStudy(citizen, student, ref this.m_EconomyParameters, this.m_NormalizedTime, this.m_SimulationFrame, this.m_TimeData, population)))
 											{
 												if (flag2)
 												{
@@ -1049,7 +1054,7 @@ namespace BitulaMod
 												else
 												{
 													if ((age == CitizenAge.Adult || age == CitizenAge.Elderly) 
-														&& (!flag2 || !m_SmallCityJobs.UseSmallCityBehavior(entity2)))
+														&& (!flag2 || !m_SmallCityJobs.Get().UseSmallCityBehavior()))
 
                                                     {
 														HouseholdNeed householdNeed = this.m_HouseholdNeeds[entity];
@@ -1275,8 +1280,9 @@ namespace BitulaMod
 			// Token: 0x040093D6 RID: 37846
 			public RandomSeed m_RandomSeed;
 
-            [ReadOnly]
-            public SmallCityJobs m_SmallCityJobs;
+            public SmallCity<SCJob> m_SmallCityJobs;
+            public SmallCity<SCLeisure> m_SmallCityLeisure;
+            public SmallCity<SCShopping> m_SmallCityShopping;
         }
 
 		// Token: 0x02001525 RID: 5413

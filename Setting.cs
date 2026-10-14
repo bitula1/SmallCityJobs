@@ -96,7 +96,17 @@ namespace BitulaMod
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
         public int SpendingLeisureMax { get; set; } = 50;
 
+        
+        [SettingsUISection("Shopping", "Shopping")]
+        public bool NormalShopping { get; set; } = true;        
 
+        [SettingsUISection("Shopping", "Shopping")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int ShoppingIntervalMin { get; set; } = 30;
+
+        [SettingsUISection("Shopping", "Shopping")]
+        [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+        public int ShoppingIntervalMax { get; set; } = 60;
 
         public override void SetDefaults()
         {
@@ -119,6 +129,10 @@ namespace BitulaMod
             LeisureIntervalMax = 80;
             SpendingLeisureMin = 5;
             SpendingLeisureMax = 50;
+
+            NormalShopping = true;
+            ShoppingIntervalMin = 30;
+            ShoppingIntervalMax = 60;
         }
     }
 
@@ -167,8 +181,10 @@ namespace BitulaMod
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
                 { m_Setting.GetOptionTabLocaleID("JobSeeking"), "Job Seeking" },
                 { m_Setting.GetOptionTabLocaleID("LeisureSeeking"), "Leisure Seeking" },
+                { m_Setting.GetOptionTabLocaleID("Shopping"), "Shopping" },
                 { m_Setting.GetOptionGroupLocaleID("JobSeeking"), "Job Seeking" },
                 { m_Setting.GetOptionGroupLocaleID("LeisureSeeking"), "Leisure Seeking" },
+                { m_Setting.GetOptionGroupLocaleID("Shopping"), "Shopping" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMin)), "Minimum leisure desire" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMin)), "Sets the minimum leisure desire percentage assigned to citizens using Small City leisure behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMax)), "Maximum leisure desire" },
@@ -204,7 +220,13 @@ namespace BitulaMod
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobEmployed)), "Employed switch to closer job" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobEmployed)), "Allows employed citizens to switch to a suitable job that is closer to home than their current job." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisure)), "Normal Leisure" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisure)), "Gives citizens a more realistic individual chance to choose leisure activities during their free time." },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisure)), "Gives citizens a more realistic individual chance to choose leisure activities during their free time. Vanilla shopping behavior is gradually restored as the city grows, according to the configured milestone increment." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalShopping)), "Normal Shopping" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalShopping)), "Enables more realistic individual shopping behavior for citizens. Vanilla shopping behavior is gradually restored as the city grows, according to the configured milestone increment." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ShoppingIntervalMin)), "Minimum shopping duration" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMin)), "Sets the minimum percentage of the available shopping time that citizens spend shopping." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ShoppingIntervalMax)), "Maximum shopping duration" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMax)), "Sets the maximum percentage of the available shopping time that citizens spend shopping." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },

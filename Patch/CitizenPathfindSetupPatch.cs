@@ -14,6 +14,7 @@ using Game.Economy;
 using Game.Buildings;
 using Game;
 using BitulaMod.Components;
+using BitulaMod.SmallCity;
 
 namespace BitulaMod
 {
@@ -224,7 +225,7 @@ namespace BitulaMod
             resources.Update(system);
             EndFrameBarrier endFrameBarrier = system.World.GetOrCreateSystemManaged<EndFrameBarrier>();
             EntityCommandBuffer.ParallelWriter commandBuffer = endFrameBarrier.CreateCommandBuffer().AsParallelWriter();
-            SmallCityJobs smallCityJobs = SmallCityJobs.Create(ref system.CheckedStateRef, commandBuffer);
+            SmallCity<SCLeisure> smallCityLeisure = SmallCity<SCLeisure>.Create(ref system.CheckedStateRef, commandBuffer);
 
             JobHandle handle = new SetupLeisureTargetJob {
                 m_EntityType = entityType,
@@ -239,7 +240,7 @@ namespace BitulaMod
                 m_Resources = resources,
 
                 m_SetupData = setupData,
-                m_SmallCityJobs = smallCityJobs,
+                m_SmallCityLeisure = smallCityLeisure,
                 m_ResourcePrefabs = resourceSystem.GetPrefabs(),
                 m_LeisureSystemUpdateInterval = leisureSystem.GetUpdateInterval(SystemUpdatePhase.GameSimulation),
                 m_PropertyRenters = GetComponentLookup<PropertyRenter>(system, true),
@@ -247,7 +248,7 @@ namespace BitulaMod
 
             }.ScheduleParallel(leisureProviderQuery, inputDeps);
             resourceSystem.AddPrefabsReader(handle);
-            SmallCityJobs.AddProducer(ref system.CheckedStateRef, handle);
+            SmallCity<SCLeisure>.AddProducer(ref system.CheckedStateRef, handle);
             endFrameBarrier.AddJobHandleForProducer(handle);
             return handle;
         }

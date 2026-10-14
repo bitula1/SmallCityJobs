@@ -1,4 +1,5 @@
 ﻿using BitulaMod.Components;
+using BitulaMod.SmallCity;
 using Game;
 using Game.Citizens;
 using Game.City;
@@ -44,7 +45,7 @@ namespace BitulaMod
 
         protected override void OnUpdate() {
             int population = SystemAPI.GetSingleton<Population>().m_Population;
-            int progression = SmallCityJobs.GetProgression(population);
+            int progression = SmallCity<SCJob>.GetProgression(population);
 
             NativeArray<Entity> newCitizens =
                 m_NewCitizenQuery.ToEntityArray(Allocator.Temp);
