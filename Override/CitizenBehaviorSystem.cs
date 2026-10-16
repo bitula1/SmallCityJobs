@@ -669,7 +669,7 @@ namespace BitulaMod
 			// Token: 0x0600689C RID: 26780 RVA: 0x0037EEB4 File Offset: 0x0037D0B4
 			private void GoShopping(int chunkIndex, Entity citizen, bool isCarKeeper, Entity household, HouseholdNeed need, float3 position)
 			{
-                m_SmallCityLeisure.Get().init(citizen, SmallCityJobsPhase.StartShopping);
+                m_SmallCityShopping.Get().init(citizen, SmallCityJobsPhase.StartShopping);
                 if (!isCarKeeper)
 				{
 					this.m_CarReserverQueue.Enqueue(citizen);

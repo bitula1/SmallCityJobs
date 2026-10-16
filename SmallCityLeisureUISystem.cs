@@ -199,6 +199,8 @@ namespace BitulaMod
             DateTime now = DateTime.UtcNow;
 
             m_Customers.Where(x => {
+                if (!EntityManager.Exists(x.Key) || !EntityManager.HasComponent<Citizen>(x.Key) || !EntityManager.HasComponent<HouseholdMember>(x.Key))
+                    return true;
                 bool valid = isValid(x.Key, selectedEntity);
 
                if (valid) {
@@ -224,7 +226,8 @@ namespace BitulaMod
                 }
             }
             ClearCustomers(selectedEntity);
-            foreach (CustomerInfo customer in m_Customers.Values) {
+            foreach (CustomerInfo customer in m_Customers.Values.OrderBy(s => m_NameSystem.GetRenderedLabelName(s.Customer),
+                StringComparer.CurrentCultureIgnoreCase)) {
                 Entity citizen = customer.Customer;                
                 bool hasLeisure = EntityManager.TryGetComponent<Leisure>(citizen, out Leisure leisure);
                 bool hasTravelPurpose = EntityManager.TryGetComponent<TravelPurpose>(citizen, out TravelPurpose travelPurpose);
@@ -267,12 +270,6 @@ namespace BitulaMod
                 FillUIData(customer, currentFrame, ref scj);
 
                 customers.Add(customer);
-            }
-
-
-            customers.Sort((a, b) => a.Customer.Index.CompareTo(b.Customer.Index));
-            foreach (CustomerInfo customer in customers) {
-                m_Customers[customer.Customer] = customer;
             }
         }
 
@@ -579,7 +576,8 @@ namespace BitulaMod
         private void BindCustomers(IJsonWriter writer) {
             writer.ArrayBegin((uint)m_Customers.Count);
 
-            foreach (CustomerInfo customer in m_Customers.Values) {
+            foreach (CustomerInfo customer in m_Customers.Values.OrderBy(s => m_NameSystem.GetRenderedLabelName(s.Customer),
+                StringComparer.CurrentCultureIgnoreCase).ThenBy(s => s.Customer.Index)) {
                 writer.TypeBegin("Customer");
 
                 writer.PropertyName("entity");

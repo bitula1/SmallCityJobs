@@ -256,8 +256,7 @@ namespace BitulaMod
 					else if (flag2)
 					{
 						m_SmallCityShopping.Get().init(entity, SmallCityJobsPhase.Shopping);
-                        if (travelPurpose.m_Purpose == Purpose.Shopping && m_SmallCityShopping.Get().UseSmallCityBehavior() &&
-							!m_SmallCityShopping.Get().IsEndOfShopping(entity)) {
+                        if (travelPurpose.m_Purpose == Purpose.Shopping && !m_SmallCityShopping.Get().IsEndOfShopping(entity)) {
                             continue;
                         }
                         this.m_CommandBuffer.SetComponentEnabled<Arrived>(unfilteredChunkIndex, entity, false);
@@ -383,8 +382,17 @@ namespace BitulaMod
 							}
 							break;
 						}
-					}
-				}
+					} else if (!flag2 && travelPurpose.m_Purpose == Purpose.Shopping) {
+                        m_SmallCityShopping.Get().init(entity, SmallCityJobsPhase.Shopping);
+
+                        if (m_SmallCityShopping.Get().UseSmallCityBehavior() &&
+                            !m_SmallCityShopping.Get().HasShoppingStart(entity)) {
+
+                            m_CommandBuffer.SetComponentEnabled<Arrived>(
+                                unfilteredChunkIndex, entity, true);
+                        }
+                    }
+                }
 			}
 
 			// Token: 0x060068F3 RID: 26867 RVA: 0x00385C64 File Offset: 0x00383E64

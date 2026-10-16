@@ -1,4 +1,5 @@
 ﻿using BitulaMod.Components;
+using BitulaMod.SmallCity;
 using Colossal.Entities;
 using Colossal.UI.Binding;
 using Game;
@@ -17,6 +18,7 @@ using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace BitulaMod
 {
@@ -61,6 +63,7 @@ namespace BitulaMod
             public CitizenAgeKey Age;
             public HouseholdWealthKey Wealth;
             public byte Family;
+            public string ShopperHours;
             public void RemoveDelay() {
                 delay = null;
             }
@@ -84,10 +87,12 @@ namespace BitulaMod
         private RawValueBinding m_ShoppersBinding;
         private NameSystem m_NameSystem;
         private EntityQuery m_ShoppingCitizenQuery;
+        private SmallCity<SCShopping> m_SmallCityShopping;
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
         private ComponentLookup<Target> m_Targets;
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         private ComponentLookup<ResourceBuyer> m_Shopping;
+        private SimulationSystem m_SimulationSystem;
         private EntityQuery m_HappinessParameterQuery;
         private readonly Dictionary<Entity, Entity> m_ShoppingVisitBuilding = new();
         private Entity m_LastSelectedEntity = Entity.Null;
@@ -101,6 +106,7 @@ namespace BitulaMod
 
             m_NameSystem = World.GetOrCreateSystemManaged<NameSystem>();
             m_SelectedInfoUISystem = World.GetOrCreateSystemManaged<SelectedInfoUISystem>();
+            m_SimulationSystem = World.GetOrCreateSystemManaged<SimulationSystem>();
             m_ShoppingCitizenQuery = GetEntityQuery( ComponentType.ReadOnly<Citizen>());
             m_CurrentBuildings = GetComponentLookup<CurrentBuilding>(true);
             m_Targets = GetComponentLookup<Target>(true);
@@ -108,6 +114,7 @@ namespace BitulaMod
             m_ShoppersBinding = new RawValueBinding("BitulaMod", "shoppers", BindShoppers);
             m_Shopping = GetComponentLookup<ResourceBuyer>(true);
             m_HappinessParameterQuery = GetEntityQuery(ComponentType.ReadOnly<CitizenHappinessParameterData>());
+
 
             AddBinding(m_ShoppersBinding);
             RequireForUpdate(m_HappinessParameterQuery);
@@ -136,6 +143,7 @@ namespace BitulaMod
             m_CurrentBuildings.Update(ref state);
             m_Targets.Update(ref state);
             m_Shopping.Update(this);
+            m_SmallCityShopping = SmallCity<SCShopping>.Create(ref base.CheckedStateRef);
             AddShoppers(selectedEntity);
             m_ShoppersBinding.Update();
         }
@@ -144,6 +152,8 @@ namespace BitulaMod
             DateTime now = DateTime.UtcNow;
 
             m_Shoppers.Where(x => {
+                if (!EntityManager.Exists(x.Key) || !EntityManager.HasComponent<Citizen>(x.Key) || !EntityManager.HasComponent<HouseholdMember>(x.Key))
+                    return true;
                 bool valid = isValid(x.Key, selectedEntity);
 
                if (valid) {
@@ -165,9 +175,11 @@ namespace BitulaMod
                 }
             }
             ClearShoppers(selectedEntity);
-            foreach (ShopperInfo shopper in m_Shoppers.Values) {
-                Entity citizen = shopper.Shopper;                
-                
+            foreach (ShopperInfo shopper in m_Shoppers.Values.OrderBy(s => m_NameSystem.GetRenderedLabelName(s.Shopper), StringComparer.CurrentCultureIgnoreCase)) {
+                Entity citizen = shopper.Shopper;
+                m_SmallCityShopping.Get().init(citizen, SmallCityJobsPhase.Shopping);
+                uint currentFrame = m_SimulationSystem.frameIndex;
+
                 bool hasTravelPurpose = EntityManager.TryGetComponent<TravelPurpose>(citizen, out TravelPurpose travelPurpose);
                 
 
@@ -204,15 +216,10 @@ namespace BitulaMod
                 } else {
                     continue;
                 }
-                FillUIData(shopper);
-                shoppers.Add(shopper);
-            }
 
-            
-            shoppers.Sort((a, b) => a.Shopper.Index.CompareTo(b.Shopper.Index));
-            foreach (ShopperInfo shopper in shoppers) {
-                m_Shoppers[shopper.Shopper] = shopper;
-            }
+                FillUIData(shopper, currentFrame);
+                shoppers.Add(shopper);
+            }            
         }
 
         private bool isValid(Entity citizen, Entity selectedEntity) {
@@ -398,22 +405,43 @@ namespace BitulaMod
             return false;
         }
 
-        private void FillUIData(ShopperInfo shopper) {
+        private void FillUIData(ShopperInfo shopper, uint currentFrame) {
+
             Entity citizen = shopper.Shopper;
             HouseholdMember householdMember = EntityManager.GetComponentData<HouseholdMember>(citizen);
-            bool hasLeisure = EntityManager.TryGetComponent<Leisure>(citizen, out Leisure leisure);
+            bool hasLeisure = EntityManager.TryGetComponent<Leisure>(citizen, out Leisure leisure);            
             shopper.Wealth = CitizenUIUtils.GetHouseholdWealth(EntityManager, householdMember.m_Household,
                 m_HappinessParameterQuery.GetSingleton<CitizenHappinessParameterData>());
             shopper.Age = CitizenUIUtils.GetAge(EntityManager, citizen);
             if (EntityManager.TryGetBuffer<HouseholdCitizen>(householdMember.m_Household, true, out var members)) {
                 shopper.Family = (byte)math.clamp(members.Length, 1, 5);
             }
+            bool hasShopping = EntityManager.HasComponent<CmpShoppingStart>(citizen);
+            if (m_SmallCityShopping.Get().UseSmallCityBehavior() && hasShopping) {
+                Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
+                uint lastPossibleFrame = m_SmallCityShopping.Get().GetLasePossibleFrame(citizenData);
+                uint endFrame = m_SmallCityShopping.Get().ShoppingEndFrame(citizen, lastPossibleFrame);
+
+                long remainingFrames = Math.Max(0, (long)endFrame - currentFrame);
+
+                if (remainingFrames > 0) {
+                    float remainingHours = remainingFrames * 24f / 262144f;
+
+                    int hours = (int)remainingHours;
+                    int minutes = (int)((remainingHours - hours) * 60f);
+
+                    shopper.ShopperHours = $"{hours:00}:{minutes:00}";
+                } else {
+                    shopper.ShopperHours = "00:00";
+                }
+            }
         }
 
         private void BindShoppers(IJsonWriter writer) {
             writer.ArrayBegin((uint)m_Shoppers.Count);
 
-            foreach (ShopperInfo shopper in m_Shoppers.Values) {
+            foreach (ShopperInfo shopper in m_Shoppers.Values.OrderBy(s => m_NameSystem.GetRenderedLabelName(s.Shopper),
+                StringComparer.CurrentCultureIgnoreCase).ThenBy(s => s.Shopper.Index)) {
                 writer.TypeBegin("Shopper");
 
                 writer.PropertyName("entity");
@@ -429,6 +457,9 @@ namespace BitulaMod
 
                 writer.PropertyName("name");
                 m_NameSystem.BindName(writer, shopper.Shopper);
+
+                writer.PropertyName("shopperHours");
+                writer.Write(shopper.ShopperHours ?? "");
 
                 writer.PropertyName("status");
                 writer.Write((int)shopper.Status);

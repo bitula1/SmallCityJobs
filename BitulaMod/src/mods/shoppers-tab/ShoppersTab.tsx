@@ -1,6 +1,6 @@
 import { selectedInfo } from "cs2/bindings";
 import { getModule } from "cs2/modding";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { bindValue, useValue } from "cs2/api";
 import { setShoppersTabSelected, subscribeShoppersTab, isShoppersTabSelected, selectCustomTab } from "mods/common/state";
@@ -43,6 +43,7 @@ type Shopper = {
     wealth: Wealth;
     age: Age;
     family: Family;
+    shopperHours: string;
 };
 
 const shoppers$ = bindValue<Shopper[]>(
@@ -107,6 +108,13 @@ export const ACTIONS_SECTION = selectedInfo.SectionType.Actions;
 
 const ShopperRow = ({ shopper }: { shopper: Shopper }) => {
     const name = useLocalizedName(shopper.name);
+    const shopperHoursRef = useRef<string>("");
+
+    if (shopper.shopperHours) {
+        shopperHoursRef.current = shopper.shopperHours;
+    }
+
+    const shopperHours = shopper.shopperHours || shopperHoursRef.current;
     
 
     return (
@@ -142,6 +150,12 @@ const ShopperRow = ({ shopper }: { shopper: Shopper }) => {
                 src={familyIcons[shopper.family]}
                 className="shopper-family-icon"
             />
+
+            {shopperHours && (
+                <span className="shopper-leisure-hours">
+                    [{shopperHours}]
+                </span>
+            )}
         </div>
     );
 };

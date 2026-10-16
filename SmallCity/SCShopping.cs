@@ -44,6 +44,10 @@ namespace BitulaMod.SmallCity {
             return m_Common.UseSmallCityBehavior();
         }
 
+        public bool HasShoppingStart(Entity citizen) {
+            return m_ShoppingStarts.HasComponent(citizen);
+        }
+
         public void SetShoppingStart(Entity citizen, uint startFrame) {
             CmpShoppingStart component = new CmpShoppingStart {
                 m_StartFrame = startFrame,
@@ -83,14 +87,23 @@ namespace BitulaMod.SmallCity {
             return ShoppingEndFrame(citizenData, citizen, lastPossibleFrame, startFrame);
         }
 
+        public uint GetLasePossibleFrame(Citizen citizen) {
+            return m_Common.GetLastPossibleFrame(citizen);
+        }
+
         public bool IsEndOfShopping(Entity citizen) {
             if (!m_Common.UseSmallCityBehavior() || !m_NormalShopping)
-                return false;
+                return true;
+
+            if (!m_ShoppingStarts.HasComponent(citizen))
+                return true;
+
             Citizen citizenData = m_Common.GetCitizenData(citizen);
             uint endFrame = ShoppingEndFrame(citizen, m_Common.GetLastPossibleFrame(citizenData));
 
             if (endFrame == 0)
                 return true;
+
             return m_Common.GetSimulationFrame() >= endFrame;
         }
     }

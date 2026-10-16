@@ -9,19 +9,29 @@
 	<!--LongDescription Value="Bitulas mod" /-->
 	<LongDescription>
 Mod Support: Support the mod's continued development by clicking the Like button.
+
 Supported/recommended mods: Progression Control and Hard Mode Continued.
+
 Unsupported mods: Code mods that override the same game systems are generally incompatible.
 Check the Override folder on GitHub for the systems overridden by this mod.
+
 From version 1.4.22 mod saves data directly in the savegame.
 
+
+- Added new tab showing citizens who are shopping (buying resource, not leasure shopping)
+- Icons: status, age, wealth, family size.
+- Includes shopping duration countdown.
+- New icon design for the main tabs.
+- Implemented small city shopping basics: allowing more detailed individual shopping simulation in smaller cities.
+- Introduced individual shopping durations. Instead of leaving immediately after arriving, citizens can remain at commercial buildings for a configurable amount of time.
+- Added a Normal Shopping setting that gradually restores the game's original shopping behavior as the city grows.
+- Shopping duration takes citizens' daily schedules into account, including their next work, school, or sleep period.
+- Added Minimum Shopping Duration and Maximum Shopping Duration settings to control how much of their available time citizens spend shopping.
+- Leisure and Shopping tab lists are now sorted by full name
+- Fixed possible crash when viewing tabs when citizens leaving
 - Fixed localizationID BitulaMod.LIFEPATH_None not found warning
-- Fixed endofleisure not checking settings
-- new tab icons
-- Shopper tab
-- status icons, delay icons
-- family size
-- Major code rewrite
-- Shopper behaviour + related settings
+- Fixed end of leisure check applies to vanilla (not checking settings)
+- Major code restructure into smallcity template objects - see github smallcity folder
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -57,7 +67,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.22" />
+	<ModVersion Value="1.4.23" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -67,10 +77,20 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-  Mod Support: Support the mod's continued development by clicking the Like button.
-- What's New popup: Added an in-game changelog popup that appears when loading a city after installing or updating Small City Jobs. It is shown only once per mod version.
-- Added save-game support: Citizens now retain important information about their job searches and leisure activities when saving a city. After reloading, they can continue from where they left off instead of restarting these activities or losing their previous decisions.
-- Save-game safety: Added versioned serialization for mod-specific data to support future updates and reduce compatibility issues. Although these changes are designed to be safe, creating a separate backup save is still recommended as a precaution.
+- Added new tab showing citizens who are shopping (buying resource, not leasure shopping)
+- Icons: status, age, wealth, family size.
+- Includes shopping duration countdown.
+- New icon design for the main tabs.
+- Implemented small city shopping basics: allowing more detailed individual shopping simulation in smaller cities.
+- Introduced individual shopping durations. Instead of leaving immediately after arriving, citizens can remain at commercial buildings for a configurable amount of time.
+- Added a Normal Shopping setting that gradually restores the game's original shopping behavior as the city grows.
+- Shopping duration takes citizens' daily schedules into account, including their next work, school, or sleep period.
+- Added Minimum Shopping Duration and Maximum Shopping Duration settings to control how much of their available time citizens spend shopping.
+- Leisure and Shopping tab lists are now sorted by full name
+- Fixed possible crash when viewing tabs when citizens leaving
+- Fixed localizationID BitulaMod.LIFEPATH_None not found warning
+- Fixed end of leisure check applies to vanilla (not checking settings)
+- Major code restructure into smallcity template objects - see github smallcity folder
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />
