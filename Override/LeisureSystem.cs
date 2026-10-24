@@ -297,7 +297,7 @@ namespace BitulaMod
 		private LeisureSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x02001534 RID: 5428
-		[BurstCompile]
+		//[BurstCompile]
 		private struct SpendLeisureJob : IJob
 		{
 			// Token: 0x0600685F RID: 26719 RVA: 0x0038CB60 File Offset: 0x0038AD60
@@ -412,7 +412,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001535 RID: 5429
-		[BurstCompile]
+		//[BurstCompile]
 		private struct LeisureJob : IJobChunk
 		{
             public SmallCity<SCLeisure> m_SmallCityLeisure;
@@ -445,7 +445,7 @@ namespace BitulaMod
 						m_Efficiency = provider.m_Efficiency
 					});
 				}
-				bool useSCJ = m_SmallCityLeisure.Get().UseSmallCityBehavior();
+				bool useSCJ = m_SmallCityLeisure.Get().IsSmallCityBehaviour(entity);
 				bool removeVanilla = (float)citizen.m_LeisureCounter > 255f - (float)provider.m_Efficiency / LeisureSystem.kUpdateInterval || this.m_SimulationFrame >= leisure.m_LastPossibleFrame;
 				bool removeSCJ = m_SmallCityLeisure.Get().IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
 
@@ -471,7 +471,6 @@ namespace BitulaMod
 				for (int i = 0; i < nativeArray.Length; i++)
 				{					
 					Entity entity = nativeArray[i];
-                    m_SmallCityLeisure.Get().init(entity, SmallCityJobsPhase.SpendLeisure);
                     Leisure leisure = nativeArray2[i];
 					DynamicBuffer<TripNeeded> dynamicBuffer = bufferAccessor[i];
 					Citizen citizen = this.m_CitizenDatas[entity];
@@ -580,7 +579,7 @@ namespace BitulaMod
 					}
 					else if (!this.m_Purposes.HasComponent(entity))
 					{
-                        if (leisure.m_TargetAgent != Entity.Null && m_SmallCityLeisure.Get().UseSmallCityBehavior() 
+                        if (leisure.m_TargetAgent != Entity.Null && m_SmallCityLeisure.Get().IsSmallCityBehaviour(entity) 
 							&& !m_SmallCityLeisure.Get().IsEndOfLeisure(
 							entity,  m_SimulationFrame, leisure.m_LastPossibleFrame)) {
                             continue;

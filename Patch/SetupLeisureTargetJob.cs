@@ -13,7 +13,7 @@ using Unity.Mathematics;
 using BitulaMod.SmallCity;
 
 namespace BitulaMod {
-    [BurstCompile]
+    //[BurstCompile]
     public struct SetupLeisureTargetJob : IJobChunk {
 
         // Token: 0x060078E6 RID: 30950 RVA: 0x004494E4 File Offset: 0x004476E4

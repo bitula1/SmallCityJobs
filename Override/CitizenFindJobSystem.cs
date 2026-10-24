@@ -197,7 +197,7 @@ namespace BitulaMod
         private CitizenFindJobSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x020014E8 RID: 5352
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CitizenFindJobJob : IJobChunk
 		{
             public SmallCity<SCJob> m_SmallCityJobs;
@@ -208,14 +208,15 @@ namespace BitulaMod
 				{
 					return;
 				}
-				NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
+                m_SmallCityJobs.Get().SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
+                NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
 				NativeArray<Citizen> nativeArray2 = chunk.GetNativeArray<Citizen>(ref this.m_CitizenType);
 				NativeArray<CurrentBuilding> nativeArray3 = chunk.GetNativeArray<CurrentBuilding>(ref this.m_CurrentBuildingType);
 				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
 				for (int i = 0; i < nativeArray.Length; i++)
 				{
-                    Entity citizenEntity = nativeArray[i];
-                    if (!m_SmallCityJobs.Get().init( citizenEntity,  SmallCityJobsPhase.LookingForJob)) continue;
+                    Entity citizenEntity = nativeArray[i];					
+                    if (!m_SmallCityJobs.Get().StartJobSeek( citizenEntity,  SmallCityJobsPhase.LookingForJob)) continue;
                     Entity household = this.m_HouseholdMembers[nativeArray[i]].m_Household;
 					Citizen citizen = nativeArray2[i];
 					CitizenAge age = citizen.GetAge();

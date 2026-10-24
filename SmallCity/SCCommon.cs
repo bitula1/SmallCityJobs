@@ -22,7 +22,6 @@ using UnityEngine.Rendering;
 
 namespace BitulaMod.SmallCity {
     public struct SCCommon {
-        private bool m_UseSmallCityBehaviour;
         private SmallCityJobsPhase m_Phase;
         private Unity.Mathematics.Random m_Random;
         private ComponentLookup<CmpSmallCityJobs> m_SmallCitySearch;
@@ -37,7 +36,6 @@ namespace BitulaMod.SmallCity {
         private float m_NormalizedTime;
         private uint m_SimulationFrame;
         private BufferLookup<Game.Economy.Resources> m_Resources;
-        private Entity m_Citizen;
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
         private NativeQueue<CustomEvent>.ParallelWriter m_CustomEventQueue;
         private FixedString128Bytes m_Parameters;
@@ -60,9 +58,7 @@ namespace BitulaMod.SmallCity {
                 m_CommandBuffer = commandBuffer.GetValueOrDefault(),
                 m_CustomEventQueue = eventSender.GetQueueWriter(),
                 m_Phase = SmallCityJobsPhase.None,
-                m_UseSmallCityBehaviour = false,
                 m_Random = new Unity.Mathematics.Random(smallCitySeed),
-                m_Citizen = default,
                 m_Citizens = state.GetComponentLookup<Citizen>(true),
                 m_Followed = state.GetComponentLookup<Followed>(true),
                 m_SmallCitySearch = state.GetComponentLookup<CmpSmallCityJobs>(true),
@@ -78,42 +74,28 @@ namespace BitulaMod.SmallCity {
             };
         }
 
-        public bool init(Entity citizen, SmallCityJobsPhase phase) {
-
-            if (!m_SmallCitySearch.HasComponent(citizen)) {
-                return false;
-            }
-
-            CmpSmallCityJobs cmp = m_SmallCitySearch[citizen];
-            m_UseSmallCityBehaviour = cmp.m_UseSmallCityBehaviour;
-
-            if (phase == SmallCityJobsPhase.LookingForJob && (m_Citizen == Entity.Null || m_Citizen != citizen)) {
-                cmp.m_phase = phase;
-                cmp.m_FoundCloserJob = false;
-                cmp.m_FoundHigherJob = false;
-                m_CommandBuffer.SetComponent(citizen.Index, citizen, cmp);
-            }
-
-            m_Phase = phase;
-            m_Citizen = citizen;
-
-            return true;
+        public bool IsSmallCityBehaviour(Entity citizen) {
+            return citizen != Entity.Null &&
+                   m_SmallCitySearch.HasComponent(citizen) &&
+                   m_SmallCitySearch[citizen].m_UseSmallCityBehaviour;
         }
 
-        public bool UseSmallCityBehavior() {
-            return m_UseSmallCityBehaviour;
+        public bool HasSmallCityBehaviour(Entity citizen) {
+            return citizen != Entity.Null && m_SmallCitySearch.HasComponent(citizen);
         }
+
+
 
         public uint GetSimulationFrame() {
             return m_SimulationFrame;
         }
 
-        public uint GetLastPossibleFrame(Citizen citizenData) {
-            bool isWorker = m_Workers.TryGetComponent(m_Citizen, out Worker worker);
-            bool isStudent = m_Students.TryGetComponent(m_Citizen, out Game.Citizens.Student student);
-
+        public uint GetLastPossibleFrame(Entity citizen) {
+            bool isWorker = m_Workers.TryGetComponent(citizen, out Worker worker);
+            bool isStudent = m_Students.TryGetComponent(citizen, out Game.Citizens.Student student);
+            Citizen citizenData = GetCitizenData(citizen);
             float2 sleepTime = CitizenBehaviorSystem.GetSleepTime(
-                m_Citizen, citizenData, ref m_EconomyParameters,
+                citizen, citizenData, ref m_EconomyParameters,
                 isWorker, worker, isStudent, student);
 
             float timeLeft = GetTimeLeftUntilInterval(sleepTime);

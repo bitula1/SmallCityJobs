@@ -53,11 +53,9 @@ namespace BitulaMod.SmallCity {
                 m_SpendingLeisureMax = Mod.Settings.SpendingLeisureMax,
             };
         }
-        public bool init(Entity citizen, SmallCityJobsPhase phase) {
-            return m_Common.init(citizen, phase);
-        }
-        public bool UseSmallCityBehavior() {
-            return m_Common.UseSmallCityBehavior();
+
+        public bool IsSmallCityBehaviour(Entity citizen) {
+            return m_Common.IsSmallCityBehaviour(citizen);
         }
 
         public int GetLeisureChance(Entity citizen) {
@@ -79,7 +77,7 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool DoLeisure(Entity citizen, uint simulationFrame) {
-            if (!m_Common.UseSmallCityBehavior() || !m_NormalLeisure)
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
                 return false;
 
             Citizen citizenData = m_Common.GetCitizenData(citizen);
@@ -176,8 +174,9 @@ namespace BitulaMod.SmallCity {
         private void SetLeisureStart(Entity citizen, uint startFrame, int startMoney) {
             CmpLeisureStart component = new CmpLeisureStart {
                 m_StartFrame = startFrame,
+                m_EndFrame = LeisureEndFrame(citizen, m_Common.GetLastPossibleFrame(citizen)),
                 m_StartMoney = startMoney
-            };
+            }; 
 
             if (m_LeisureStarts.HasComponent(citizen))
                 m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
@@ -276,7 +275,7 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool IsEndOfLeisure(Entity citizen, uint simulationFrame, uint lastPossibleFrame) {
-            if (!m_Common.UseSmallCityBehavior() || !m_NormalLeisure)
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
                 return false;
 
             uint endFrame = LeisureEndFrame(citizen, lastPossibleFrame);
@@ -299,7 +298,7 @@ namespace BitulaMod.SmallCity {
             return (m_LeisureIntervalMax - m_LeisureIntervalMin) * (1f - desireFactor);
         }
         public bool IsEndOfSpending(Entity citizen) {
-            if (!m_Common.UseSmallCityBehavior() || !m_NormalLeisure)
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
                 return false;
 
             if (!m_LeisureStarts.TryGetComponent(citizen, out CmpLeisureStart leisureStart))

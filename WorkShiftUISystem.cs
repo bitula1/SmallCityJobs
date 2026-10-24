@@ -1,4 +1,5 @@
-﻿using BitulaMod.SmallCity;
+﻿using BitulaMod.Components;
+using BitulaMod.SmallCity;
 using Colossal.UI.Binding;
 using Game;
 using Game.Citizens;
@@ -29,6 +30,7 @@ namespace BitulaMod
 
         private SelectedInfoUISystem m_SelectedInfoUISystem;
         private ValueBinding<string> m_WorkHoursBinding;
+        private ValueBinding<string> m_ShoppingHoursBinding;
         private ValueBinding<uint> m_LastDayResourceCostBinding;
         private ValueBinding<uint> m_RemainingDaysOff;
         private ValueBinding<bool> m_DaysOff;
@@ -39,6 +41,8 @@ namespace BitulaMod
         private EntityQuery m_TimeQuery;
         private Game.Common.TimeData m_TimeData;
         private SmallCity<SCJob> m_SmallCityJobs;
+        private SmallCity<SCShopping> m_SmallCityShopping;
+        private TimeSystem m_TimeSystem;
 
 
         protected override void OnCreate()
@@ -53,6 +57,7 @@ namespace BitulaMod
             );
 
             m_SimulationSystem =  World.GetOrCreateSystemManaged<SimulationSystem>();
+            m_TimeSystem = World.GetOrCreateSystemManaged<TimeSystem>();
 
             m_CitySystem = World.GetOrCreateSystemManaged<CitySystem>();
 
@@ -61,6 +66,10 @@ namespace BitulaMod
             m_WorkHoursBinding = new ValueBinding<string>("BitulaMod", "workHours", "");
 
             AddBinding(m_WorkHoursBinding);
+
+            m_ShoppingHoursBinding = new ValueBinding<string>("BitulaMod", "shoppingHours", "");
+
+            AddBinding(m_ShoppingHoursBinding);
 
             m_LastDayResourceCostBinding = new ValueBinding<uint>("BitulaMod", "lastDayResourceCost", 0);
 
@@ -89,6 +98,7 @@ namespace BitulaMod
             m_SmallCityJobs = SmallCity<SCJob>.Create();
             updatePrevResourceCost();
             updateWorkHours();
+            updateShopHours();
             UpdateDaysOff();
 
         }
@@ -294,6 +304,22 @@ namespace BitulaMod
                 frame,
                 m_TimeData,
                 population);
+        }
+
+        private void updateShopHours() {
+            m_SmallCityShopping = SmallCity<SCShopping>.Create(ref base.CheckedStateRef);
+            Entity citizenEntity =
+                m_SelectedInfoUISystem.selectedEntity;
+            if (!m_SmallCityShopping.Get().HasShoppingSchedule(citizenEntity)) {
+                m_ShoppingHoursBinding.Update("");
+                return;
+            }
+            uint startFrame = m_SmallCityShopping.Get().GetShoppingStartFrame(citizenEntity);
+            uint endFrame = m_SmallCityShopping.Get().GetShoppingEndFrame(citizenEntity);
+
+            string shoppingHours = $"{m_TimeSystem.GetDateTime(startFrame):HH:mm}–{m_TimeSystem.GetDateTime(endFrame):HH:mm}";
+            m_ShoppingHoursBinding.Update(shoppingHours);
+
         }
 
         private void updateWorkHours()

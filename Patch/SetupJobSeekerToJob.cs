@@ -14,7 +14,7 @@ using Unity.Mathematics;
 
 namespace BitulaMod
 {
-    [BurstCompile]
+    //[BurstCompile]
     public struct SetupJobSeekerToJob : IJobChunk {
         [ReadOnly]
         public EntityTypeHandle m_EntityType;

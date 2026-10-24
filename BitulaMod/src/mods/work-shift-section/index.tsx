@@ -8,6 +8,12 @@ const workHours$ = bindValue<string>(
     ""
 );
 
+const shoppingHours$ = bindValue<string>(
+    "BitulaMod",
+    "shoppingHours",
+    ""
+);
+
 const isDaysOff$ = bindValue<boolean>(
     "BitulaMod",
     "isDaysOff",
@@ -48,6 +54,7 @@ export const WorkShiftSection = (componentList: any): any => {
 
     componentList[CITIZEN_SECTION] = (props: any) => {
         const workHours = useValue(workHours$);
+        const shoppingHours = useValue(shoppingHours$);
         const isDaysOff = useValue(isDaysOff$);
         const remainingDaysOff = useValue(remainingDaysOff$);
 
@@ -59,12 +66,24 @@ export const WorkShiftSection = (componentList: any): any => {
             <>
                 <VanillaCitizenSection {...props} />
 
-                {(workHours || isDaysOff) && (
+                {(workHours || shoppingHours || isDaysOff) && (
                     <InfoSection disableFocus={true}>
                         {workHours && (
                             <InfoRow
                                 left="Work hours"
                                 right={workHours}
+                                tooltipKeys={props.tooltipKeys}
+                                tooltipTags={props.tooltipTags}
+                                disableFocus={true}
+                                subRow={false}
+                                uppercase={false}
+                            />
+                        )}
+
+                        {shoppingHours && (
+                            <InfoRow
+                                left="Shopping hours"
+                                right={shoppingHours}
                                 tooltipKeys={props.tooltipKeys}
                                 tooltipTags={props.tooltipTags}
                                 disableFocus={true}

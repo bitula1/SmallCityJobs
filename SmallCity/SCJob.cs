@@ -34,6 +34,8 @@ namespace BitulaMod.SmallCity {
         private bool m_PromoteJob;
         private bool m_AcceptCloserJobsEmployed;
         private bool m_AcceptCloserJobsUnemployed;
+        private int m_CommandBufferIndex;
+        private bool m_HasCommandBufferIndex;
 
 
         public SCJob Create(ref SystemState state, in SCCommon common) {
@@ -76,12 +78,33 @@ namespace BitulaMod.SmallCity {
                 m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
             };
         }
-        public bool init(Entity citizen, SmallCityJobsPhase phase) {
-            return m_Common.init(citizen, phase);
+        public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
+            m_CommandBuffer = buffer;
+            m_CommandBufferIndex = index;
+            m_HasCommandBufferIndex = true;
         }
 
-        public bool UseSmallCityBehavior() {
-            return m_Common.UseSmallCityBehavior();
+        private int GetCommandBufferIndex(Entity citizen) {
+            return m_HasCommandBufferIndex ? m_CommandBufferIndex : citizen.Index;
+        }
+
+        public bool StartJobSeek(Entity citizen, SmallCityJobsPhase phase) {
+
+            if (!m_Common.HasSmallCityBehaviour(citizen)) {
+                return false;
+            }
+
+            CmpSmallCityJobs cmp = m_Common.GetSmallCitiyJobs(citizen);
+            cmp.m_FoundCloserJob = false;
+            cmp.m_FoundHigherJob = false;
+            cmp.m_phase = phase;
+            m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+
+            return true;
+        }
+
+        public bool IsSmallCityBehavior(Entity citizen) {
+            return m_Common.IsSmallCityBehaviour(citizen);
         }
 
         public int GetFreeWorkplaces(int level) {
@@ -331,7 +354,7 @@ namespace BitulaMod.SmallCity {
                 return true;
             }
 
-            bool useSmallCityBehavior = m_Common.UseSmallCityBehavior();
+            bool useSmallCityBehavior = m_Common.IsSmallCityBehaviour(citizen);
             bool applicationFailed =
                 numJobs < SCCommon.GetRandom(ref m_Common).NextInt(VanillaWorkspaceThreshold);
             bool failed = applicationFailed && !useSmallCityBehavior;
@@ -340,9 +363,9 @@ namespace BitulaMod.SmallCity {
                 CmpSmallCityJobs cmp = m_Common.GetSmallCitiyJobs(citizen);
                 cmp.m_FoundCloserJob = true;
                 cmp.m_FoundHigherJob = false;
-                cmp.m_UseSmallCityBehaviour = m_Common.UseSmallCityBehavior();
+                cmp.m_UseSmallCityBehaviour = useSmallCityBehavior;
                 cmp.m_phase = m_Common.GetPhase();
-                m_CommandBuffer.SetComponent(citizen.Index, citizen, cmp);
+                m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
             } else if (failed) {
                 m_Common.Send(citizen, CustomEventType.DoesntLikeAnyJobs);
             }
@@ -366,7 +389,7 @@ namespace BitulaMod.SmallCity {
                 return true;
             }
 
-            bool useSmallCityBehavior = m_Common.UseSmallCityBehavior();
+            bool useSmallCityBehavior = m_Common.IsSmallCityBehaviour(citizen);
             bool vanillaSkipped = numJobs <= VanillaWorkspaceThreshold || numJobs < SCCommon.GetRandom(ref m_Common).NextInt(VanillaSwitchDesireThreshold);
 
             if (!m_AcceptSwitchJobs)
@@ -379,9 +402,9 @@ namespace BitulaMod.SmallCity {
                 CmpSmallCityJobs cmp = m_Common.GetSmallCitiyJobs(citizen);
                 cmp.m_FoundHigherJob = hasBetterJob;
                 cmp.m_FoundCloserJob = hasCloserJob;
-                cmp.m_UseSmallCityBehaviour = m_Common.UseSmallCityBehavior();
+                cmp.m_UseSmallCityBehaviour = useSmallCityBehavior;
                 cmp.m_phase = m_Common.GetPhase();
-                m_CommandBuffer.SetComponent(citizen.Index, citizen, cmp);
+                m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
                 if (hasCloserJob) m_Common.Send(citizen, CustomEventType.FoundCloserJob);
             }
 

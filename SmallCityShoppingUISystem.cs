@@ -177,7 +177,6 @@ namespace BitulaMod
             ClearShoppers(selectedEntity);
             foreach (ShopperInfo shopper in m_Shoppers.Values.OrderBy(s => m_NameSystem.GetRenderedLabelName(s.Shopper), StringComparer.CurrentCultureIgnoreCase)) {
                 Entity citizen = shopper.Shopper;
-                m_SmallCityShopping.Get().init(citizen, SmallCityJobsPhase.Shopping);
                 uint currentFrame = m_SimulationSystem.frameIndex;
 
                 bool hasTravelPurpose = EntityManager.TryGetComponent<TravelPurpose>(citizen, out TravelPurpose travelPurpose);
@@ -417,11 +416,8 @@ namespace BitulaMod
                 shopper.Family = (byte)math.clamp(members.Length, 1, 5);
             }
             bool hasShopping = EntityManager.HasComponent<CmpShoppingStart>(citizen);
-            if (m_SmallCityShopping.Get().UseSmallCityBehavior() && hasShopping) {
-                Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
-                uint lastPossibleFrame = m_SmallCityShopping.Get().GetLasePossibleFrame(citizenData);
-                uint endFrame = m_SmallCityShopping.Get().ShoppingEndFrame(citizen, lastPossibleFrame);
-
+            if (m_SmallCityShopping.Get().IsSmallCityBehaviour(citizen) && hasShopping) {
+                uint endFrame = m_SmallCityShopping.Get().GetShoppingEndFrame(citizen);
                 long remainingFrames = Math.Max(0, (long)endFrame - currentFrame);
 
                 if (remainingFrames > 0) {

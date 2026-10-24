@@ -1,5 +1,6 @@
 ﻿using BitulaMod.Components;
 using Game.Citizens;
+using Game.UI.InGame;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,21 +37,31 @@ namespace BitulaMod.SmallCity {
             };
         }
 
-        public bool init(Entity citizen, SmallCityJobsPhase phase) {
-            return m_Common.init(citizen, phase);
-        }
-
-        public bool UseSmallCityBehavior() {
-            return m_Common.UseSmallCityBehavior();
+        public bool IsSmallCityBehaviour(Entity citizen) {
+            return m_Common.IsSmallCityBehaviour(citizen);
         }
 
         public bool HasShoppingStart(Entity citizen) {
             return m_ShoppingStarts.HasComponent(citizen);
         }
 
+        public bool HasShoppingSchedule(Entity citizenEntity) {
+            if (citizenEntity == Entity.Null || !m_ShoppingStarts.HasComponent(citizenEntity) 
+                || !m_Common.IsSmallCityBehaviour(citizenEntity) || !m_NormalShopping)
+                return false;
+
+            CmpShoppingStart shopping = m_ShoppingStarts[citizenEntity];
+
+            return shopping.m_EndFrame != 0 &&
+                   shopping.m_StartFrame / SCCommon.kFramesPerDay ==
+                   m_Common.GetSimulationFrame() / SCCommon.kFramesPerDay;
+        }
+
         public void SetShoppingStart(Entity citizen, uint startFrame) {
+            uint lastPossibleFrame = m_Common.GetLastPossibleFrame(citizen);
             CmpShoppingStart component = new CmpShoppingStart {
                 m_StartFrame = startFrame,
+                m_EndFrame = ShoppingEndFrame(citizen, lastPossibleFrame, startFrame)
             };
             if (m_ShoppingStarts.HasComponent(citizen))
                 m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
@@ -65,10 +76,17 @@ namespace BitulaMod.SmallCity {
             return m_ShoppingStarts[citizen].m_StartFrame;
         }
 
-        public uint ShoppingEndFrame(Citizen citizenData, Entity citizen, uint lastPossibleFrame, uint startFrame) {
-            if (startFrame == 0 || lastPossibleFrame <= startFrame)
+        public uint GetShoppingEndFrame(Entity citizen) {
+            if (!m_ShoppingStarts.HasComponent(citizen))
                 return 0;
 
+            return m_ShoppingStarts[citizen].m_EndFrame;
+        }
+
+        private uint ShoppingEndFrame(Entity citizen, uint lastPossibleFrame, uint startFrame) {
+            if (startFrame == 0 || lastPossibleFrame <= startFrame)
+                return 0;
+            Citizen citizenData = m_Common.GetCitizenData(citizen);
             uint day = startFrame / SCCommon.kFramesPerDay;
 
             float percent = Unity.Mathematics.Random.CreateFromIndex(
@@ -84,22 +102,22 @@ namespace BitulaMod.SmallCity {
         public uint ShoppingEndFrame(Entity citizen, uint lastPossibleFrame) {
             Citizen citizenData = m_Common.GetCitizenData(citizen);
             uint startFrame = GetShoppingStartFrame(citizen);
-            return ShoppingEndFrame(citizenData, citizen, lastPossibleFrame, startFrame);
+            return ShoppingEndFrame(citizen, lastPossibleFrame, startFrame);
         }
 
-        public uint GetLasePossibleFrame(Citizen citizen) {
+        public uint GetLasePossibleFrame(Entity citizen) {
             return m_Common.GetLastPossibleFrame(citizen);
         }
 
         public bool IsEndOfShopping(Entity citizen) {
-            if (!m_Common.UseSmallCityBehavior() || !m_NormalShopping)
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalShopping)
                 return true;
 
             if (!m_ShoppingStarts.HasComponent(citizen))
                 return true;
 
             Citizen citizenData = m_Common.GetCitizenData(citizen);
-            uint endFrame = ShoppingEndFrame(citizen, m_Common.GetLastPossibleFrame(citizenData));
+            uint endFrame = GetShoppingEndFrame(citizen);
 
             if (endFrame == 0)
                 return true;

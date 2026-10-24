@@ -226,7 +226,7 @@ namespace BitulaMod
 		private FindJobSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x0200150E RID: 5390
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CalculateFreeWorkplaceJob : IJob
 		{
 			// Token: 0x060067DD RID: 26589 RVA: 0x00382F40 File Offset: 0x00381140
@@ -261,7 +261,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x0200150F RID: 5391
-		[BurstCompile]
+		//[BurstCompile]
 		private struct FindJobJob : IJobChunk
 		{
             public SmallCity<SCJob> m_SmallCityJobs;
@@ -277,7 +277,6 @@ namespace BitulaMod
 				{
 					
 					Entity owner = nativeArray2[i].m_Owner;
-                    if (!m_SmallCityJobs.Get().init(owner, SmallCityJobsPhase.FindJob)) continue;
                     if (this.m_Deleteds.HasComponent(owner) || !this.m_CitizenDatas.HasComponent(owner))
 					{
 						this.m_CommandBuffer.AddComponent<Deleted>(unfilteredChunkIndex, nativeArray[i], default(Deleted));
@@ -370,7 +369,7 @@ namespace BitulaMod
                                         bool employed = m_SmallCityJobs.Get().isEmployed(owner);
                                         bool foundCloserJob = m_SmallCityJobs.Get().FoundCloserJob(owner);
                                         bool foundHigherJob = m_SmallCityJobs.Get().FoundHigherJob(owner);
-                                        bool sm = m_SmallCityJobs.Get().UseSmallCityBehavior();                                        
+                                        bool sm = m_SmallCityJobs.Get().IsSmallCityBehavior(owner);                                        
                                         bool removeOvereducationPenalty = m_SmallCityJobs.Get().AcceptLowerJobs();
 
 										bool better = (num == num2 && foundCloserJob) || (!employed && sm) || (foundHigherJob);
@@ -517,7 +516,7 @@ namespace BitulaMod
 		}
 
         // Token: 0x02001510 RID: 5392
-        [BurstCompile]
+        //[BurstCompile]
         private struct StartWorkingJob : IJob
 		{
             public SmallCity<SCJob> m_SmallCityJobs;

@@ -245,7 +245,7 @@ namespace BitulaMod
 			citizenAITickJob.m_MailSenderQueue = nativeQueue.AsParallelWriter();
 			citizenAITickJob.m_SleepQueue = nativeQueue2.AsParallelWriter();
 			citizenAITickJob.m_RandomSeed = RandomSeed.Next();
-            citizenAITickJob.m_SmallCityJobs = SmallCity<SCJob>.Create();
+            citizenAITickJob.m_SmallCityJobs = SmallCity<SCJob>.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
             citizenAITickJob.m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
             citizenAITickJob.m_SmallCityShopping = SmallCity<SCShopping>.Create(ref base.CheckedStateRef, citizenAITickJob.m_CommandBuffer);
             CitizenBehaviorSystem.CitizenAITickJob citizenAITickJob2 = citizenAITickJob;
@@ -368,7 +368,7 @@ namespace BitulaMod
 		private EntityQuery __query_963917315_0;
 
 		// Token: 0x02001521 RID: 5409
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CitizenReserveHouseholdCarJob : IJob
 		{
 			// Token: 0x06006895 RID: 26773 RVA: 0x0037E8C8 File Offset: 0x0037CAC8
@@ -449,7 +449,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001522 RID: 5410
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CitizenTryCollectMailJob : IJob
 		{
 			// Token: 0x06006896 RID: 26774 RVA: 0x0037EA40 File Offset: 0x0037CC40
@@ -533,7 +533,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001523 RID: 5411
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CitizeSleepJob : IJob
 		{
 			// Token: 0x06006898 RID: 26776 RVA: 0x0037EBE8 File Offset: 0x0037CDE8
@@ -567,7 +567,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001524 RID: 5412
-		[BurstCompile]
+		//[BurstCompile]
 		private struct CitizenAITickJob : IJobChunk
 		{
 			// Token: 0x06006899 RID: 26777 RVA: 0x0037EC70 File Offset: 0x0037CE70
@@ -669,7 +669,6 @@ namespace BitulaMod
 			// Token: 0x0600689C RID: 26780 RVA: 0x0037EEB4 File Offset: 0x0037D0B4
 			private void GoShopping(int chunkIndex, Entity citizen, bool isCarKeeper, Entity household, HouseholdNeed need, float3 position)
 			{
-                m_SmallCityShopping.Get().init(citizen, SmallCityJobsPhase.StartShopping);
                 if (!isCarKeeper)
 				{
 					this.m_CarReserverQueue.Enqueue(citizen);
@@ -699,9 +698,8 @@ namespace BitulaMod
 			// Token: 0x0600689E RID: 26782 RVA: 0x0037EF5C File Offset: 0x0037D15C
 			private bool DoLeisure(int chunkIndex, int citizenIndex, Entity citizenEntity, Entity householdEntity, Entity currentBuilding, Entity homeEntity, bool isTourist, ref Citizen citizenData, int population, ref Unity.Mathematics.Random random, ref EconomyParameterData economyParameters, bool isWorker, Worker worker, bool isStudent, Game.Citizens.Student student, ref NativeArray<LeisureSeekerCooldown> leisureSeekerCooldown)
 			{
-                m_SmallCityLeisure.Get().init(citizenEntity, SmallCityJobsPhase.StartLeisure);
                 bool scjLeisure = m_SmallCityLeisure.Get().DoLeisure(citizenEntity, this.m_SimulationFrame);
-				bool useSCJ = m_SmallCityLeisure.Get().UseSmallCityBehavior();
+				bool useSCJ = m_SmallCityLeisure.Get().IsSmallCityBehaviour(citizenEntity);
                 if (useSCJ && !scjLeisure) {
                     return false;
                 }
@@ -1054,7 +1052,7 @@ namespace BitulaMod
 												else
 												{
 													if ((age == CitizenAge.Adult || age == CitizenAge.Elderly) 
-														&& (!flag2 || !m_SmallCityJobs.Get().UseSmallCityBehavior()))
+														&& (!flag2 || !m_SmallCityJobs.Get().IsSmallCityBehavior(entity2)))
 
                                                     {
 														HouseholdNeed householdNeed = this.m_HouseholdNeeds[entity];
