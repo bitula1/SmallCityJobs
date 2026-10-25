@@ -297,7 +297,7 @@ namespace BitulaMod
 		private LeisureSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x02001534 RID: 5428
-		//[BurstCompile]
+		[BurstCompile]
 		private struct SpendLeisureJob : IJob
 		{
 			// Token: 0x0600685F RID: 26719 RVA: 0x0038CB60 File Offset: 0x0038AD60
@@ -412,7 +412,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001535 RID: 5429
-		//[BurstCompile]
+		[BurstCompile]
 		private struct LeisureJob : IJobChunk
 		{
             public SmallCity<SCLeisure> m_SmallCityLeisure;

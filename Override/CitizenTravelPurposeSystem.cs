@@ -202,7 +202,7 @@ namespace BitulaMod
 		private CitizenTravelPurposeSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x02001530 RID: 5424
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenArriveJob : IJobChunk
 		{
             // Token: 0x060068F1 RID: 26865 RVA: 0x0038560C File Offset: 0x0038380C
@@ -537,7 +537,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001533 RID: 5427
-		//[BurstCompile]
+		[BurstCompile]
 		private struct ArriveJob : IJob
 		{
 			// Token: 0x060068F6 RID: 26870 RVA: 0x00385CCC File Offset: 0x00383ECC
@@ -631,7 +631,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001534 RID: 5428
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenStuckJob : IJobChunk
 		{
 			// Token: 0x060068F8 RID: 26872 RVA: 0x00385ED4 File Offset: 0x003840D4

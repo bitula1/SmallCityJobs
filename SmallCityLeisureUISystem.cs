@@ -8,6 +8,7 @@ using Game.Citizens;
 using Game.Common;
 using Game.Companies;
 using Game.Economy;
+using Game.Objects;
 using Game.Prefabs;
 using Game.Simulation;
 using Game.UI;
@@ -109,6 +110,7 @@ namespace BitulaMod
         private EntityQuery m_GoingToLeisureQuery;
         private readonly Dictionary<Entity, Entity> m_LeisureVisitBuilding = new();
         private Entity m_LastSelectedEntity = Entity.Null;
+        private SmallCity<SCLeisure> m_SmallCityLeisure;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
             return 128;
@@ -155,13 +157,13 @@ namespace BitulaMod
 
             Entity selectedEntity = m_SelectedInfoUISystem.selectedEntity;
 
-            
-
             if (selectedEntity == Entity.Null ||
                 !EntityManager.Exists(selectedEntity)) {
                 m_CustomersBinding.Update();
                 return;
             }
+
+            m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef);
 
             m_PropertyRenters.Update(ref state);
             if (selectedEntity != m_LastSelectedEntity) {
@@ -312,12 +314,8 @@ namespace BitulaMod
             bool useSCJ = m_UseSCJ.TryGetComponent(citizen, out CmpSmallCityJobs scjComponent) &&
                               scjComponent.m_UseSmallCityBehaviour;
             Citizen citizenData = EntityManager.GetComponentData<Citizen>(citizen);
-            if (useSCJ && hasLeisure && EntityManager.TryGetComponent<CmpLeisureStart>(
-                citizen, out CmpLeisureStart leisureStart)) {                
-                
-                //uint endFrame = startFrame + (uint)(duration * percent);
-                uint endFrame = scj.Get().LeisureEndFrame(citizenData, leisure.m_LastPossibleFrame, leisureStart.m_StartFrame);
-
+            if (m_SmallCityLeisure.Get().IsSmallCityBehaviour(citizen) && hasLeisure) {
+                uint endFrame = m_SmallCityLeisure.Get().GetLeisureEndFrame(citizen);
                 long remainingFrames = Math.Max(0, (long)endFrame - currentFrame);
 
                 if (remainingFrames > 0) {

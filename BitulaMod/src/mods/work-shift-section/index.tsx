@@ -8,9 +8,21 @@ const workHours$ = bindValue<string>(
     ""
 );
 
+const sleepHours$ = bindValue<string>(
+    "BitulaMod",
+    "sleepHours",
+    ""
+);
+
 const shoppingHours$ = bindValue<string>(
     "BitulaMod",
     "shoppingHours",
+    ""
+);
+
+const leisureHours$ = bindValue<string>(
+    "BitulaMod",
+    "leisureHours",
     ""
 );
 
@@ -54,7 +66,9 @@ export const WorkShiftSection = (componentList: any): any => {
 
     componentList[CITIZEN_SECTION] = (props: any) => {
         const workHours = useValue(workHours$);
+        const sleepHours = useValue(sleepHours$);
         const shoppingHours = useValue(shoppingHours$);
+        const leisureHours = useValue(leisureHours$);
         const isDaysOff = useValue(isDaysOff$);
         const remainingDaysOff = useValue(remainingDaysOff$);
 
@@ -66,30 +80,62 @@ export const WorkShiftSection = (componentList: any): any => {
             <>
                 <VanillaCitizenSection {...props} />
 
-                {(workHours || shoppingHours || isDaysOff) && (
+                {(workHours || sleepHours || shoppingHours || leisureHours || isDaysOff) && (
                     <InfoSection disableFocus={true}>
                         {workHours && (
-                            <InfoRow
-                                left="Work hours"
-                                right={workHours}
-                                tooltipKeys={props.tooltipKeys}
-                                tooltipTags={props.tooltipTags}
-                                disableFocus={true}
-                                subRow={false}
-                                uppercase={false}
-                            />
+                            <div style={{ fontFamily: "monospace" }}>
+                                <InfoRow
+                                    left="Work hours"
+                                    right={workHours}
+                                    tooltipKeys={props.tooltipKeys}
+                                    tooltipTags={props.tooltipTags}
+                                    disableFocus={true}
+                                    subRow={false}
+                                    uppercase={false}
+                                />
+                            </div>
                         )}
 
                         {shoppingHours && (
-                            <InfoRow
-                                left="Shopping hours"
-                                right={shoppingHours}
-                                tooltipKeys={props.tooltipKeys}
-                                tooltipTags={props.tooltipTags}
-                                disableFocus={true}
-                                subRow={false}
-                                uppercase={false}
-                            />
+                            <div style={{ fontFamily: "monospace" }}>
+                                <InfoRow
+                                    left="Shopping hours"
+                                    right={shoppingHours}
+                                    tooltipKeys={props.tooltipKeys}
+                                    tooltipTags={props.tooltipTags}
+                                    disableFocus={true}
+                                    subRow={false}
+                                    uppercase={false}
+                                />
+                            </div>
+                        )}
+
+                        {leisureHours && (
+                            <div style={{ fontFamily: "monospace" }}>
+                                <InfoRow
+                                    left="Leisure hours"
+                                    right={leisureHours}
+                                    tooltipKeys={props.tooltipKeys}
+                                    tooltipTags={props.tooltipTags}
+                                    disableFocus={true}
+                                    subRow={false}
+                                    uppercase={false}
+                                />
+                            </div>
+                        )}
+
+                        {sleepHours && (
+                            <div style={{ fontFamily: "monospace" }}>
+                                <InfoRow
+                                    left="Sleep hours"
+                                    right={sleepHours}
+                                    tooltipKeys={props.tooltipKeys}
+                                    tooltipTags={props.tooltipTags}
+                                    disableFocus={true}
+                                    subRow={false}
+                                    uppercase={false}
+                                />
+                            </div>
                         )}
 
                         {isDaysOff && (

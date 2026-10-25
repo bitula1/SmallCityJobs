@@ -19,6 +19,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Rendering;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 namespace BitulaMod.SmallCity {
     public struct SCCommon {
@@ -43,6 +44,8 @@ namespace BitulaMod.SmallCity {
         private EventHint m_WatchHint;
         private EventHint m_Hint;
         public const uint kFramesPerDay = 262144u;
+        private int m_CommandBufferIndex;
+        private bool m_HasCommandBufferIndex;
 
 
         public EntityCommandBuffer.ParallelWriter CommandBuffer => m_CommandBuffer;
@@ -83,8 +86,22 @@ namespace BitulaMod.SmallCity {
         public bool HasSmallCityBehaviour(Entity citizen) {
             return citizen != Entity.Null && m_SmallCitySearch.HasComponent(citizen);
         }
+        public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
+            m_CommandBuffer = buffer;
+            m_CommandBufferIndex = index;
+            m_HasCommandBufferIndex = true;
+        }
+        public int GetCommandBufferIndex(Entity citizen) {
+            return m_HasCommandBufferIndex ? m_CommandBufferIndex : citizen.Index;
+        }
 
+        public void SetCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
+            m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+        }
 
+        public void AddCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
+            m_CommandBuffer.AddComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+        }
 
         public uint GetSimulationFrame() {
             return m_SimulationFrame;
@@ -177,6 +194,7 @@ namespace BitulaMod.SmallCity {
             m_Parameters = default;
             m_Hint = default;
             m_WatchedEvents = default;
+            m_WatchHint = default;
         }
 
         public void AddParameter(int parameter) {

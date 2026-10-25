@@ -77,9 +77,12 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-- start end in component
-- display shop start end
-- remove init
+		- start end in component
+		- display shop start end
+		- remove init
+		- display leasure start end
+		- Switched to use in job command buffer and unsorted index everywhere
+		- display sleep start end hours
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

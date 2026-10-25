@@ -208,7 +208,7 @@ namespace BitulaMod
 		private EntityQuery __query_2069025490_2;
 
 		// Token: 0x020015C3 RID: 5571
-		//[BurstCompile]
+		[BurstCompile]
 		public struct ApplyToSchoolJob : IJobChunk
 		{
             public int m_JobSeekerMilestone;

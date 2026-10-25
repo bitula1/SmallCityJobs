@@ -11,15 +11,17 @@ using Unity.Entities;
 namespace BitulaMod.SmallCity {
     public struct SCShopping : ISCFeature<SCShopping> {
         private SCCommon m_Common;
-        private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
         private bool m_NormalShopping;
         private int m_ShoppingIntervalMin;
         private int m_ShoppingIntervalMax;
         private ComponentLookup<CmpShoppingStart> m_ShoppingStarts;
+        public SCCommon Common {
+            get => m_Common;
+            set => m_Common = value;
+        }
         public SCShopping Create(ref SystemState state, in SCCommon common) {
 
             return new SCShopping {
-                m_CommandBuffer = common.CommandBuffer,
                 m_Common = common,
                 m_NormalShopping = Mod.Settings.NormalShopping,
                 m_ShoppingIntervalMin = Mod.Settings.ShoppingIntervalMin,
@@ -46,15 +48,16 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool HasShoppingSchedule(Entity citizenEntity) {
-            if (citizenEntity == Entity.Null || !m_ShoppingStarts.HasComponent(citizenEntity) 
+            if (citizenEntity == Entity.Null || !m_ShoppingStarts.HasComponent(citizenEntity)
                 || !m_Common.IsSmallCityBehaviour(citizenEntity) || !m_NormalShopping)
                 return false;
 
             CmpShoppingStart shopping = m_ShoppingStarts[citizenEntity];
+            uint currentFrame = m_Common.GetSimulationFrame();
 
             return shopping.m_EndFrame != 0 &&
-                   shopping.m_StartFrame / SCCommon.kFramesPerDay ==
-                   m_Common.GetSimulationFrame() / SCCommon.kFramesPerDay;
+                   shopping.m_StartFrame <= currentFrame &&
+                   shopping.m_EndFrame > currentFrame;
         }
 
         public void SetShoppingStart(Entity citizen, uint startFrame) {
@@ -64,9 +67,9 @@ namespace BitulaMod.SmallCity {
                 m_EndFrame = ShoppingEndFrame(citizen, lastPossibleFrame, startFrame)
             };
             if (m_ShoppingStarts.HasComponent(citizen))
-                m_CommandBuffer.SetComponent(citizen.Index, citizen, component);
+                m_Common.SetCmp(citizen, component);
             else
-                m_CommandBuffer.AddComponent(citizen.Index, citizen, component);
+                m_Common.AddCmp(citizen, component);
         }
 
         public uint GetShoppingStartFrame(Entity citizen) {

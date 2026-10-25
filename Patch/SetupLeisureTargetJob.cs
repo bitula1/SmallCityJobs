@@ -13,11 +13,12 @@ using Unity.Mathematics;
 using BitulaMod.SmallCity;
 
 namespace BitulaMod {
-    //[BurstCompile]
+    [BurstCompile]
     public struct SetupLeisureTargetJob : IJobChunk {
 
         // Token: 0x060078E6 RID: 30950 RVA: 0x004494E4 File Offset: 0x004476E4
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask) {
+
             NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
             NativeArray<ServiceAvailable> nativeArray2 = chunk.GetNativeArray<ServiceAvailable>(ref this.m_ServiceAvailableType);
             NativeArray<PrefabRef> nativeArray3 = chunk.GetNativeArray<PrefabRef>(ref this.m_PrefabType);

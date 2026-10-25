@@ -280,7 +280,7 @@ namespace BitulaMod
 		private EntityQuery __query_1038562633_0;
 
 		// Token: 0x0200158D RID: 5517
-		//[BurstCompile]
+		[BurstCompile]
 		private struct UpdateProcessingJob : IJobChunk
 		{
 			// Token: 0x060069A0 RID: 27040 RVA: 0x0039CE20 File Offset: 0x0039B020

@@ -13,6 +13,7 @@ using Game.Triggers;
 using Game.UI;
 using Game.UI.InGame;
 using Game.UI.Localization;
+using System;
 using Unity.Collections;
 using Unity.Core;
 using Unity.Entities;
@@ -30,7 +31,9 @@ namespace BitulaMod
 
         private SelectedInfoUISystem m_SelectedInfoUISystem;
         private ValueBinding<string> m_WorkHoursBinding;
+        private ValueBinding<string> m_SleepHoursBinding;
         private ValueBinding<string> m_ShoppingHoursBinding;
+        private ValueBinding<string> m_LeisureHoursBinding;
         private ValueBinding<uint> m_LastDayResourceCostBinding;
         private ValueBinding<uint> m_RemainingDaysOff;
         private ValueBinding<bool> m_DaysOff;
@@ -42,6 +45,7 @@ namespace BitulaMod
         private Game.Common.TimeData m_TimeData;
         private SmallCity<SCJob> m_SmallCityJobs;
         private SmallCity<SCShopping> m_SmallCityShopping;
+        private SmallCity<SCLeisure> m_SmallCityLeisure;
         private TimeSystem m_TimeSystem;
 
 
@@ -67,9 +71,17 @@ namespace BitulaMod
 
             AddBinding(m_WorkHoursBinding);
 
+            m_SleepHoursBinding = new ValueBinding<string>("BitulaMod", "sleepHours", "");
+
+            AddBinding(m_SleepHoursBinding);
+
             m_ShoppingHoursBinding = new ValueBinding<string>("BitulaMod", "shoppingHours", "");
 
             AddBinding(m_ShoppingHoursBinding);
+
+            m_LeisureHoursBinding = new ValueBinding<string>("BitulaMod", "leisureHours", "");
+
+            AddBinding(m_LeisureHoursBinding);
 
             m_LastDayResourceCostBinding = new ValueBinding<uint>("BitulaMod", "lastDayResourceCost", 0);
 
@@ -98,7 +110,9 @@ namespace BitulaMod
             m_SmallCityJobs = SmallCity<SCJob>.Create();
             updatePrevResourceCost();
             updateWorkHours();
+            updateSleepHours();
             updateShopHours();
+            updateLeisureHours();
             UpdateDaysOff();
 
         }
@@ -317,9 +331,35 @@ namespace BitulaMod
             uint startFrame = m_SmallCityShopping.Get().GetShoppingStartFrame(citizenEntity);
             uint endFrame = m_SmallCityShopping.Get().GetShoppingEndFrame(citizenEntity);
 
-            string shoppingHours = $"{m_TimeSystem.GetDateTime(startFrame):HH:mm}–{m_TimeSystem.GetDateTime(endFrame):HH:mm}";
+            string shoppingHours = $"{FormatSimulationTime(startFrame)}-{FormatSimulationTime(endFrame)}";
             m_ShoppingHoursBinding.Update(shoppingHours);
 
+        }
+
+        private void updateLeisureHours() {
+            m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef);
+            Entity citizenEntity =
+                m_SelectedInfoUISystem.selectedEntity;
+            if (!m_SmallCityLeisure.Get().HasLeisureSchedule(citizenEntity)) {
+                m_LeisureHoursBinding.Update("");
+                return;
+            }
+            uint startFrame = m_SmallCityLeisure.Get().GetLeisureStartFrame(citizenEntity);
+            uint endFrame = m_SmallCityLeisure.Get().GetLeisureEndFrame(citizenEntity);
+
+            string leisureHours = $"{FormatSimulationTime(startFrame)}-{FormatSimulationTime(endFrame)}";
+            m_LeisureHoursBinding.Update(leisureHours);
+        }       
+
+        private string FormatSimulationTime(uint frame) {
+            long frameDifference = (long)frame - m_SimulationSystem.frameIndex;
+
+            double minutes = m_TimeSystem.normalizedTime * 1440d
+                + frameDifference * 1440d / SCCommon.kFramesPerDay;
+
+            int minuteOfDay = (int)(((long)Math.Floor(minutes) % 1440 + 1440) % 1440);
+
+            return $"{minuteOfDay / 60:00}:{minuteOfDay % 60:00}";
         }
 
         private void updateWorkHours()
@@ -358,11 +398,55 @@ namespace BitulaMod
             );
 
             string workHours =
-                $"{FormatTime(workTime.x)}–{FormatTime(workTime.y)}";
+                $"{FormatTime(workTime.x)}-{FormatTime(workTime.y)}";
 
             m_WorkHoursBinding.Update(workHours);
         }
 
-        
+        private void updateSleepHours() {
+            Entity citizenEntity =
+                m_SelectedInfoUISystem.selectedEntity;
+
+            if (citizenEntity == Entity.Null ||
+                !EntityManager.Exists(citizenEntity) ||
+                !EntityManager.HasComponent<Citizen>(citizenEntity) ||
+                m_EconomyParameterQuery.IsEmptyIgnoreFilter) {
+                m_SleepHoursBinding.Update("");
+                return;
+            }
+
+            Citizen citizen =
+                EntityManager.GetComponentData<Citizen>(citizenEntity);
+
+            bool isWorker = EntityManager.HasComponent<Worker>(citizenEntity);
+            Worker worker = isWorker
+                ? EntityManager.GetComponentData<Worker>(citizenEntity)
+                : default;
+
+            bool isStudent = EntityManager.HasComponent<Student>(citizenEntity);
+            Student student = isStudent
+                ? EntityManager.GetComponentData<Student>(citizenEntity)
+                : default;
+
+            EconomyParameterData economyParameters =
+                m_EconomyParameterQuery.GetSingleton<EconomyParameterData>();
+
+            float2 sleepTime = CitizenBehaviorSystem.GetSleepTime(
+                citizenEntity,
+                citizen,
+                ref economyParameters,
+                isWorker,
+                worker,
+                isStudent,
+                student
+            );
+
+            string sleepHours =
+                $"{FormatTime(sleepTime.x)}-{FormatTime(sleepTime.y)}";
+
+            m_SleepHoursBinding.Update(sleepHours);
         }
+
+
     }
+}

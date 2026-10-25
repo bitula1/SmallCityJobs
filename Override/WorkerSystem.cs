@@ -236,7 +236,7 @@ namespace BitulaMod
 		private WorkerSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x02001557 RID: 5463
-		//[BurstCompile]
+		[BurstCompile]
 		private struct GoToWorkJob : IJobChunk
 		{
             public SmallCity<SCJob> m_SmallCityJobs;
@@ -393,7 +393,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001558 RID: 5464
-		//[BurstCompile]
+		[BurstCompile]
 		private struct WorkJob : IJobChunk
 		{
 			// Token: 0x060068D1 RID: 26833 RVA: 0x00392B68 File Offset: 0x00390D68

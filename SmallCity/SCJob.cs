@@ -23,7 +23,6 @@ namespace BitulaMod.SmallCity {
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
         private ComponentLookup<TravelPurpose> m_TravelPurposes;
         private ComponentLookup<Leisure> m_Leisure;
-        private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         private ComponentLookup<Game.Objects.Transform> m_Transforms;
         private int m_JobSeekerMilestone;
@@ -34,8 +33,10 @@ namespace BitulaMod.SmallCity {
         private bool m_PromoteJob;
         private bool m_AcceptCloserJobsEmployed;
         private bool m_AcceptCloserJobsUnemployed;
-        private int m_CommandBufferIndex;
-        private bool m_HasCommandBufferIndex;
+        public SCCommon Common {
+            get => m_Common;
+            set => m_Common = value;
+        }
 
 
         public SCJob Create(ref SystemState state, in SCCommon common) {
@@ -48,7 +49,6 @@ namespace BitulaMod.SmallCity {
 
             return new SCJob {
                 m_Common = common,
-                m_CommandBuffer = common.CommandBuffer,
                 
                 m_JobSeekerMilestone = Mod.Settings.JobSeekerMilestone,
                 m_JobSeekerFailureIncrement = Mod.Settings.JobSeekerFailureIncrement,
@@ -78,15 +78,6 @@ namespace BitulaMod.SmallCity {
                 m_ReducedDaysOff = Mod.Settings.ReducedDaysOff,
             };
         }
-        public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
-            m_CommandBuffer = buffer;
-            m_CommandBufferIndex = index;
-            m_HasCommandBufferIndex = true;
-        }
-
-        private int GetCommandBufferIndex(Entity citizen) {
-            return m_HasCommandBufferIndex ? m_CommandBufferIndex : citizen.Index;
-        }
 
         public bool StartJobSeek(Entity citizen, SmallCityJobsPhase phase) {
 
@@ -98,7 +89,7 @@ namespace BitulaMod.SmallCity {
             cmp.m_FoundCloserJob = false;
             cmp.m_FoundHigherJob = false;
             cmp.m_phase = phase;
-            m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+            m_Common.SetCmp(citizen, cmp);
 
             return true;
         }
@@ -127,10 +118,6 @@ namespace BitulaMod.SmallCity {
 
         public bool FoundHigherJob(Entity citizen) {
             return m_Common.HasSmallCitiyJobs(citizen) && m_Common.GetSmallCitiyJobs(citizen).m_FoundHigherJob;
-        }
-
-        public void RemoveSmallCityJobs(Entity citizen) {
-            m_CommandBuffer.RemoveComponent<CmpSmallCityJobs>(citizen.Index, citizen);
         }
 
         public bool HasClosestJob(Entity citizen, int currentJobLevel) {
@@ -365,7 +352,7 @@ namespace BitulaMod.SmallCity {
                 cmp.m_FoundHigherJob = false;
                 cmp.m_UseSmallCityBehaviour = useSmallCityBehavior;
                 cmp.m_phase = m_Common.GetPhase();
-                m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+                m_Common.SetCmp(citizen, cmp);
             } else if (failed) {
                 m_Common.Send(citizen, CustomEventType.DoesntLikeAnyJobs);
             }
@@ -404,7 +391,7 @@ namespace BitulaMod.SmallCity {
                 cmp.m_FoundCloserJob = hasCloserJob;
                 cmp.m_UseSmallCityBehaviour = useSmallCityBehavior;
                 cmp.m_phase = m_Common.GetPhase();
-                m_CommandBuffer.SetComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+                m_Common.SetCmp(citizen, cmp);
                 if (hasCloserJob) m_Common.Send(citizen, CustomEventType.FoundCloserJob);
             }
 

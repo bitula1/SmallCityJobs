@@ -9,6 +9,7 @@ namespace BitulaMod.SmallCity {
     public interface ISCFeature<T> where T : unmanaged {
         T Create(ref SystemState state, in SCCommon common);
         T Create();
+        SCCommon Common { get; set; }
     }
     public static class SmallCitySelector {
 

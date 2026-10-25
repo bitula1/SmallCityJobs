@@ -5,7 +5,6 @@ using Unity.Mathematics;
 namespace BitulaMod.SmallCity {
     public struct SmallCity<T> where T : unmanaged, ISCFeature<T> {
 
-        public SCCommon m_Common;
         public T Feature;
 
         public static SmallCity<T> Create( ref SystemState state, EntityCommandBuffer.ParallelWriter? commandBuffer = null) {
@@ -15,7 +14,6 @@ namespace BitulaMod.SmallCity {
             feature = feature.Create(ref state, in common);
 
             return new SmallCity<T> {
-                m_Common = common,
                 Feature = feature
             };
         }
@@ -27,6 +25,11 @@ namespace BitulaMod.SmallCity {
             return new SmallCity<T> {
                 Feature = feature
             };
+        }
+        public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
+            SCCommon common = Feature.Common;
+            common.SetCommandBuffer(buffer, index);
+            Feature.Common = common;
         }
 
         public static void AddProducer(ref SystemState state, JobHandle dependency) {

@@ -197,7 +197,7 @@ namespace BitulaMod
         private CitizenFindJobSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x020014E8 RID: 5352
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenFindJobJob : IJobChunk
 		{
             public SmallCity<SCJob> m_SmallCityJobs;
@@ -208,7 +208,7 @@ namespace BitulaMod
 				{
 					return;
 				}
-                m_SmallCityJobs.Get().SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
+                m_SmallCityJobs.SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
                 NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
 				NativeArray<Citizen> nativeArray2 = chunk.GetNativeArray<Citizen>(ref this.m_CitizenType);
 				NativeArray<CurrentBuilding> nativeArray3 = chunk.GetNativeArray<CurrentBuilding>(ref this.m_CurrentBuildingType);

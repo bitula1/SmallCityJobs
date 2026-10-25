@@ -332,7 +332,7 @@ namespace BitulaMod
 		private HouseholdBehaviorSystem.TypeHandle __TypeHandle;
 
 		// Token: 0x0200151A RID: 5402
-		//[BurstCompile]
+		[BurstCompile]
 		private struct HouseholdTickJob : IJobChunk
 		{
 			// Token: 0x0600680D RID: 26637 RVA: 0x00386F96 File Offset: 0x00385196

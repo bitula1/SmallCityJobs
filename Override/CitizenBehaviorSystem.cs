@@ -368,7 +368,7 @@ namespace BitulaMod
 		private EntityQuery __query_963917315_0;
 
 		// Token: 0x02001521 RID: 5409
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenReserveHouseholdCarJob : IJob
 		{
 			// Token: 0x06006895 RID: 26773 RVA: 0x0037E8C8 File Offset: 0x0037CAC8
@@ -449,7 +449,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001522 RID: 5410
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenTryCollectMailJob : IJob
 		{
 			// Token: 0x06006896 RID: 26774 RVA: 0x0037EA40 File Offset: 0x0037CC40
@@ -533,7 +533,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001523 RID: 5411
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizeSleepJob : IJob
 		{
 			// Token: 0x06006898 RID: 26776 RVA: 0x0037EBE8 File Offset: 0x0037CDE8
@@ -567,7 +567,7 @@ namespace BitulaMod
 		}
 
 		// Token: 0x02001524 RID: 5412
-		//[BurstCompile]
+		[BurstCompile]
 		private struct CitizenAITickJob : IJobChunk
 		{
 			// Token: 0x06006899 RID: 26777 RVA: 0x0037EC70 File Offset: 0x0037CE70
@@ -890,7 +890,9 @@ namespace BitulaMod
 			// Token: 0x060068A1 RID: 26785 RVA: 0x0037F5FC File Offset: 0x0037D7FC
 			public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
 			{
-				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
+				m_SmallCityLeisure.SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
+                m_SmallCityShopping.SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
+                Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(unfilteredChunkIndex);
 				NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
 				NativeArray<Citizen> nativeArray2 = chunk.GetNativeArray<Citizen>(ref this.m_CitizenType);
 				NativeArray<HouseholdMember> nativeArray3 = chunk.GetNativeArray<HouseholdMember>(ref this.m_HouseholdMemberType);
