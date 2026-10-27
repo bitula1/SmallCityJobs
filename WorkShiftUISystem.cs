@@ -34,6 +34,7 @@ namespace BitulaMod
         private ValueBinding<string> m_SleepHoursBinding;
         private ValueBinding<string> m_ShoppingHoursBinding;
         private ValueBinding<string> m_LeisureHoursBinding;
+        private ValueBinding<string> m_StudyHoursBinding;
         private ValueBinding<uint> m_LastDayResourceCostBinding;
         private ValueBinding<uint> m_RemainingDaysOff;
         private ValueBinding<bool> m_DaysOff;
@@ -47,6 +48,8 @@ namespace BitulaMod
         private SmallCity<SCShopping> m_SmallCityShopping;
         private SmallCity<SCLeisure> m_SmallCityLeisure;
         private TimeSystem m_TimeSystem;
+        private SmallCity<SCSleep> m_Sleep;
+        private SmallCity<SCStudy> m_Study;
 
 
         protected override void OnCreate()
@@ -59,6 +62,9 @@ namespace BitulaMod
             m_EconomyParameterQuery = GetEntityQuery(
                 ComponentType.ReadOnly<EconomyParameterData>()
             );
+
+            m_Sleep = SmallCity<SCSleep>.Create(ref base.CheckedStateRef);
+            m_Study = SmallCity<SCStudy>.Create(ref base.CheckedStateRef);
 
             m_SimulationSystem =  World.GetOrCreateSystemManaged<SimulationSystem>();
             m_TimeSystem = World.GetOrCreateSystemManaged<TimeSystem>();
@@ -82,6 +88,10 @@ namespace BitulaMod
             m_LeisureHoursBinding = new ValueBinding<string>("BitulaMod", "leisureHours", "");
 
             AddBinding(m_LeisureHoursBinding);
+
+            m_StudyHoursBinding = new ValueBinding<string>("BitulaMod", "studyHours", "");
+
+            AddBinding(m_StudyHoursBinding);
 
             m_LastDayResourceCostBinding = new ValueBinding<uint>("BitulaMod", "lastDayResourceCost", 0);
 
@@ -113,6 +123,7 @@ namespace BitulaMod
             updateSleepHours();
             updateShopHours();
             updateLeisureHours();
+            updateStudyHours();
             UpdateDaysOff();
 
         }
@@ -404,47 +415,31 @@ namespace BitulaMod
         }
 
         private void updateSleepHours() {
-            Entity citizenEntity =
-                m_SelectedInfoUISystem.selectedEntity;
+            m_Sleep.Update(ref base.CheckedStateRef);
+            Entity citizen = m_SelectedInfoUISystem.selectedEntity;
 
-            if (citizenEntity == Entity.Null ||
-                !EntityManager.Exists(citizenEntity) ||
-                !EntityManager.HasComponent<Citizen>(citizenEntity) ||
-                m_EconomyParameterQuery.IsEmptyIgnoreFilter) {
+            if (!m_Sleep.CitizenExists(citizen)) {
                 m_SleepHoursBinding.Update("");
                 return;
             }
-
-            Citizen citizen =
-                EntityManager.GetComponentData<Citizen>(citizenEntity);
-
-            bool isWorker = EntityManager.HasComponent<Worker>(citizenEntity);
-            Worker worker = isWorker
-                ? EntityManager.GetComponentData<Worker>(citizenEntity)
-                : default;
-
-            bool isStudent = EntityManager.HasComponent<Student>(citizenEntity);
-            Student student = isStudent
-                ? EntityManager.GetComponentData<Student>(citizenEntity)
-                : default;
-
-            EconomyParameterData economyParameters =
-                m_EconomyParameterQuery.GetSingleton<EconomyParameterData>();
-
-            float2 sleepTime = CitizenBehaviorSystem.GetSleepTime(
-                citizenEntity,
-                citizen,
-                ref economyParameters,
-                isWorker,
-                worker,
-                isStudent,
-                student
-            );
-
-            string sleepHours =
-                $"{FormatTime(sleepTime.x)}-{FormatTime(sleepTime.y)}";
-
+           
+            float2 sleepTime = m_Sleep.Get().GetSleepTime(citizen);
+            string sleepHours =  $"{FormatTime(sleepTime.x)}-{FormatTime(sleepTime.y)}";
             m_SleepHoursBinding.Update(sleepHours);
+        }
+
+        private void updateStudyHours() {
+            m_Study.Update(ref base.CheckedStateRef);
+            Entity citizen = m_SelectedInfoUISystem.selectedEntity;
+
+            if (!m_Study.CitizenExists(citizen) || !m_Study.Get().IsStudent(citizen)) {
+                m_StudyHoursBinding.Update("");
+                return;
+            }
+
+            float2 studyTime = m_Study.Get().GetStudyTime(citizen);
+            string studyHours = $"{FormatTime(studyTime.x)}-{FormatTime(studyTime.y)}";
+            m_StudyHoursBinding.Update(studyHours);
         }
 
 

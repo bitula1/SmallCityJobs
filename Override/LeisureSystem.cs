@@ -447,7 +447,7 @@ namespace BitulaMod
 				}
 				bool useSCJ = m_SmallCityLeisure.Get().IsSmallCityBehaviour(entity);
 				bool removeVanilla = (float)citizen.m_LeisureCounter > 255f - (float)provider.m_Efficiency / LeisureSystem.kUpdateInterval || this.m_SimulationFrame >= leisure.m_LastPossibleFrame;
-				bool removeSCJ = m_SmallCityLeisure.Get().IsEndOfLeisure(entity, m_SimulationFrame, leisure.m_LastPossibleFrame);
+				bool removeSCJ = m_SmallCityLeisure.Get().IsEndOfLeisure(entity);
 
                 if ((useSCJ ? removeSCJ : removeVanilla) || flag) {
                     this.m_CommandBuffer.RemoveComponent<CmpLeisureStart>(index, entity);
@@ -462,6 +462,7 @@ namespace BitulaMod
 				{
 					return;
 				}
+				m_SmallCityLeisure.SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
 				NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
 				NativeArray<Leisure> nativeArray2 = chunk.GetNativeArray<Leisure>(ref this.m_LeisureType);
 				NativeArray<HouseholdMember> nativeArray3 = chunk.GetNativeArray<HouseholdMember>(ref this.m_HouseholdMemberType);
@@ -535,7 +536,7 @@ namespace BitulaMod
 									}
 									leisure.m_TargetAgent = destination;
 									nativeArray2[i] = leisure;
-                                    m_SmallCityLeisure.Get().PrintDestination(entity, destination);
+                                    m_SmallCityLeisure.Get().SetLeisureStart(entity, destination);
                                     dynamicBuffer.Add(new TripNeeded
 									{
 										m_TargetAgent = destination,
@@ -580,8 +581,7 @@ namespace BitulaMod
 					else if (!this.m_Purposes.HasComponent(entity))
 					{
                         if (leisure.m_TargetAgent != Entity.Null && m_SmallCityLeisure.Get().IsSmallCityBehaviour(entity) 
-							&& !m_SmallCityLeisure.Get().IsEndOfLeisure(
-							entity,  m_SimulationFrame, leisure.m_LastPossibleFrame)) {
+							&& !m_SmallCityLeisure.Get().IsEndOfLeisure(entity)) {
                             continue;
                         }
                         Entity household = nativeArray3[i].m_Household;

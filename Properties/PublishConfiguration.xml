@@ -77,12 +77,23 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-		- start end in component
+		- fixed shopping without a need or household
+		- start end in component - optimization
 		- display shop start end
-		- remove init
+		- remove init - error prone
 		- display leasure start end
-		- Switched to use in job command buffer and unsorted index everywhere
+		- Switched to use in job command buffer and unsorted index everywhere - theoratical crash fix
+		- display leisure start end hours
 		- display sleep start end hours
+		- display study start end hours
+		- no shopping during leisure
+		- no change to shopping while shopping, same leisure
+		- added lifepath message buy resource
+		- StartShopResource = 127, GoToShop = 128, ShopOnline = 129, ShopNoResource = 130, ShopNoMoney = 131,ShopNoPath = 132,
+		- start end leisure changed to trip start
+		- enable physical virtual buying
+		- physical shopping + settings
+		- ShopNoPath = 132, ShopDoesNotExist = 133, ShopDestinationUnavailable = 134,
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

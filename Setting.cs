@@ -106,6 +106,10 @@ namespace BitulaMod
 
         [SettingsUISection("Shopping", "Shopping")]
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
+
+        [SettingsUISection("Shopping", "Shopping")]
+        public bool PhysicalVirtualShopping { get; set; } = true;
+
         public int ShoppingIntervalMax { get; set; } = 60;
 
         public override void SetDefaults()
@@ -121,6 +125,7 @@ namespace BitulaMod
             WorkplacePromotion = true;
             CloserJobEmployed = true;
             CloserJobUnemployed = true;
+            PhysicalVirtualShopping = true;    
 
             NormalLeisure = true;
             NormalLeisureMin = 5;
@@ -176,6 +181,15 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_NoCityBeach"] = 3;
             indexCounts["BitulaMod.LIFEPATH_ServiceFull"] = 1;
             indexCounts["BitulaMod.LIFEPATH_FoundLeisureAt"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_StartShopResource"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_StartShopResource"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_GoToShop"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopOnline"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopNoResource"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopNoMoney"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopNoPath"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopDoesNotExist"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ShopDestinationUnavailable"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -227,6 +241,8 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMin)), "Sets the minimum percentage of the available shopping time that citizens spend shopping." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ShoppingIntervalMax)), "Maximum shopping duration" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMax)), "Sets the maximum percentage of the available shopping time that citizens spend shopping." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PhysicalVirtualShopping)), "Physical shopping" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PhysicalVirtualShopping)), "Allows citizens using Small City shopping behavior to physically visit stores when purchasing virtual goods instead of automatically buying them remotely." },
                 { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
                 { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
@@ -271,8 +287,15 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_NoCityBeach:2", "I was ready for sand, sun, and a little escape, but there was nowhere to put down a towel." },
                 { "BitulaMod.LIFEPATH_ServiceFull:0", "I found a place I wanted to visit, but it was already full." },
                 { "BitulaMod.LIFEPATH_FoundLeisureAt:0", "I found a place I wanted to visit. Let's go to {LINK_1}." },
-
-
+                { "BitulaMod.LIFEPATH_StartShopResource:0", "I need to buy something. {LINK_NAME_1}" },
+                { "BitulaMod.LIFEPATH_LINK_StartShopResource", "I need to buy {0}." },
+                { "BitulaMod.LIFEPATH_GoToShop:0", "I found a store that has what I need. Let's go to {LINK_1}." },
+                { "BitulaMod.LIFEPATH_ShopOnline:0", "I ordered it online instead." },
+                { "BitulaMod.LIFEPATH_ShopNoResource:0", "The store didn't have enough in stock." },
+                { "BitulaMod.LIFEPATH_ShopNoMoney:0", "I couldn't afford it." },
+                { "BitulaMod.LIFEPATH_ShopNoPath:0", "I couldn't find a store I could reach." },
+                { "BitulaMod.LIFEPATH_ShopDoesNotExist:0", "I couldn't find a store selling what I wanted." },
+                { "BitulaMod.LIFEPATH_ShopDestinationUnavailable:0", "I found a store, but it's no longer available." },
             };
         }
 

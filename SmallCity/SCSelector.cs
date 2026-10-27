@@ -10,6 +10,11 @@ namespace BitulaMod.SmallCity {
         T Create(ref SystemState state, in SCCommon common);
         T Create();
         SCCommon Common { get; set; }
+        void Update(ref SystemState state);
+    }
+    public interface ISCInfo<T> where T : unmanaged {
+        T Create(ref SystemState state);
+        void Update(ref SystemState state);
     }
     public static class SmallCitySelector {
 

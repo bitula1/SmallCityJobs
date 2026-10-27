@@ -39,8 +39,8 @@ namespace BitulaMod.SmallCity {
         private BufferLookup<Game.Economy.Resources> m_Resources;
         private EntityCommandBuffer.ParallelWriter m_CommandBuffer;
         private NativeQueue<CustomEvent>.ParallelWriter m_CustomEventQueue;
-        private FixedString128Bytes m_Parameters;
-        private FixedList128Bytes<CustomEventType> m_WatchedEvents;
+        private FixedString512Bytes m_Parameters;
+        private FixedList512Bytes<CustomEventType> m_WatchedEvents;
         private EventHint m_WatchHint;
         private EventHint m_Hint;
         public const uint kFramesPerDay = 262144u;
@@ -77,6 +77,28 @@ namespace BitulaMod.SmallCity {
             };
         }
 
+        public void Update(ref SystemState state) {
+            m_Citizens.Update(ref state);
+            m_Followed.Update(ref state);
+            m_SmallCitySearch.Update(ref state);
+            m_HouseholdMembers.Update(ref state);
+            m_Resources.Update(ref state);
+            m_Buildings.Update(ref state);
+            m_OutsideConnections.Update(ref state);
+            m_Workers.Update(ref state);
+            m_Students.Update(ref state);
+
+            m_SimulationFrame =
+                state.World.GetOrCreateSystemManaged<SimulationSystem>().frameIndex;
+
+            m_NormalizedTime =
+                state.World.GetOrCreateSystemManaged<TimeSystem>().normalizedTime;
+
+            m_EconomyParameters = state.GetEntityQuery(
+                ComponentType.ReadOnly<EconomyParameterData>()
+            ).GetSingleton<EconomyParameterData>();
+        }
+
         public bool IsSmallCityBehaviour(Entity citizen) {
             return citizen != Entity.Null &&
                    m_SmallCitySearch.HasComponent(citizen) &&
@@ -86,6 +108,16 @@ namespace BitulaMod.SmallCity {
         public bool HasSmallCityBehaviour(Entity citizen) {
             return citizen != Entity.Null && m_SmallCitySearch.HasComponent(citizen);
         }
+
+        public EconomyParameterData GetEconomyParameterData() {
+            return m_EconomyParameters;
+        }
+
+        public bool CitizenExists(Entity citizenEntity) {
+            return citizenEntity != Entity.Null &&
+                   m_Citizens.HasComponent(citizenEntity);
+        }
+
         public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
             m_CommandBuffer = buffer;
             m_CommandBufferIndex = index;
@@ -100,6 +132,10 @@ namespace BitulaMod.SmallCity {
         }
 
         public void AddCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
+            m_CommandBuffer.AddComponent(GetCommandBufferIndex(citizen), citizen, cmp);
+        }
+
+        public void AddOrSetCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
             m_CommandBuffer.AddComponent(GetCommandBufferIndex(citizen), citizen, cmp);
         }
 
@@ -205,7 +241,7 @@ namespace BitulaMod.SmallCity {
             m_Parameters.Append(parameter);
         }
 
-        public void AddParameter(FixedString64Bytes parameter) {
+        public void AddParameter(FixedString512Bytes parameter) {
             m_Parameters.Append(parameter);
         }
 

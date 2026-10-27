@@ -35,6 +35,14 @@ namespace BitulaMod
         SwitchJobNoTake = 124,
         NoCommercial = 125,
         NoCityBeach = 126,
+        StartShopResource = 127,
+        GoToShop = 128,
+        ShopOnline = 129,
+        ShopNoResource = 130,
+        ShopNoMoney = 131,
+        ShopNoPath = 132,
+        ShopDoesNotExist = 133,
+        ShopDestinationUnavailable = 134,
         DebugMessage = 200,
     }
 }

@@ -26,6 +26,12 @@ const leisureHours$ = bindValue<string>(
     ""
 );
 
+const studyHours$ = bindValue<string>(
+    "BitulaMod",
+    "studyHours",
+    ""
+);
+
 const isDaysOff$ = bindValue<boolean>(
     "BitulaMod",
     "isDaysOff",
@@ -69,6 +75,7 @@ export const WorkShiftSection = (componentList: any): any => {
         const sleepHours = useValue(sleepHours$);
         const shoppingHours = useValue(shoppingHours$);
         const leisureHours = useValue(leisureHours$);
+        const studyHours = useValue(studyHours$);
         const isDaysOff = useValue(isDaysOff$);
         const remainingDaysOff = useValue(remainingDaysOff$);
 
@@ -80,13 +87,30 @@ export const WorkShiftSection = (componentList: any): any => {
             <>
                 <VanillaCitizenSection {...props} />
 
-                {(workHours || sleepHours || shoppingHours || leisureHours || isDaysOff) && (
+                {(workHours || sleepHours || shoppingHours || leisureHours || studyHours || isDaysOff) && (
                     <InfoSection disableFocus={true}>
                         {workHours && (
-                            <div style={{ fontFamily: "monospace" }}>
+                            <div style={{
+                                fontFamily: "monospace",
+                                opacity: isDaysOff ? 0.4 : 1
+                            }}>
                                 <InfoRow
                                     left="Work hours"
                                     right={workHours}
+                                    tooltipKeys={props.tooltipKeys}
+                                    tooltipTags={props.tooltipTags}
+                                    disableFocus={true}
+                                    subRow={false}
+                                    uppercase={false}
+                                />
+                            </div>
+                        )}
+
+                        {studyHours && (
+                            <div style={{ fontFamily: "monospace" }}>
+                                <InfoRow
+                                    left="School hours"
+                                    right={studyHours}
                                     tooltipKeys={props.tooltipKeys}
                                     tooltipTags={props.tooltipTags}
                                     disableFocus={true}

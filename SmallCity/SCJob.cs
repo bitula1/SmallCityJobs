@@ -38,6 +38,9 @@ namespace BitulaMod.SmallCity {
             set => m_Common = value;
         }
 
+        public void Update(ref SystemState state) {
+            throw new System.NotImplementedException();
+        }
 
         public SCJob Create(ref SystemState state, in SCCommon common) {
 

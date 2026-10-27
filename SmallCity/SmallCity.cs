@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Game.Areas;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -26,6 +27,15 @@ namespace BitulaMod.SmallCity {
                 Feature = feature
             };
         }
+        public void Update(ref SystemState state) {
+            Feature.Update(ref state);
+        }
+
+        public bool CitizenExists(Entity citizenEntity) {
+            SCCommon common = Feature.Common;
+            return common.CitizenExists(citizenEntity);
+        }
+
         public void SetCommandBuffer(EntityCommandBuffer.ParallelWriter buffer, int index) {
             SCCommon common = Feature.Common;
             common.SetCommandBuffer(buffer, index);

@@ -14,6 +14,7 @@ using Unity.Burst.CompilerServices;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace BitulaMod
@@ -53,10 +54,9 @@ namespace BitulaMod
             foreach (CustomEventType type in Enum.GetValues(typeof(CustomEventType))) {
                 if (type == CustomEventType.None)
                     continue;
-                
-                TriggerPrefab prefab = new TriggerPrefab {
-                    name = $"BitulaMod_{type}"
-                };
+
+                TriggerPrefab prefab = ScriptableObject.CreateInstance<TriggerPrefab>();
+                prefab.name = $"BitulaMod_{type}";
 
                 Game.Prefabs.LifePathEvent lifePathComponent =
                     prefab.AddOrGetComponent<Game.Prefabs.LifePathEvent>();

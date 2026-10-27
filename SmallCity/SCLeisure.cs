@@ -15,6 +15,9 @@ namespace BitulaMod.SmallCity {
         private int m_LeisureIntervalMax;
         private int m_SpendingLeisureMin;
         private int m_SpendingLeisureMax;
+        private SCInfo<SCShoppingInfo> m_Shopping;
+        private SCInfo<SCLeisureInfo> m_Leisure;
+        private SCInfo<SCHouseholdInfo> m_Household;
         private SCCommon m_Common;
         private ComponentLookup<CmpDesiredLeisureType> m_DesiredLeisureTypes;
         public ComponentLookup<CmpDesiredProviderFound> m_DesiredProviderFound;
@@ -43,8 +46,13 @@ namespace BitulaMod.SmallCity {
                 m_DesiredProviderFound = state.GetComponentLookup<CmpDesiredProviderFound>(true),
                 m_AvailableProviderFound = state.GetComponentLookup<CmpAvailableProviderFound>(true),
                 m_LeisureStarts = state.GetComponentLookup<CmpLeisureStart>(true),
+                m_Shopping = SCInfo<SCShoppingInfo>.Create(ref state),
+                m_Leisure = SCInfo<SCLeisureInfo>.Create(ref state),
+                m_Household = SCInfo<SCHouseholdInfo>.Create(ref state)
             };
         }
+
+
 
         public SCLeisure Create() {
             return new SCLeisure {
@@ -92,6 +100,9 @@ namespace BitulaMod.SmallCity {
 
         public bool DoLeisure(Entity citizen, uint simulationFrame) {
             if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
+                return false;
+            if (m_Shopping.Get().IsWithinShoppingTime(citizen, simulationFrame) ||
+                m_Leisure.Get().IsWithinLeisureTime(citizen, simulationFrame))
                 return false;
 
             Citizen citizenData = m_Common.GetCitizenData(citizen);
@@ -162,10 +173,6 @@ namespace BitulaMod.SmallCity {
             }
         }
 
-        public void PrintDestination(Entity entity, Entity destination) {
-            m_Common.Send(entity, CustomEventType.FoundLeisureAt, destination);
-        }
-
         public void SetDesiredLeisureType(Entity citizen, LeisureType type, byte desire) {
             CmpDesiredLeisureType component = new CmpDesiredLeisureType {
                 m_Type = type,
@@ -185,17 +192,21 @@ namespace BitulaMod.SmallCity {
             return m_DesiredLeisureTypes[citizen].m_Type;
         }
 
-        private void SetLeisureStart(Entity citizen, uint startFrame, int startMoney) {
-            CmpLeisureStart component = new CmpLeisureStart {
-                m_StartFrame = startFrame,
-                m_EndFrame = LeisureEndFrame( m_Common.GetCitizenData(citizen), m_Common.GetLastPossibleFrame(citizen), startFrame),
-                m_StartMoney = startMoney
-            }; 
+        public void SetLeisureStart(Entity citizen, Entity destination) {
+            if (m_Common.IsSmallCityBehaviour(citizen) && m_NormalLeisure) {
+                uint startFrame = m_Common.GetSimulationFrame();
+                CmpLeisureStart component = new CmpLeisureStart {
+                    m_StartFrame = startFrame,
+                    m_EndFrame = LeisureEndFrame(m_Common.GetCitizenData(citizen), m_Common.GetLastPossibleFrame(citizen), startFrame),
+                    m_StartMoney = m_Household.Get().GetMoney(citizen)
+                };
 
-            if (m_LeisureStarts.HasComponent(citizen))
-                m_Common.SetCmp(citizen, component);
-            else
-                m_Common.AddCmp(citizen, component);
+                if (m_LeisureStarts.HasComponent(citizen))
+                    m_Common.SetCmp(citizen, component);
+                else
+                    m_Common.AddCmp(citizen, component);
+            }
+            m_Common.Send(citizen, CustomEventType.FoundLeisureAt, destination);
         }
 
         public uint GetLeisureStartFrame(Entity citizen) {
@@ -210,18 +221,6 @@ namespace BitulaMod.SmallCity {
                 return 0;
 
             return m_LeisureStarts[citizen].m_EndFrame;
-        }
-
-        public void SetLeisureStart(Entity citizen, uint simulationFrame) {
-            int startMoney = 0;
-
-            if (m_Common.GetHouseholdMembers().TryGetComponent(citizen, out HouseholdMember householdMember) &&
-                m_Common.GetResources().TryGetBuffer(householdMember.m_Household, out DynamicBuffer<Game.Economy.Resources> resources)) {
-
-                startMoney = EconomyUtils.GetResources(Resource.Money, resources);
-            }
-
-            SetLeisureStart(citizen, simulationFrame, startMoney);
         }
 
         public void SetDesiredProviderFound(Entity citizen) {
@@ -285,9 +284,10 @@ namespace BitulaMod.SmallCity {
             return endFrame;
         }
 
-        public bool IsEndOfLeisure(Entity citizen, uint simulationFrame, uint lastPossibleFrame) {
+        public bool IsEndOfLeisure(Entity citizen) {
+            uint simulationFrame = m_Common.GetSimulationFrame();
             if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
-                return false;
+                return true;
 
             uint endFrame = GetLeisureEndFrame(citizen);
 
@@ -343,5 +343,8 @@ namespace BitulaMod.SmallCity {
             return spent >= maxSpend;
         }
 
+        public void Update(ref SystemState state) {
+            throw new System.NotImplementedException();
+        }
     }
 }

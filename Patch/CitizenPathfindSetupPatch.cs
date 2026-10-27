@@ -241,6 +241,7 @@ namespace BitulaMod
 
                 m_SetupData = setupData,
                 m_SmallCityLeisure = smallCityLeisure,
+                m_CommandBuffer = commandBuffer,
                 m_ResourcePrefabs = resourceSystem.GetPrefabs(),
                 m_LeisureSystemUpdateInterval = leisureSystem.GetUpdateInterval(SystemUpdatePhase.GameSimulation),
                 m_PropertyRenters = GetComponentLookup<PropertyRenter>(system, true),

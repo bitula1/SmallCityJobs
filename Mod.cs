@@ -63,6 +63,7 @@ namespace BitulaMod
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenBehaviorSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.LeisureSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenTravelPurposeSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ResourceBuyerSystem>().Enabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);
@@ -71,6 +72,7 @@ namespace BitulaMod
             updateSystem.UpdateAt<CitizenBehaviorSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<LeisureSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<CitizenTravelPurposeSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<ResourceBuyerSystem>(SystemUpdatePhase.GameSimulation);
 
 
         }

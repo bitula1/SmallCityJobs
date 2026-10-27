@@ -18,7 +18,7 @@ namespace BitulaMod {
 
         // Token: 0x060078E6 RID: 30950 RVA: 0x004494E4 File Offset: 0x004476E4
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask) {
-
+            m_SmallCityLeisure.SetCommandBuffer(m_CommandBuffer, unfilteredChunkIndex);
             NativeArray<Entity> nativeArray = chunk.GetNativeArray(this.m_EntityType);
             NativeArray<ServiceAvailable> nativeArray2 = chunk.GetNativeArray<ServiceAvailable>(ref this.m_ServiceAvailableType);
             NativeArray<PrefabRef> nativeArray3 = chunk.GetNativeArray<PrefabRef>(ref this.m_PrefabType);
@@ -110,6 +110,7 @@ namespace BitulaMod {
         public int m_LeisureSystemUpdateInterval;
 
         public SmallCity<SCLeisure> m_SmallCityLeisure;
+        public EntityCommandBuffer.ParallelWriter m_CommandBuffer;
         [ReadOnly]
         public ComponentLookup<PropertyRenter> m_PropertyRenters;
 

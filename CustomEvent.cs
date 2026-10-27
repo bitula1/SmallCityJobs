@@ -18,8 +18,8 @@ namespace BitulaMod {
     public struct CustomEvent {
         public Entity m_Citizen;
         public CustomEventType m_EventType;
-        public FixedList128Bytes<CustomEventType> m_WatchedEventTypes;
-        public FixedString128Bytes m_Param;
+        public FixedList512Bytes<CustomEventType> m_WatchedEventTypes;
+        public FixedString512Bytes m_Param;
         public EventHint m_Hint;
         public EventHint m_WatchHint;
         public Entity m_Target;

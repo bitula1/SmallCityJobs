@@ -674,7 +674,6 @@ namespace BitulaMod
 					this.m_CarReserverQueue.Enqueue(citizen);
 				}
 				this.m_MailSenderQueue.Enqueue(citizen);
-                m_SmallCityShopping.Get().SetShoppingStart(citizen, m_SimulationFrame);
                 this.m_CommandBuffer.AddComponent<ResourceBuyer>(chunkIndex, citizen, new ResourceBuyer
 				{
 					m_Payer = household,
@@ -759,7 +758,6 @@ namespace BitulaMod
 				{
 					m_LastPossibleFrame = this.m_SimulationFrame + num4
 				};
-                m_SmallCityLeisure.Get().SetLeisureStart(citizenEntity, this.m_SimulationFrame);
 				this.m_CommandBuffer.AddComponent<Leisure>(chunkIndex, citizenEntity, leisure);
 				return true;
 			}
@@ -1053,12 +1051,12 @@ namespace BitulaMod
 												}
 												else
 												{
-													if ((age == CitizenAge.Adult || age == CitizenAge.Elderly) 
-														&& (!flag2 || !m_SmallCityJobs.Get().IsSmallCityBehavior(entity2)))
+													if ((age == CitizenAge.Adult || age == CitizenAge.Elderly))
 
                                                     {
 														HouseholdNeed householdNeed = this.m_HouseholdNeeds[entity];
-														if (householdNeed.m_Resource != Resource.NoResource && this.m_Transforms.HasComponent(currentBuilding))
+														if (householdNeed.m_Resource != Resource.NoResource && this.m_Transforms.HasComponent(currentBuilding)
+                                                            && m_SmallCityShopping.Get().CanShop(entity2, householdNeed.m_Resource))
 														{
 															this.GoShopping(unfilteredChunkIndex, entity2, flag8, entity, householdNeed, this.m_Transforms[currentBuilding].m_Position);
 															householdNeed.m_Resource = Resource.NoResource;
