@@ -135,9 +135,11 @@ namespace BitulaMod.SmallCity {
             if (desired == LeisureType.Count)
                 return;
 
-            if (GetDesiredProviderFound(citizen) &&
-                !GetAvailableProviderFound(citizen)) {
-                m_Common.Send(citizen, CustomEventType.ServiceFull);
+            if (GetDesiredProviderFound(citizen)) {
+                if (!GetAvailableProviderFound(citizen))
+                    m_Common.Send(citizen, CustomEventType.ServiceFull);
+                else
+                    m_Common.Send(citizen, CustomEventType.LeisureNoPath);
                 return;
             }
 

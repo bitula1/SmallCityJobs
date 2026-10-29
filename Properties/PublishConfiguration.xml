@@ -17,21 +17,23 @@ Check the Override folder on GitHub for the systems overridden by this mod.
 
 From version 1.4.22 mod saves data directly in the savegame.
 
-
-- Added new tab showing citizens who are shopping (buying resource, not leasure shopping)
-- Icons: status, age, wealth, family size.
-- Includes shopping duration countdown.
-- New icon design for the main tabs.
-- Implemented small city shopping basics: allowing more detailed individual shopping simulation in smaller cities.
-- Introduced individual shopping durations. Instead of leaving immediately after arriving, citizens can remain at commercial buildings for a configurable amount of time.
-- Added a Normal Shopping setting that gradually restores the game's original shopping behavior as the city grows.
-- Shopping duration takes citizens' daily schedules into account, including their next work, school, or sleep period.
-- Added Minimum Shopping Duration and Maximum Shopping Duration settings to control how much of their available time citizens spend shopping.
-- Leisure and Shopping tab lists are now sorted by full name
-- Fixed possible crash when viewing tabs when citizens leaving
-- Fixed localizationID BitulaMod.LIFEPATH_None not found warning
-- Fixed end of leisure check applies to vanilla (not checking settings)
-- Major code restructure into smallcity template objects - see github smallcity folder
+- Below changes require running simulation for 1-2 ingame day for display data to align correctly
+- Fixed citizens attempting to shop without a valid shopping need or household.
+- Optimized shopping schedules by storing start and end frames in components instead of recalculating them. 
+- Added shopping start and end times to the citizen information panel.
+- Added leisure start and end times to the citizen information panel.
+- Added sleep start and end times to the citizen information panel.
+- Added study start and end times to the citizen information panel.
+- Changed leisure scheduling to start when the citizen begins traveling to the destination. (Same for shopping)
+- Prevented citizens from starting shopping while engaged in leisure activities.
+- Prevented shopping and leisure schedules from being recalculated while the corresponding activity is already in progress.
+- Removed unnecessary initialization logic to simplify component handling and reduce potential errors.
+- Refactored parallel jobs to initialize command buffers inside Execute() and consistently use unfilteredChunkIndex, this is theoretical fix for possible crashes.
+- Added life-path messages for starting shopping, finding a store, shopping online, and insufficient money.
+- Added detailed shopping failure messages distinguishing between missing stores, insufficient stock, unreachable destinations, and destinations that are no longer available.
+- Added physical shopping for virtual resources (Software, Media, Financial, and Telecom), allowing citizens to visit actual businesses instead of purchasing remotely.
+- Added settings to enable or disable physical shopping for virtual resources.
+- Improved shopping pathfinding for virtual resources, including excluding outside connections when physical shopping is enabled.
 
 Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
 
@@ -67,7 +69,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.23" />
+	<ModVersion Value="1.4.24" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -77,23 +79,13 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-		- fixed shopping without a need or household
-		- start end in component - optimization
-		- display shop start end
-		- remove init - error prone
-		- display leasure start end
-		- Switched to use in job command buffer and unsorted index everywhere - theoratical crash fix
-		- display leisure start end hours
-		- display sleep start end hours
-		- display study start end hours
-		- no shopping during leisure
-		- no change to shopping while shopping, same leisure
-		- added lifepath message buy resource
-		- StartShopResource = 127, GoToShop = 128, ShopOnline = 129, ShopNoResource = 130, ShopNoMoney = 131,ShopNoPath = 132,
-		- start end leisure changed to trip start
-		- enable physical virtual buying
-		- physical shopping + settings
-		- ShopNoPath = 132, ShopDoesNotExist = 133, ShopDestinationUnavailable = 134,
+		- leisure no path message
+		- shop no resource red background
+		- fixed no path found, resored maxcount
+		- in-building shop
+		- purchase lifepath message
+		- money tooltip
+		- fixed status icons not always updating
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

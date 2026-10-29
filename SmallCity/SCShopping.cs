@@ -1,9 +1,10 @@
 ﻿using BitulaMod.Components;
-using Game.Buildings;
 using Game.Citizens;
 using Game.Economy;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using static UnityEngine.InputSystem.InputRemoting;
 
 namespace BitulaMod.SmallCity {
     public struct SCShopping : ISCFeature<SCShopping> {
@@ -16,6 +17,10 @@ namespace BitulaMod.SmallCity {
         private SCInfo<SCLeisureInfo> m_Leisure;
         private SCInfo<SCShoppingInfo> m_Shopping;
         private SCInfo<SCBuildingsInfo> m_Building;
+        private SCInfo<SCTravelInfo> m_Travel;
+        private SCInfo<SCResourceInfo> m_Resource;
+        private SCInfo<SCHouseholdInfo> m_Household;
+
         [ReadOnly]
         public ComponentLookup<CmpShopFound> m_ShopFound;
         [ReadOnly]
@@ -35,6 +40,9 @@ namespace BitulaMod.SmallCity {
                 m_Leisure = SCInfo<SCLeisureInfo>.Create(ref state),
                 m_Shopping = SCInfo<SCShoppingInfo>.Create(ref state),
                 m_Building = SCInfo<SCBuildingsInfo>.Create(ref state),
+                m_Travel = SCInfo<SCTravelInfo>.Create(ref state),
+                m_Resource = SCInfo<SCResourceInfo>.Create(ref state),
+                m_Household = SCInfo<SCHouseholdInfo>.Create(ref state),
                 m_ShoppingStarts = state.GetComponentLookup<CmpShoppingStart>(true),
                 m_ShopFound = state.GetComponentLookup<CmpShopFound>(true),
                 m_ShopResourceFound = state.GetComponentLookup<CmpShopResourceFound>(true),
@@ -53,6 +61,10 @@ namespace BitulaMod.SmallCity {
             return m_Common.IsSmallCityBehaviour(citizen);
         }
 
+        public bool IsNormalShopping(Entity citizen) {
+            return m_Common.IsSmallCityBehaviour(citizen) && m_NormalShopping;
+        }
+
         public bool HasShoppingStart(Entity citizen) {
             return m_ShoppingStarts.HasComponent(citizen);
         }
@@ -68,6 +80,12 @@ namespace BitulaMod.SmallCity {
             return shopping.m_EndFrame != 0 &&
                    shopping.m_StartFrame <= currentFrame &&
                    shopping.m_EndFrame > currentFrame;
+        }
+
+        public bool CantBuyResourceIn(Entity citizen, Entity building) {
+            return m_Building.Get().IsInBuilding(citizen, building) &&
+                m_Travel.Get().TryGetPurpose(citizen, Purpose.Shopping, out TravelPurpose purpose) &&
+                m_Building.Get().HasNoResource(building, purpose.m_Resource);
         }
 
         public void SetShopFound(Entity citizen, bool value) {            
@@ -99,19 +117,43 @@ namespace BitulaMod.SmallCity {
             return canShop;
         }
 
-        public void SetShoppingStart(Entity citizen, Entity seller) {
+        public bool IsValidPayer(Entity citizen, Entity payer, out byte saleFlags) {
+            saleFlags = 0;
+
+            if (!IsSmallCityBehaviour(citizen) || !m_NormalShopping)
+                return false;
+
+            if (!m_ShoppingStarts.TryGetComponent(citizen, out CmpShoppingStart shopping) ||
+                !shopping.m_PurchaseMade)
+                return false;
+
+            if (!m_Household.Get().TryGetHousehold(citizen, out Entity household) ||
+                household != payer)
+                return false;
+
+            if (!m_Resource.Get().HasResourceBuffer(payer))
+                return false;
+
+            saleFlags = shopping.m_SaleFlags;
+            return true;
+        }
+
+        public void SetShoppingStart(Entity citizen, Entity seller, byte saleFlags) {
             if (m_Common.IsSmallCityBehaviour(citizen) && m_NormalShopping) {
                 uint startFrame = m_Common.GetSimulationFrame();
                 uint lastPossibleFrame = m_Common.GetLastPossibleFrame(citizen);
                 CmpShoppingStart component = new CmpShoppingStart {
-                    m_StartFrame = m_Common.GetSimulationFrame(),
-                    m_EndFrame = ShoppingEndFrame(citizen, lastPossibleFrame, startFrame)
+                    m_StartFrame = startFrame,
+                    m_EndFrame = ShoppingEndFrame(citizen, lastPossibleFrame, startFrame),
+                    m_PurchaseMade = false,
+                    m_SaleFlags = saleFlags
                 };
                 if (m_ShoppingStarts.HasComponent(citizen))
                     m_Common.SetCmp(citizen, component);
                 else
                     m_Common.AddCmp(citizen, component);
             }
+
             Entity destination = m_Building.Get().GetBuilding(seller);
             m_Common.Send(citizen, CustomEventType.GoToShop, destination);
         }
@@ -177,6 +219,41 @@ namespace BitulaMod.SmallCity {
                    m_Common.IsSmallCityBehaviour(citizen);
         }
 
+        public void PurchaseAtShop(Entity citizen, Entity building, TravelPurpose purpose) {
+            if (!IsSmallCityBehaviour(citizen) || !m_NormalShopping)
+                return;
+
+            if (!m_ShoppingStarts.TryGetComponent(citizen, out CmpShoppingStart shopping))
+                return;
+
+            if (shopping.m_PurchaseMade)
+                return;
+
+            if (!m_Building.Get().TryGetSeller(building, purpose.m_Resource, out Entity seller))
+                return;
+
+            int available = m_Resource.Get().GetResourceAmount(seller, purpose.m_Resource);
+            int amount = math.min(purpose.m_Data, available);
+
+            if (amount <= 0)
+                return;
+
+            if (!m_Household.Get().TryGetHousehold(citizen, out Entity household))
+                return;
+
+            m_Common.AddCmp(citizen, new ResourceBought {
+                m_Payer = household,
+                m_Seller = seller,
+                m_Resource = purpose.m_Resource,
+                m_Amount = amount,
+                m_Distance = 0f
+            });
+            
+            shopping.m_PurchaseMade = true;
+            m_Common.SetCmp(citizen, shopping);
+
+        }
+
         public void PrintShoppingIssue(Entity citizen, bool isVirtualResource, bool isTripSuppressed, bool hasAffordableAmount) {
             bool physicalVirtual = isVirtualResource && BuyVirtualGoodsPhysically(citizen);
             if (!hasAffordableAmount)
@@ -200,13 +277,59 @@ namespace BitulaMod.SmallCity {
             m_Common.Send(citizen, CustomEventType.ShopDestinationUnavailable);
         }
 
-        public void Update(ref SystemState state) {
-            throw new System.NotImplementedException();
+        public void PrintResourceBought(Entity household, Entity seller, Resource resource, int amount, int moneySpent) {
+            if (!m_Household.Get().TryGetHouseholdCitizens(household, out var citizens))
+                return;
+
+            for (int i = 0; i < citizens.Length; i++) {
+                Entity citizen = citizens[i].m_Citizen;
+
+                bool matched = false;
+
+                if (m_Resource.Get().TryGetResourceBought(citizen, out ResourceBought bought)) {
+                    matched = bought.m_Payer == household &&
+                              bought.m_Seller == seller &&
+                              bought.m_Resource == resource &&
+                              bought.m_Amount == amount;
+                }
+
+                if (!matched) {
+                    matched = m_Resource.Get().IsMatchingResourceBuyer(
+                        citizen, household, seller, resource, amount
+                    );
+                }
+
+                if (!matched)
+                    continue;
+
+                m_Common.AddParameter(amount);
+                m_Common.AddParameter(EconomyUtils.GetNameFixed(resource));
+                m_Common.AddParameter(moneySpent);
+                m_Common.Send(citizen, CustomEventType.ResourceBought);
+                return;
+            }
         }
 
         public void PrintShoppingDebug(Entity citizen, FixedString512Bytes message) {
             m_Common.AddParameter(message);
             m_Common.Send(citizen, CustomEventType.DebugMessage);
         }
+
+        public void Update(ref SystemState state) {
+            m_Common.Update(ref state);
+            m_ShoppingStarts.Update(ref state);
+            m_ShopFound.Update(ref state);
+            m_ShopResourceFound.Update(ref state);
+
+            m_Leisure.Update(ref state);
+            m_Shopping.Update(ref state);
+            m_Building.Update(ref state);
+            m_Travel.Update(ref state);
+            m_Resource.Update(ref state);
+            m_Household.Update(ref state);
+        }
+
+
+       
     }
 }

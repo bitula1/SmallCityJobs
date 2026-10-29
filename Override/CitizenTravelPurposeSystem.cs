@@ -255,9 +255,14 @@ namespace BitulaMod
 					}
 					else if (flag2)
 					{
+                        if (travelPurpose.m_Purpose == Purpose.Shopping) {
+                            m_SmallCityShopping.Get().PurchaseAtShop(entity, nativeArray3[i].m_CurrentBuilding, travelPurpose);
+                        }
+
                         if (travelPurpose.m_Purpose == Purpose.Shopping && !m_SmallCityShopping.Get().IsEndOfShopping(entity)) {
                             continue;
                         }
+
                         this.m_CommandBuffer.SetComponentEnabled<Arrived>(unfilteredChunkIndex, entity, false);
 						switch (travelPurpose.m_Purpose)
 						{

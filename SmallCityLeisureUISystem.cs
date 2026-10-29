@@ -247,6 +247,8 @@ namespace BitulaMod
                 bool isInSelectedBuilding = m_CurrentBuildings.TryGetComponent(citizen, out CurrentBuilding currentBuilding) &&
                     currentBuilding.m_CurrentBuilding == selectedEntity;
 
+                FillUIData(customer, currentFrame, ref scj);
+
                 if (hasTravelPurpose && travelPurpose.m_Purpose == Purpose.Leisure && targetEntity == selectedEntity) {
                     customer.Status = LeisureStatus.GoingToLeisure;
                     m_LeisureVisitBuilding[citizen] = targetEntity;
@@ -268,8 +270,6 @@ namespace BitulaMod
                     customer.RemoveDelay();
                     continue;
                 }
-
-                FillUIData(customer, currentFrame, ref scj);
 
                 customers.Add(customer);
             }

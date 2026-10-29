@@ -242,6 +242,10 @@ namespace BitulaMod.SmallCity {
         }
 
         public void AddParameter(FixedString512Bytes parameter) {
+            if (!m_Parameters.IsEmpty) {
+                m_Parameters.Append(',');
+            }
+
             m_Parameters.Append(parameter);
         }
 

@@ -50,7 +50,8 @@ namespace BitulaMod
             GoingToLeisure = 4,
             GoingToAnotherShop = 8,
             NotLeisure = 16,
-            NotAnotherShopping = 32
+            NotAnotherShopping = 32,
+            NoResource = 64
         }
         private class ShopperInfo {
             public ShopperInfo(Entity citizen) {
@@ -64,6 +65,8 @@ namespace BitulaMod
             public HouseholdWealthKey Wealth;
             public byte Family;
             public string ShopperHours;
+            public int Resource = -1;
+            public int Money;
             public void RemoveDelay() {
                 delay = null;
             }
@@ -88,6 +91,8 @@ namespace BitulaMod
         private NameSystem m_NameSystem;
         private EntityQuery m_ShoppingCitizenQuery;
         private SmallCity<SCShopping> m_SmallCityShopping;
+        private SCInfo<SCBuildingsInfo> m_BuildingInfo;
+        private SCInfo<SCHouseholdInfo> m_HouseholdInfo;
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
         private ComponentLookup<Target> m_Targets;
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
@@ -114,7 +119,8 @@ namespace BitulaMod
             m_ShoppersBinding = new RawValueBinding("BitulaMod", "shoppers", BindShoppers);
             m_Shopping = GetComponentLookup<ResourceBuyer>(true);
             m_HappinessParameterQuery = GetEntityQuery(ComponentType.ReadOnly<CitizenHappinessParameterData>());
-
+            m_BuildingInfo = SCInfo<SCBuildingsInfo>.Create(ref base.CheckedStateRef);
+            m_HouseholdInfo = SCInfo<SCHouseholdInfo>.Create(ref base.CheckedStateRef);
 
             AddBinding(m_ShoppersBinding);
             RequireForUpdate(m_HappinessParameterQuery);
@@ -143,7 +149,9 @@ namespace BitulaMod
             m_CurrentBuildings.Update(ref state);
             m_Targets.Update(ref state);
             m_Shopping.Update(this);
-            m_SmallCityShopping = SmallCity<SCShopping>.Create(ref base.CheckedStateRef);
+            m_SmallCityShopping = SmallCity<SCShopping>.Create(ref state);
+            m_BuildingInfo.Update(ref state);
+            m_HouseholdInfo.Update(ref state);
             AddShoppers(selectedEntity);
             m_ShoppersBinding.Update();
         }
@@ -201,6 +209,8 @@ namespace BitulaMod
                 bool isInSelectedBuilding = m_CurrentBuildings.TryGetComponent(citizen, out CurrentBuilding currentBuilding) &&
                     currentBuilding.m_CurrentBuilding == selectedEntity;
 
+                FillUIData(shopper, currentFrame);
+
                 if (hasTravelPurpose && travelPurpose.m_Purpose == Purpose.Shopping && targetEntity == selectedEntity && !isInSelectedBuilding) {
                     shopper.Status = ShopperStatus.GoingToShop;
                     m_ShoppingVisitBuilding[citizen] = selectedEntity;
@@ -216,7 +226,6 @@ namespace BitulaMod
                     continue;
                 }
 
-                FillUIData(shopper, currentFrame);
                 shoppers.Add(shopper);
             }            
         }
@@ -289,10 +298,14 @@ namespace BitulaMod
 
 
         private bool IsDelayActive(Entity citizen, Entity selectedEntity, ShopperInfo shopper) {
+            shopper.Resource = -1;
 
             bool liveStatus = false;
-            bool isInSelectedBuilding = m_CurrentBuildings.TryGetComponent(citizen, out CurrentBuilding currentBuilding) &&
-                currentBuilding.m_CurrentBuilding == selectedEntity;
+            bool isInSelectedBuilding = m_BuildingInfo.Get().IsInBuilding(citizen, selectedEntity);
+
+            if (m_SmallCityShopping.Get().CantBuyResourceIn(citizen, selectedEntity)) {
+                SetVisualDelay(shopper, VisualShoppingDelay.NoResource);
+            }
 
             bool hasLeisure = EntityManager.TryGetComponent<Leisure>(
                 citizen,
@@ -338,6 +351,10 @@ namespace BitulaMod
             if (shopper.delay == null || DateTime.UtcNow >= shopper.delay.m_Time) {
                 shopper.RemoveDelay();
                 return liveStatus;
+            }
+
+            if ((shopper.delay.m_Target & VisualShoppingDelay.NoResource) != 0) {
+                shopper.Resource = 0;
             }
 
             // Current live status has priority over an older delayed status.
@@ -431,6 +448,7 @@ namespace BitulaMod
                     shopper.ShopperHours = "00:00";
                 }
             }
+            shopper.Money = m_HouseholdInfo.Get().GetMoney(citizen);
         }
 
         private void BindShoppers(IJsonWriter writer) {
@@ -468,6 +486,12 @@ namespace BitulaMod
 
                 writer.PropertyName("wealth");
                 writer.Write((int)shopper.Wealth);
+
+                writer.PropertyName("resource");
+                writer.Write(shopper.Resource);
+
+                writer.PropertyName("money");
+                writer.Write(shopper.Money);
 
                 writer.TypeEnd();
             }

@@ -188,8 +188,10 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_ShopNoResource"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ShopNoMoney"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ShopNoPath"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_LeisureNoPath"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ShopDoesNotExist"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ShopDestinationUnavailable"] = 1;
+            indexCounts["BitulaMod.LIFEPATH_ResourceBought"] = 1;
             return new Dictionary<string, string>
             {
                 { m_Setting.GetSettingsLocaleID(), "Small City Jobs" },
@@ -293,9 +295,12 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_ShopOnline:0", "I ordered it online instead." },
                 { "BitulaMod.LIFEPATH_ShopNoResource:0", "The store didn't have enough in stock." },
                 { "BitulaMod.LIFEPATH_ShopNoMoney:0", "I couldn't afford it." },
-                { "BitulaMod.LIFEPATH_ShopNoPath:0", "I couldn't find a store I could reach." },
+                { "BitulaMod.LIFEPATH_ShopNoPath:0", "I couldn't find a store I could reach in time." },
+                { "BitulaMod.LIFEPATH_LeisureNoPath:0", "I couldn't find a place I could reach in time." },
                 { "BitulaMod.LIFEPATH_ShopDoesNotExist:0", "I couldn't find a store selling what I wanted." },
                 { "BitulaMod.LIFEPATH_ShopDestinationUnavailable:0", "I found a store, but it's no longer available." },
+                { "BitulaMod.LIFEPATH_ResourceBought:0", "I bought something. {LINK_NAME_1}" },
+                { "BitulaMod.LIFEPATH_LINK_ResourceBought", "I bought {0} units of {1} for ₡{2}." },                
             };
         }
 

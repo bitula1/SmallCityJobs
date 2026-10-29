@@ -223,12 +223,14 @@ namespace BitulaMod
 				buyJob.m_PersonalCarSelectData = this.m_PersonalCarSelectData;
 				buyJob.m_PopulationData = InternalCompilerInterface.GetComponentLookup<Population>(ref this.__TypeHandle.__Game_City_Population_RO_ComponentLookup, ref base.CheckedStateRef);
 				buyJob.m_PopulationEntity = this.m_PopulationQuery.GetSingletonEntity();
-				JobHandle jobHandle3;
+                buyJob.m_SmallCityShopping = SmallCity<SCShopping>.Create( ref base.CheckedStateRef, buyJob.m_CommandBuffer.AsParallelWriter());
+                JobHandle jobHandle3;
 				buyJob.m_CitizenConsumptionAccumulator = this.m_CityProductionStatisticSystem.GetCityResourceUsageAccumulator(CityProductionStatisticSystem.CityResourceUsage.Consumer.Citizens, out jobHandle3);
 				buyJob.m_CommandBuffer = this.m_EndFrameBarrier.CreateCommandBuffer();
 				ResourceBuyerSystem.BuyJob buyJob2 = buyJob;
 				base.Dependency = buyJob2.Schedule(JobHandle.CombineDependencies(base.Dependency, jobHandle3));
-				this.m_PersonalCarSelectData.PostUpdate(base.Dependency);
+                SmallCity<SCShopping>.AddProducer(ref base.CheckedStateRef, base.Dependency);
+                this.m_PersonalCarSelectData.PostUpdate(base.Dependency);
 				this.m_ResourceSystem.AddPrefabsReader(base.Dependency);
 				this.m_TaxSystem.AddReader(base.Dependency);
 				this.m_CityProductionStatisticSystem.AddCityUsageAccumulatorWriter(CityProductionStatisticSystem.CityResourceUsage.Consumer.Citizens, base.Dependency);
@@ -427,10 +429,12 @@ namespace BitulaMod
 		[BurstCompile]
 		private struct BuyJob : IJob
 		{
-			// Token: 0x06006B83 RID: 27523 RVA: 0x003AD154 File Offset: 0x003AB354
-			public void Execute()
+            // Token: 0x06006B83 RID: 27523 RVA: 0x003AD154 File Offset: 0x003AB354
+            public SmallCity<SCShopping> m_SmallCityShopping;
+            public void Execute()
 			{
-				Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(0);
+                m_SmallCityShopping.SetCommandBuffer(m_CommandBuffer.AsParallelWriter(), 0);
+                Unity.Mathematics.Random random = this.m_RandomSeed.GetRandom(0);
 				Population population = this.m_PopulationData[this.m_PopulationEntity];
 				ResourceBuyerSystem.SalesEvent salesEvent;
 				while (this.m_SalesQueue.TryDequeue(out salesEvent))
@@ -506,7 +510,9 @@ namespace BitulaMod
 								ref NativeArray<int> ptr = ref this.m_CitizenConsumptionAccumulator;
 								int num3 = resourceIndex;
 								ptr[num3] += salesEvent.m_Amount;
-							}
+								m_SmallCityShopping.Get().PrintResourceBought(salesEvent.m_Buyer, salesEvent.m_Seller, salesEvent.m_Resource,
+									salesEvent.m_Amount, Mathf.RoundToInt(num));
+                            }
 							else if (this.m_BuyingCompanies.HasComponent(salesEvent.m_Buyer))
 							{
 								BuyingCompany buyingCompany = this.m_BuyingCompanies[salesEvent.m_Buyer];
@@ -755,18 +761,20 @@ namespace BitulaMod
 				{
 					Entity entity = entities[i];
 					ResourceBought resourceBought = resourceBuyingWithTargets[i];
-					if (this.m_PrefabRefData.HasComponent(resourceBought.m_Payer) && this.m_PrefabRefData.HasComponent(resourceBought.m_Seller))
-					{
+                    bool scShopping = m_SmallCityShopping.Get().IsValidPayer(entity, resourceBought.m_Payer, out byte saleFlags);
+                    if ((this.m_PrefabRefData.HasComponent(resourceBought.m_Payer) || scShopping) && this.m_PrefabRefData.HasComponent(resourceBought.m_Seller)) {
 						ResourceBuyerSystem.SalesEvent salesEvent = new ResourceBuyerSystem.SalesEvent
 						{
 							m_Amount = resourceBought.m_Amount,
 							m_Buyer = resourceBought.m_Payer,
 							m_Seller = resourceBought.m_Seller,
 							m_Resource = resourceBought.m_Resource,
-							m_Flags = ResourceBuyerSystem.SaleFlags.None,
-							m_Distance = resourceBought.m_Distance
+                            m_Flags = scShopping ? (ResourceBuyerSystem.SaleFlags)saleFlags : ResourceBuyerSystem.SaleFlags.None,
+                            m_Distance = resourceBought.m_Distance
 						};
-						this.m_SalesQueue.Enqueue(salesEvent);
+                        if (scShopping)
+							this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenSuccess);
+                        this.m_SalesQueue.Enqueue(salesEvent);
 					}
 					this.m_CommandBuffer.RemoveComponent<ResourceBought>(unfilteredChunkIndex, entity);
 				}
@@ -838,8 +846,12 @@ namespace BitulaMod
 									resourceBuyer.m_AmountNeeded = math.min(resourceBuyer.m_AmountNeeded, num4);
 								}
 								bool flag6 = resourceBuyer.m_AmountNeeded > 0;
-								if (flag6)
-								{
+                                int population = this.m_Populations[this.m_City].m_Population;
+                                bool flag7 = citizens.Length > 0 && random.NextInt(100) < 100 - Mathf.RoundToInt(100f / math.max(1f, math.sqrt(this.m_EconomyParameterData.m_TrafficReduction * (float)population * 0.1f)));
+                                bool physicalVirtual = flag && flag2 &&	m_SmallCityShopping.Get().BuyVirtualGoodsPhysically(entity);
+
+                                bool physicalShopping = (!flag2 && !flag7) || physicalVirtual;
+                                if (flag6 && (!flag || !m_SmallCityShopping.Get().IsNormalShopping(entity) || !physicalShopping || flag5)) {                                    
 									this.IncrementOutcome(flag ? ResourceBuyerSystem.BuyerOutcome.CitizenSuccess : ResourceBuyerSystem.BuyerOutcome.CompanySuccess);
 									ResourceBuyerSystem.SalesEvent salesEvent = new ResourceBuyerSystem.SalesEvent
 									{
@@ -852,17 +864,16 @@ namespace BitulaMod
 									};
 									this.m_SalesQueue.Enqueue(salesEvent);
 								}
-								else if (flag)
+								else if (!flag6 && flag)
 								{
 									this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenCantAfford);
 								}
 								this.m_CommandBuffer.RemoveComponent(unfilteredChunkIndex, entity, in this.m_PathfindTypes);
 								this.m_CommandBuffer.RemoveComponent<ResourceBuyer>(unfilteredChunkIndex, entity);
-								int population = this.m_Populations[this.m_City].m_Population;
-								bool flag7 = citizens.Length > 0 && random.NextInt(100) < 100 - Mathf.RoundToInt(100f / math.max(1f, math.sqrt(this.m_EconomyParameterData.m_TrafficReduction * (float)population * 0.1f)));
+								
                                 if (flag) m_SmallCityShopping.Get().PrintShoppingIssue(entity, flag2, flag7, flag6);
 
-                                bool physicalVirtual = flag && flag2 && m_SmallCityShopping.Get().BuyVirtualGoodsPhysically(entity);
+                                
                                 if (((!flag2 && !flag7) || physicalVirtual) && flag6) {
 									this.m_CommandBuffer.AddBuffer<CurrentTrading>(unfilteredChunkIndex, entity).Add(new CurrentTrading
 									{
@@ -879,7 +890,7 @@ namespace BitulaMod
 										m_Resource = resourceBuyer.m_ResourceNeeded,
 										m_Priority = 128
 									});
-                                    if (flag) m_SmallCityShopping.Get().SetShoppingStart(entity, destination); 
+                                    if (flag) m_SmallCityShopping.Get().SetShoppingStart(entity, destination, (byte)saleFlags); 
                                     if (!this.m_Targets.HasComponent(entities[i]))
 									{
 										this.m_CommandBuffer.AddComponent<Target>(unfilteredChunkIndex, entity, new Target
@@ -894,7 +905,7 @@ namespace BitulaMod
 								bool flag8 = pathInformation.m_TotalCost < 0f;
 								if (flag)
 								{
-									if (flag8)
+                                    if (flag8)
 									{
 										this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenPathfindFailed);
 										this.RecordCitizenPathfindFailure(entity, resourceBuyer.m_ResourceNeeded);
@@ -903,7 +914,7 @@ namespace BitulaMod
 									else
 									{
 										this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenStaleDestination);
-                                        m_SmallCityShopping.Get().PrintNoShoppingPath(entity, true);
+                                        m_SmallCityShopping.Get().PrintNoShoppingPath(entity, destination != Entity.Null);
                                     }
 								}
 								else
@@ -994,9 +1005,9 @@ namespace BitulaMod
 					m_TaxiIgnoredRules = VehicleUtils.GetIgnoredPathfindRulesTaxiDefaults(),
 					m_MaxCost = this.m_TripPriorityParameters.GetMaxCost(this.m_TripPriorityParameters.m_PriorityShopping)
 				};
-                if (virtualGood && m_SmallCityShopping.Get().BuyVirtualGoodsPhysically(buyer)) {
+                /*if (virtualGood && m_SmallCityShopping.Get().BuyVirtualGoodsPhysically(buyer)) {
                     pathfindParameters.m_MaxCost = 0f;
-                }
+                }*/
                 SetupQueueTarget setupQueueTarget = new SetupQueueTarget
 				{
 					m_Type = SetupTargetType.CurrentLocation,

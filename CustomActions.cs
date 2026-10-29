@@ -43,6 +43,8 @@ namespace BitulaMod
         ShopNoPath = 132,
         ShopDoesNotExist = 133,
         ShopDestinationUnavailable = 134,
+        LeisureNoPath = 135,
+        ResourceBought = 136,
         DebugMessage = 200,
     }
 }

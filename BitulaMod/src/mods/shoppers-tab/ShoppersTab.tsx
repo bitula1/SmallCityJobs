@@ -44,6 +44,8 @@ type Shopper = {
     age: Age;
     family: Family;
     shopperHours: string;
+    resource: number;
+    money: number;
 };
 
 const shoppers$ = bindValue<Shopper[]>(
@@ -118,10 +120,13 @@ const ShopperRow = ({ shopper }: { shopper: Shopper }) => {
     
 
     return (
-        <div
-            className={`${householdStyles.item} shopper-row`}            
-            onClick={() => selectedInfo.selectEntity(shopper.entity)}
-        >
+            <div
+                className={`${householdStyles.item} customer-row`}
+                style={{
+                    backgroundColor: shopper.resource === 0 ? "red" : undefined
+                }}
+                onClick={() => selectedInfo.selectEntity(shopper.entity)}
+            >
             <Avatar
                 entity={shopper.entity}
                 className={householdStyles.avatar}
@@ -140,11 +145,6 @@ const ShopperRow = ({ shopper }: { shopper: Shopper }) => {
                 src={ageIcons[shopper.age]}
                 className="shopper-age-icon"
             />
-            
-            <img
-                src={wealthIcons[shopper.wealth]}
-                className="shopper-wealth-icon"
-            />
 
             <img
                 src={familyIcons[shopper.family]}
@@ -156,6 +156,20 @@ const ShopperRow = ({ shopper }: { shopper: Shopper }) => {
                     [{shopperHours}]
                 </span>
             )}
+
+            <Tooltip
+                tooltip={
+                    <LocalizedNumber
+                        value={shopper.money}
+                        unit="money"
+                    />
+                }
+            >
+                <img
+                    src={wealthIcons[shopper.wealth]}
+                    className="shopper-wealth-icon"
+                />
+            </Tooltip>
         </div>
     );
 };
