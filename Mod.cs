@@ -6,7 +6,8 @@ using Game.SceneFlow;
 using System.Reflection;
 using Unity.Entities;
 using HarmonyLib;
-using Game.Simulation;
+using BitulaMod.Systems;
+using Game.Prefabs;
 
 namespace BitulaMod
 {
@@ -52,6 +53,8 @@ namespace BitulaMod
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.UIUpdate);
+            updateSystem.UpdateBefore<SmallCityMilestoneSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
+            updateSystem.UpdateAfter<SmallCityMilestoneRequirementsSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
             //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
 
 
@@ -64,6 +67,7 @@ namespace BitulaMod
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.LeisureSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenTravelPurposeSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ResourceBuyerSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.DeathCheckSystem>().Enabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);
@@ -73,6 +77,7 @@ namespace BitulaMod
             updateSystem.UpdateAt<LeisureSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<CitizenTravelPurposeSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ResourceBuyerSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<DeathCheckSystem>(SystemUpdatePhase.GameSimulation);
 
 
         }

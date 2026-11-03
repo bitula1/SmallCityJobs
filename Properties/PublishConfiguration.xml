@@ -2,63 +2,92 @@
 	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
 	<ModId Value="157424" />
 	<!--Name of the mod to display to players-->
-	<DisplayName Value="Small City Jobs" />
+	<DisplayName Value="Village Life" />
 	<!--Short description of the mod-->
-	<ShortDescription Value="Progressive job seeking for small cities" />
+	<ShortDescription Value="More detailed citizen micro-simulation for small settlements" />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Bitulas mod" /-->
 	<LongDescription>
-Mod Support: Support the mod's continued development by clicking the Like button.
+**Important:** Set the population milestone above your city's current population. Otherwise, Village Life's simulation (and several GUI features) will not be active.
 
-Supported/recommended mods: Progression Control and Hard Mode Continued.
+Supported/recommended mods: Progression Control and Hard Mode Continued. This later can change.
 
 Unsupported mods: Code mods that override the same game systems are generally incompatible.
-Check the Override folder on GitHub for the systems overridden by this mod.
+
+Check the Override folder on GitHub for the systems overridden by this mod. This will not change...
 
 From version 1.4.22 mod saves data directly in the savegame.
 
-- Below changes require running simulation for 1-2 ingame day for display data to align correctly
-- Fixed citizens attempting to shop without a valid shopping need or household.
-- Optimized shopping schedules by storing start and end frames in components instead of recalculating them. 
-- Added shopping start and end times to the citizen information panel.
-- Added leisure start and end times to the citizen information panel.
-- Added sleep start and end times to the citizen information panel.
-- Added study start and end times to the citizen information panel.
-- Changed leisure scheduling to start when the citizen begins traveling to the destination. (Same for shopping)
-- Prevented citizens from starting shopping while engaged in leisure activities.
-- Prevented shopping and leisure schedules from being recalculated while the corresponding activity is already in progress.
-- Removed unnecessary initialization logic to simplify component handling and reduce potential errors.
-- Refactored parallel jobs to initialize command buffers inside Execute() and consistently use unfilteredChunkIndex, this is theoretical fix for possible crashes.
-- Added life-path messages for starting shopping, finding a store, shopping online, and insufficient money.
-- Added detailed shopping failure messages distinguishing between missing stores, insufficient stock, unreachable destinations, and destinations that are no longer available.
-- Added physical shopping for virtual resources (Software, Media, Financial, and Telecom), allowing citizens to visit actual businesses instead of purchasing remotely.
-- Added settings to enable or disable physical shopping for virtual resources.
-- Improved shopping pathfinding for virtual resources, including excluding outside connections when physical shopping is enabled.
+Mod Support: Support the mod's continued development by clicking the Like button, leaving feedback, reporting bugs.
 
-Small City Jobs is designed to make employment and leisure behaviour feel more natural in small towns and villages.
+# Village Life
 
-In the vanilla game, citizens can be surprisingly reluctant to take available jobs when only a small number of suitable positions exist. This works reasonably well in large cities with hundreds of vacancies, but can cause unrealistic behaviour in small settlements, where even a handful of open jobs may represent a significant part of the local economy.
+Village Life is my attempt to bring more detailed **micro-simulation** to Cities: Skylines II.
 
-The goal of this mod is not to replace the vanilla simulation, but to make some of its systems scale better with city size.
+The idea is simple: citizens should behave more like actual people, with their own routines, needs, decisions, and problems, rather than just being numbers moving around the city.
 
-In smaller cities, citizens are more willing to take available jobs, accept reasonable alternatives, and look for better employment opportunities. The mod also reduces situations where adults leave employment or choose studying simply because the local job market is small, including cases where they would otherwise travel outside the city to study despite suitable work being available.
+One of my inspirations is the **Real Time mod for the original Cities: Skylines**. I'm not trying to recreate it, but I'm interested in the same general idea of making everyday citizen life more meaningful and believable.
 
-As the population grows, these employment adjustments gradually fade and the game returns toward its original behaviour.
+## Micro and macro should agree
 
-The mod also improves leisure behaviour. In the vanilla game, the chance for citizens to seek leisure can be very low, which is especially noticeable in smaller cities where parks, cinemas and other leisure locations may remain unusually empty. The optional Normal Leisure setting makes citizens seek leisure at a more natural frequency while preserving the existing leisure system and provider requirements.
+One of the main goals is to make the micro-simulation consistent with the game's macro-simulation.
 
-The mod adds UI and Life Path improvements for both employment and leisure. These expose more of what citizens are doing and why, including job decisions, leisure choices, failed searches, unavailable services, and the locations citizens decide to visit.
+Compared to the original Cities: Skylines, Cities: Skylines II has a much more detailed micro-simulation of individual citizens, but when you actually start following them around and observing their daily lives, you quickly realize how unrealistic their behavior can still be, despite all the underlying systems already in place.
 
-The overall aim is to make villages and small towns feel more active and believable without making employment artificially easy or replacing the game's existing simulation in larger cities.
+Ideally, what happens to individual citizens should make sense when looking at the city as a whole, and vice versa.
 
-The progression of the employment changes and the Normal Leisure behaviour can be configured in the game options.
+## What does the mod currently do?
 
-Several vanilla issues are also addressed, some I also posted in official bugfix forum.
+The mod already changes several aspects of everyday citizen behavior, including working, shopping, and leisure.
 
-Detailed mechanics, settings and individual changes are documented in the forum discussion.
+Citizens have more controlled shopping and leisure activities, with actual durations and more meaningful destination choices. Shopping involve physically visiting stores and completing purchases there instead of everything happening instantly.
+
+Job seeking and switching have also been adjusted, particularly to make life in small settlements more practical.
+
+Another important part is making citizen behavior more transparent. The mod adds **Life-Path messages** explaining what citizens are doing and why certain things succeed or fail. For example, you can see when someone cannot find a suitable job, when a shop doesn't have the requested resource, or what a citizen actually purchased.
+
+There are also additional information panels showing citizen schedules, shopping and leisure activities, and the people visiting individual buildings.
+
+## Where is this going?
+
+The long-term goal is a more complete simulation of everyday life, where work, shopping, leisure, travel, sleeping, household finances, and other activities are connected rather than being mostly independent systems.
+
+I also want to make it easier to understand what citizens are doing and why. Watching individual citizens should tell you something meaningful about how your city works.
+
+This will be developed gradually, with new behaviors and improvements added over time.
+
+## Development status
+
+**Village Life is still very much in development.**
+
+At this stage, I'm mainly experimenting with mechanics and trying to get the simulation working in a consistent and believable way.
+
+**Optimization will come later.** For now, the focus is on functionality and behavior rather than performance, especially in larger cities. Expect bugs, unexpected behavior, and changes as the mod evolves.
+
+## What about Small City Jobs?
+
+Village Life is the continuation and expansion of my previous mod, **Small City Jobs**.
+
+The original project started with improving employment behavior in small towns, but gradually expanded into shopping, leisure, and other parts of citizen life. At that point, the original name no longer really described what the mod was becoming.
+
+**Small City Jobs will no longer be developed separately.** Future development will continue under Village Life.
+
+The goal isn't necessarily to make the game easier or harder (but I do use it with hard mode). It's to make the simulation more interesting, understandable, and believable.
+
+We'll see how far that can go!
+
+For now, Village Life is primarily intended for village-sized settlements. There is no wiki for the mod, but you can find information about its features in the forum or by browsing the mod's changelog history.
+
+---
+
+### A note about AI
+
+This description (and image) was generated with AI, but reviewed and validated by me. The code is also AI-assisted, but the mod is not AI-generated. I'm a programmer, and I design, develop, debug, and maintain the code myself. I use AI as a tool, not as a replacement for programming.
+
+Note: This note (pun intended) was generated by AI, but reviewed and validated by the author. LOL.
 	</LongDescription>
 	<!--Thumbnail-->
-	<Thumbnail Value="Properties/smalljob.png" />
+	<Thumbnail Value="Properties/villagelife.png" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/lifepath.png" />
 	<Screenshot Value="Properties/options.png" />
@@ -69,7 +98,7 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/small-city-jobs.1940081/" />
 	<!--Version of the mod-->
-	<ModVersion Value="1.4.24" />
+	<ModVersion Value="1.4.25" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.6.*" />
 	<!--Dependency for the mod, can be set multiple times-->
@@ -79,13 +108,11 @@ Detailed mechanics, settings and individual changes are documented in the forum 
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--<ChangeLog Value="Added ." />-->
 	<ChangeLog>
-		- leisure no path message
-		- shop no resource red background
-		- fixed no path found, resored maxcount
-		- in-building shop
-		- purchase lifepath message
-		- money tooltip
-		- fixed status icons not always updating
+- Custom milestone framework - explain milestone growth
+- Hamlet Milestone
+- Moved small cemtry/deathcare, 3 parks/recreation, and list the others
+- Death check instead of healthcare
+
 	</ChangeLog>
 	<!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
 	<ExternalLink Type="GitHub" Url="https://github.com/bitula1/SmallCityJobs" />

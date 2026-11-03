@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { WorkersTab, WorkersPanel } from "mods/workers-tab/WorkersTab";
 import { CustomersTab, CustomersPanel } from "mods/customers-tab/CustomersTab";
 import { ShoppersTab, ShoppersPanel } from "mods/shoppers-tab/ShoppersTab";
+import "./Images/Hamlet.svg";
 
 
 import {

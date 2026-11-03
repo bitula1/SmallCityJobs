@@ -23,5 +23,9 @@ namespace BitulaMod.SmallCity {
 
             return ref scj.Feature;
         }
+        public static SCMilestoneInfo GetMilestoneInfo(this ref SmallCity<SCMilestones> scj) {
+            return scj.Feature.GetInfo();
+        }
     }
+
 }
