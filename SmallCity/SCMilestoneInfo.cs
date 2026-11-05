@@ -92,5 +92,17 @@ namespace BitulaMod.SmallCity {
                 m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
                     .m_AchievedMilestone >= 1;
         }
+
+        public bool IsElectricityEnabled() {
+            return !m_MilestoneLevelQuery.IsEmptyIgnoreFilter &&
+                m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
+                    .m_AchievedMilestone >= 1;
+        }
+
+        public bool IsWaterEnabled() {
+            return !m_MilestoneLevelQuery.IsEmptyIgnoreFilter &&
+                m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
+                    .m_AchievedMilestone >= 1;
+        }
     }
 }

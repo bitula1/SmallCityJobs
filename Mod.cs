@@ -8,6 +8,7 @@ using Unity.Entities;
 using HarmonyLib;
 using BitulaMod.Systems;
 using Game.Prefabs;
+using Game.Tutorials;
 
 namespace BitulaMod
 {
@@ -68,6 +69,8 @@ namespace BitulaMod
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenTravelPurposeSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ResourceBuyerSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.DeathCheckSystem>().Enabled = false;
+            var tutorialSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<TutorialSystem>();
+            tutorialSystem.tutorialEnabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);

@@ -21,7 +21,7 @@ namespace BitulaMod {
             return new CustomMilestone {
                 Name = "Hamlet",
                 Index = 1,
-                XpRequired = 600,
+                XpRequired = 80,
                 Reward = 0,
                 DevTreePoints = 0,
                 MapTiles = 1,
