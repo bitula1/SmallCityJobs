@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { WorkersTab, WorkersPanel } from "mods/workers-tab/WorkersTab";
 import { CustomersTab, CustomersPanel } from "mods/customers-tab/CustomersTab";
 import { ShoppersTab, ShoppersPanel } from "mods/shoppers-tab/ShoppersTab";
-import "./Images/Hamlet.svg";
+import "./Images/Hamlet1.svg";
+import "./Images/Hamlet2.svg";
+import "./Images/Hamlet3.svg";
+import "./Images/Hamlet4.svg";
 
 
 import {

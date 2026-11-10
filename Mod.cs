@@ -28,6 +28,7 @@ namespace BitulaMod
                 harmony.UnpatchAll(HarmonyId);
             }
         }
+        private LocaleEN m_Locale;
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Setting m_Setting;
         public static Setting Settings { get; private set; }
@@ -43,9 +44,12 @@ namespace BitulaMod
             m_Setting = new Setting(this);
             Settings = m_Setting;
             m_Setting.RegisterInOptionsUI();
-            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
-           
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
+
+            m_Locale = new LocaleEN(m_Setting);
+            var localizationManager = GameManager.instance.localizationManager;
+            localizationManager.AddSource("en-US", m_Locale);
+
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityJobsUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityLeisureUISystem>(SystemUpdatePhase.UIUpdate);
@@ -54,11 +58,11 @@ namespace BitulaMod
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.UIUpdate);
-            updateSystem.UpdateBefore<SmallCityMilestoneSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
-            updateSystem.UpdateAfter<SmallCityMilestoneRequirementsSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
+            if (m_Setting.VillageProgression) {
+                updateSystem.UpdateBefore<SmallCityMilestoneSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
+                updateSystem.UpdateAfter<SmallCityMilestoneRequirementsSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
+            }
             //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
-
-
 
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenFindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.FindJobSystem>().Enabled = false;
@@ -69,8 +73,6 @@ namespace BitulaMod
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenTravelPurposeSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.ResourceBuyerSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.DeathCheckSystem>().Enabled = false;
-            var tutorialSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<TutorialSystem>();
-            tutorialSystem.tutorialEnabled = false;
 
             updateSystem.UpdateAt<CitizenFindJobSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<FindJobSystem>(SystemUpdatePhase.GameSimulation);
@@ -81,18 +83,23 @@ namespace BitulaMod
             updateSystem.UpdateAt<CitizenTravelPurposeSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ResourceBuyerSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<DeathCheckSystem>(SystemUpdatePhase.GameSimulation);
-
-
         }
 
         public void OnDispose()
         {
             log.Info(nameof(OnDispose));
-            if (m_Setting != null)
-            {
+
+            if (m_Locale != null) {
+                GameManager.instance.localizationManager.RemoveSource("en-US", m_Locale);
+                m_Locale = null;
+            }
+
+            if (m_Setting != null) {
                 m_Setting.UnregisterInOptionsUI();
                 m_Setting = null;
             }
+
+            Settings = null;
             HarmonyPatcher.UnpatchAll();
         }
 

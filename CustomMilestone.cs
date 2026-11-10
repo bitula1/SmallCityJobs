@@ -17,11 +17,11 @@ namespace BitulaMod {
         public Color BackgroundColor;
         public Color AccentColor;
         public Color TextColor;
-        public static CustomMilestone MakeHamlet() {
+        public static CustomMilestone MakeDefault(string name, int xp, int index) {
             return new CustomMilestone {
-                Name = "Hamlet",
-                Index = 1,
-                XpRequired = 80,
+                Name = name,
+                Index = index,
+                XpRequired = xp,
                 Reward = 0,
                 DevTreePoints = 0,
                 MapTiles = 1,
@@ -29,7 +29,7 @@ namespace BitulaMod {
                 Major = false,
                 IsVictory = false,
 
-                Image = "coui://ui-mods/images/Hamlet.svg",
+                Image = $"coui://ui-mods/images/Hamlet{index}.svg",
                 BackgroundColor = new Color(0.93f, 0.76f, 0.62f, 1f),
                 AccentColor = new Color(0.65f, 0.80f, 0.55f, 1f),
                 TextColor = new Color(0.18f, 0.16f, 0.14f, 1f)

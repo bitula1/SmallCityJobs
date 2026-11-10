@@ -10,8 +10,8 @@ using System;
 namespace BitulaMod.SmallCity {
     public struct SCMilestones : ISCFeature<SCMilestones> {
         private const double InitialXpMultiplier = 1.8;
-        private const double XpMultiplierDecrease = 0.0396;
-        private const int FirstMajorMilestoneIndex = 5;
+        private const int FinalMilestoneXp = 680000;
+        private const int FirstMajorMilestoneIndex = 0;
         private const int LastMajorMilestoneIndex = 20;
         private const int MajorMilestoneInterval = 4;
         private SCCommon m_Common;
@@ -47,34 +47,7 @@ namespace BitulaMod.SmallCity {
             return new SCMilestones {
             };
         }
-
-        public void LogUnlockRequirements(string prefabName, PrefabSystem prefabSystem) {
-            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
-
-            if (entity == Entity.Null) {
-                Mod.log.Warn($"Prefab not found: {prefabName}");
-                return;
-            }
-
-            if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
-                Mod.log.Info($"{prefabName}: No UnlockRequirement buffer");
-                return;
-            }
-
-            Mod.log.Info($"{prefabName}: {requirements.Length} unlock requirements");
-
-            for (int i = 0; i < requirements.Length; i++) {
-                var requirement = requirements[i];
-
-                var prefab = m_PrefabInfo.Get().GetPrefab<PrefabBase>(
-                    requirement.m_Prefab, prefabSystem);
-
-                string name = prefab?.name ?? "UNKNOWN";
-
-                Mod.log.Info(
-                    $"{prefabName}: Requirement[{i}] = {name} Flags={requirement.m_Flags}");
-            }
-        }
+        
 
         public bool LockInfoviewTo(string requirementName, string infoviewName, PrefabSystem prefabSystem) {
             Entity requirementEntity =
@@ -225,8 +198,8 @@ namespace BitulaMod.SmallCity {
             return true;
         }
 
-        public bool LockRequirementTo(string requirementName, string targetPrefabName, PrefabSystem prefabSystem) {
-
+        public bool LockRequirementTo(string requirementName, string targetPrefabName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             Entity requirementEntity = m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
 
             if (requirementEntity == Entity.Null) {
@@ -244,8 +217,12 @@ namespace BitulaMod.SmallCity {
             return AddLockRequirement(targetEntity, requirementEntity);
         }
 
-        public bool UnlockRequirementTo( string requirementName, string targetPrefabName, PrefabSystem prefabSystem) {
+        public bool UnlockRequirementFrom(string targetPrefabName, string requirementName) {
+            return UnlockRequirementTo(requirementName, targetPrefabName);
+        }
 
+        public bool UnlockRequirementTo( string requirementName, string targetPrefabName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             Entity requirementEntity = m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
             Entity targetEntity = m_PrefabInfo.Get().GetEntity(targetPrefabName, prefabSystem);
 
@@ -264,8 +241,8 @@ namespace BitulaMod.SmallCity {
             return false;
         }
 
-        public bool LockRequirementToAll(string requirementName, string existingRequirementName, PrefabSystem prefabSystem) {
-
+        public bool AddUnlockRequirementToAll(string requirementName, string existingRequirementName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             var prefabInfo = m_PrefabInfo.Get();
 
             Entity requirementEntity = prefabInfo.GetEntity(requirementName, prefabSystem);
@@ -317,22 +294,46 @@ namespace BitulaMod.SmallCity {
             }
 
             return success;
-        }        
+        }
 
-        public void MoveToIndex(Entity entity, MilestonePrefab milestone, int index, int xpOffset) {
+        private double CalculateXpMultiplierDecrease(double startXp, double targetXp, int milestoneCount) {
+
+            double low = 0.0;
+            double high = InitialXpMultiplier / milestoneCount;
+
+            for (int iteration = 0; iteration < 100; iteration++) {
+                double decrease = (low + high) / 2.0;
+                double xp = startXp;
+                double multiplier = InitialXpMultiplier;
+
+                for (int i = 0; i < milestoneCount; i++) {
+                    xp *= multiplier;
+                    multiplier -= decrease;
+                }
+
+                if (xp > targetXp)
+                    low = decrease;
+                else
+                    high = decrease;
+            }
+
+            return (low + high) / 2.0;
+        }
+
+        public void MoveToIndex(Entity entity, MilestonePrefab milestone, int index, int xpRequired) {
             milestone.m_Index = index;
-            milestone.m_XpRequried += xpOffset;
+            milestone.m_XpRequried = xpRequired;
 
             if (m_MilestoneInfo.Get().TryGetMilestone(entity, out MilestoneData data)) {
-                data.m_Index = milestone.m_Index;
-                data.m_XpRequried = milestone.m_XpRequried;
+                data.m_Index = index;
+                data.m_XpRequried = xpRequired;
 
                 SetMilestone(entity, data);
             }
         }
 
-        public void MoveMilestones( List<(Entity entity, MilestonePrefab milestone)> milestones, int fromIndex,
-            int insertedXp = 750, double intervalScale = 1.0) {
+        public void MoveMilestones( List<(Entity entity, MilestonePrefab milestone)> milestones, 
+            int fromIndex, int insertedXp = 750, double intervalScale = 1.0) {
 
             var affected = milestones
                 .Where(m => m.milestone.m_Index >= fromIndex)
@@ -342,17 +343,18 @@ namespace BitulaMod.SmallCity {
             double xp = insertedXp;
             double multiplier = InitialXpMultiplier;
 
+            double multiplierDecrease = CalculateXpMultiplierDecrease(
+                insertedXp, FinalMilestoneXp, affected.Count);
+
             foreach (var (entity, milestone) in affected) {
                 xp *= multiplier;
 
                 int newXp = (int)System.Math.Round(
                     insertedXp + (xp - insertedXp) * intervalScale);
 
-                int xpOffset = newXp - milestone.m_XpRequried;
+                MoveToIndex(entity, milestone, milestone.m_Index + 1, newXp);
 
-                MoveToIndex(entity, milestone, milestone.m_Index + 1, xpOffset);
-
-                multiplier -= XpMultiplierDecrease;
+                multiplier -= multiplierDecrease;
             }
         }
 
@@ -430,8 +432,8 @@ namespace BitulaMod.SmallCity {
             return milestone;
         }
 
-        public bool MoveRequirementTo(string prefabName, string milestoneName, string prerequisiteName, PrefabSystem prefabSystem) {
-
+        public bool MoveRequirementTo(string prefabName, string milestoneName, string prerequisiteName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             Entity milestoneEntity = Entity.Null;
 
             var milestones = m_MilestoneInfo.Get().GetMilestones(prefabSystem);
@@ -482,7 +484,17 @@ namespace BitulaMod.SmallCity {
             return changes > 0;
         }
 
-        public void AddMapTilePoints(Entity entity, MilestonePrefab milestone, int points) {
+        public bool MoveUnlockRequirementTo( string prefabName, string milestoneName, string unlockRequirementName, string moveRequirementName) {
+            bool done = true;
+            done &= UnlockRequirementTo(unlockRequirementName, prefabName);
+            done &= MoveRequirementTo(prefabName, milestoneName, moveRequirementName);
+            return done;
+        }
+
+        public void AddMapTilePoints( List<(Entity entity, MilestonePrefab milestone)> milestones, string milestoneName, int points) {
+
+            var (entity, milestone) = milestones.First(m => m.milestone.name == milestoneName);
+
             milestone.m_MapTiles = Math.Max(0, milestone.m_MapTiles + points);
 
             if (m_MilestoneInfo.Get().TryGetMilestone(entity, out MilestoneData data)) {
@@ -491,6 +503,27 @@ namespace BitulaMod.SmallCity {
             }
 
             Mod.log.Info($"Milestone {milestone.name} Map tiles {milestone.m_MapTiles}");
+        }
+
+        public bool RemoveUnlockRequirements(string prefabName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
+            
+
+            if (entity == Entity.Null) {
+                Mod.log.Warn($"Cannot find prefab {prefabName}");
+                return false;
+            }
+
+            if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
+                Mod.log.Warn($"Cannot find unlock requirements for {prefabName}");
+                return false;
+            }
+
+            requirements.Clear();
+
+            Mod.log.Info($"Removed unlock requirements from {prefabName}");
+            return true;
         }
 
         public void Update(ref SystemState state) {
@@ -509,6 +542,34 @@ namespace BitulaMod.SmallCity {
 
         public SCPrefabInfo GetPrefabInfo() {
             return m_PrefabInfo.Get();
+        }
+
+        public void LogUnlockRequirements(string prefabName, PrefabSystem prefabSystem) {
+            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
+
+            if (entity == Entity.Null) {
+                Mod.log.Warn($"Prefab not found: {prefabName}");
+                return;
+            }
+
+            if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
+                Mod.log.Info($"{prefabName}: No UnlockRequirement buffer");
+                return;
+            }
+
+            Mod.log.Info($"{prefabName}: {requirements.Length} unlock requirements");
+
+            for (int i = 0; i < requirements.Length; i++) {
+                var requirement = requirements[i];
+
+                var prefab = m_PrefabInfo.Get().GetPrefab<PrefabBase>(
+                    requirement.m_Prefab, prefabSystem);
+
+                string name = prefab?.name ?? "UNKNOWN";
+
+                Mod.log.Info(
+                    $"{prefabName}: Requirement[{i}] = {name} Flags={requirement.m_Flags}");
+            }
         }
     }
 }

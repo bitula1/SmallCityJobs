@@ -24,7 +24,7 @@ namespace BitulaMod
 
         private string m_JobSeekerMilestoneText = "500";
 
-        [SettingsUISection("JobSeeking", "JobSeeking")]
+        [SettingsUISection("General", "General")]
         [SettingsUITextInput]
         public string JobSeekerMilestoneText {
             get => m_JobSeekerMilestoneText ?? JobSeekerMilestone.ToString();
@@ -38,7 +38,7 @@ namespace BitulaMod
             }
         }
 
-        [SettingsUISection("JobSeeking", "JobSeeking")]
+        [SettingsUISection("General", "General")]
         [SettingsUISlider(min = 0, max = 100, step = 1, unit = Unit.kPercentage)]
         public int JobSeekerFailureIncrement { get; set; } = 10;
 
@@ -112,6 +112,9 @@ namespace BitulaMod
 
         public int ShoppingIntervalMax { get; set; } = 60;
 
+        [SettingsUISection("General", "General")]
+        public bool VillageProgression { get; set; } = true;
+
         public override void SetDefaults()
         {
             JobSeekerMilestoneText = "500";
@@ -125,7 +128,8 @@ namespace BitulaMod
             WorkplacePromotion = true;
             CloserJobEmployed = true;
             CloserJobUnemployed = true;
-            PhysicalVirtualShopping = true;    
+            PhysicalVirtualShopping = true;
+            VillageProgression = true;
 
             NormalLeisure = true;
             NormalLeisureMin = 5;
@@ -147,6 +151,19 @@ namespace BitulaMod
         public LocaleEN(Setting setting)
         {
             m_Setting = setting;
+        }
+        private void SetMilestones(Dictionary<string, string> dictionary) {
+            string[] villageMilestones = {
+                "Tiny Hamlet", "Small Hamlet", "Hamlet", "Large Hamlet",
+                "Tiny Village", "Small Village", "Large Village", "Grand Village",
+                "Tiny Town", "Boom Town", "Busy Town", "Big Town", "Great Town",
+                "Small City", "Big City", "Large City", "Huge City", "Grand City",
+                "Metropolis", "Thriving Metropolis", "Flourishing Metropolis", "Expansive Metropolis", "Massive Metropolis", "Megalopolis"
+            };
+
+            for (int i = 0; i < villageMilestones.Length; i++) {
+                dictionary[$"Progression.MILESTONE_NAME:{i + 1}"] = villageMilestones[i];
+            }
         }
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
         {
@@ -192,36 +209,23 @@ namespace BitulaMod
             indexCounts["BitulaMod.LIFEPATH_ShopDoesNotExist"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ShopDestinationUnavailable"] = 1;
             indexCounts["BitulaMod.LIFEPATH_ResourceBought"] = 1;
-            return new Dictionary<string, string>
+            var dictionary = new Dictionary<string, string>
             {
-                { "Progression.MILESTONE_NAME:1", "Hamlet" },
-                { "Progression.MILESTONE_NAME:2", "Tiny Village" },
-                { "Progression.MILESTONE_NAME:3", "Small Village" },
-                { "Progression.MILESTONE_NAME:4", "Large Village" },
-                { "Progression.MILESTONE_NAME:5", "Grand Village" },
-                { "Progression.MILESTONE_NAME:6", "Tiny Town" },
-                { "Progression.MILESTONE_NAME:7", "Boom Town" },
-                { "Progression.MILESTONE_NAME:8", "Busy Town" },
-                { "Progression.MILESTONE_NAME:9", "Big Town" },
-                { "Progression.MILESTONE_NAME:10", "Great Town" },
-                { "Progression.MILESTONE_NAME:11", "Small City" },
-                { "Progression.MILESTONE_NAME:12", "Big City" },
-                { "Progression.MILESTONE_NAME:13", "Large City" },
-                { "Progression.MILESTONE_NAME:14", "Huge City" },
-                { "Progression.MILESTONE_NAME:15", "Grand City" },
-                { "Progression.MILESTONE_NAME:16", "Metropolis" },
-                { "Progression.MILESTONE_NAME:17", "Thriving Metropolis" },
-                { "Progression.MILESTONE_NAME:18", "Flourishing Metropolis" },
-                { "Progression.MILESTONE_NAME:19", "Expansive Metropolis" },
-                { "Progression.MILESTONE_NAME:20", "Massive Metropolis" },
-                { "Progression.MILESTONE_NAME:21", "Megalopolis" },
                 { m_Setting.GetSettingsLocaleID(), "Village Life" },
+                { m_Setting.GetOptionTabLocaleID("General"), "General" },
                 { m_Setting.GetOptionTabLocaleID("JobSeeking"), "Job Seeking" },
                 { m_Setting.GetOptionTabLocaleID("LeisureSeeking"), "Leisure Seeking" },
                 { m_Setting.GetOptionTabLocaleID("Shopping"), "Shopping" },
+                { m_Setting.GetOptionGroupLocaleID("General"), "General" },
                 { m_Setting.GetOptionGroupLocaleID("JobSeeking"), "Job Seeking" },
                 { m_Setting.GetOptionGroupLocaleID("LeisureSeeking"), "Leisure Seeking" },
                 { m_Setting.GetOptionGroupLocaleID("Shopping"), "Shopping" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population milestone" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population at which the chance of applying Village Life behaviour starts to decrease." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Behaviour reduction increment" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Percentage points by which the chance of applying Village Life behaviour decreases at each population milestone." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.VillageProgression)), "Village progression" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.VillageProgression)), "Enables Village Life's custom milestone progression, including additional milestones and adjusted unlock requirements. Requires restarting the game to take effect." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMin)), "Minimum leisure desire" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMin)), "Sets the minimum leisure desire percentage assigned to citizens using Small City leisure behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMax)), "Maximum leisure desire" },
@@ -238,10 +242,6 @@ namespace BitulaMod
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Gradually reintroduces the game's traffic reduction as the city grows. Small cities begin with no traffic reduction, allowing all simulated traffic to appear normally. At each configured population milestone, an additional percentage of the vanilla traffic reduction is restored according to the Job Seeker Failure Increment setting, until the original vanilla value is reached. Unlike Full Traffic Simulation, which keeps traffic reduction completely disabled regardless of population, this option progressively returns traffic simulation toward vanilla behavior as the city becomes larger." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Job-seeker population milestone" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population interval at which the job-application failure chance increases." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Failure chance increment" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Failure percentage points added at each population milestone." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritize adult employment" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritizes employment over further education for adults in small cities. This effect gradually decreases as the population grows and eventually returns to the original education behavior." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptLowerJobs)), "Accept lower jobs" },
@@ -323,6 +323,10 @@ namespace BitulaMod
                 { "BitulaMod.LIFEPATH_ResourceBought:0", "I bought something. {LINK_NAME_1}" },
                 { "BitulaMod.LIFEPATH_LINK_ResourceBought", "I bought {0} units of {1} for ₡{2}." },                
             };
+            if (m_Setting.VillageProgression)
+                SetMilestones(dictionary);
+
+            return dictionary;
         }
 
         public void Unload()
