@@ -43,12 +43,21 @@ namespace BitulaMod.SmallCity {
         private FixedList512Bytes<CustomEventType> m_WatchedEvents;
         private EventHint m_WatchHint;
         private EventHint m_Hint;
+        public EntityCommandBuffer m_ECB;
         public const uint kFramesPerDay = 262144u;
         private int m_CommandBufferIndex;
         private bool m_HasCommandBufferIndex;
 
 
         public EntityCommandBuffer.ParallelWriter CommandBuffer => m_CommandBuffer;
+
+        public static SCCommon Create( ref SystemState state, EntityCommandBuffer ecb) {
+
+            SCCommon common = Create(ref state);
+            common.m_ECB = ecb;
+
+            return common;
+        }
         public static SCCommon Create(ref SystemState state, EntityCommandBuffer.ParallelWriter? commandBuffer = null) {
 
             var eventSender = state.World.GetOrCreateSystemManaged<LifePathEventSenderSystem>();
@@ -134,6 +143,20 @@ namespace BitulaMod.SmallCity {
         public void AddCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
             m_CommandBuffer.AddComponent(GetCommandBufferIndex(citizen), citizen, cmp);
         }
+        public void SetComponent<T>(Entity entity, T component) where T : unmanaged, IComponentData {
+
+            m_ECB.SetComponent(entity, component);
+        }
+
+        public void AddComponent<T>(Entity entity, T component) where T : unmanaged, IComponentData {
+
+            m_ECB.AddComponent(entity, component);
+        }
+        public DynamicBuffer<T> SetBuffer<T>(Entity entity) where T : unmanaged, IBufferElementData {
+            return m_ECB.SetBuffer<T>(entity);
+        }
+
+
 
         public void AddOrSetCmp<T>(Entity citizen, T cmp) where T : unmanaged, IComponentData {
             m_CommandBuffer.AddComponent(GetCommandBufferIndex(citizen), citizen, cmp);

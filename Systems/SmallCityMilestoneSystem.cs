@@ -14,6 +14,9 @@ namespace BitulaMod.Systems {
         private SmallCity<SCMilestones> m_SmallCityMilestones;
         private PrefabSystem m_PrefabSystem;
         private bool m_Done = false;
+        public override int GetUpdateInterval(SystemUpdatePhase phase) {
+            return 256;
+        }
 
         protected override void OnCreate() {
             base.OnCreate();

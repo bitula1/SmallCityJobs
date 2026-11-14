@@ -34,7 +34,7 @@ namespace BitulaMod
 	// Token: 0x02001544 RID: 5444
 	public partial class DeathCheckSystem : GameSystemBase, IDefaultSerializable, ISerializable
 	{
-        public SCInfo<SCMilestoneInfo> m_MilestoneInfo;
+        public SmallCity<SCMilestones> m_MilestoneInfo;
         // Token: 0x0600692F RID: 26927 RVA: 0x00388E7B File Offset: 0x0038707B
         public override int GetUpdateInterval(SystemUpdatePhase phase)
 		{
@@ -66,7 +66,7 @@ namespace BitulaMod
 			this.m_TimeDataQuery = base.GetEntityQuery(new ComponentType[] { ComponentType.ReadOnly<TimeData>() });
 			this.m_OldAgeDeaths = new NativeValue<int>(Allocator.Persistent);
 			this.m_OldAgeDeathCounter = new NativeCounter(Allocator.Persistent);
-			this.m_MilestoneInfo = SCInfo<SCMilestoneInfo>.Create(ref base.CheckedStateRef);
+			this.m_MilestoneInfo = SmallCity<SCMilestones>.Create(ref base.CheckedStateRef);
 
 			base.RequireForUpdate(this.m_DeathCheckQuery);
 			base.RequireForUpdate(this.m_HealthcareSettingsQuery);

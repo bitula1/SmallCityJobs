@@ -11,7 +11,6 @@ namespace BitulaMod.SmallCity {
         private SCInfo<SCPrefabInfo> m_PrefabInfo;
         private EntityQuery m_MilestoneQuery;
         private EntityQuery m_CustomMilestoneQuery;
-        private EntityQuery m_MilestoneLevelQuery;
 
         public SCMilestoneInfo Create(ref SystemState state) {
             return new SCMilestoneInfo {
@@ -31,8 +30,7 @@ namespace BitulaMod.SmallCity {
                     },
                     Options = EntityQueryOptions.IncludePrefab
                 }),
-                m_MilestoneLevelQuery = state.GetEntityQuery(
-                    ComponentType.ReadOnly<MilestoneLevel>())
+                
                 };
         }
 
@@ -87,22 +85,6 @@ namespace BitulaMod.SmallCity {
             return milestones;
         }
 
-        public bool IsDeathCareEnabled() {
-            return !m_MilestoneLevelQuery.IsEmptyIgnoreFilter &&
-                m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
-                    .m_AchievedMilestone >= 1;
-        }
-
-        public bool IsElectricityEnabled() {
-            return !m_MilestoneLevelQuery.IsEmptyIgnoreFilter &&
-                m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
-                    .m_AchievedMilestone >= 1;
-        }
-
-        public bool IsWaterEnabled() {
-            return !m_MilestoneLevelQuery.IsEmptyIgnoreFilter &&
-                m_MilestoneLevelQuery.GetSingleton<MilestoneLevel>()
-                    .m_AchievedMilestone >= 1;
-        }
+        
     }
 }

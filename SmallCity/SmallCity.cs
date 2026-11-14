@@ -18,6 +18,18 @@ namespace BitulaMod.SmallCity {
                 Feature = feature
             };
         }
+
+        public static SmallCity<T> Create( ref SystemState state, EntityCommandBuffer ecb) {
+
+            SCCommon common = SCCommon.Create(ref state, ecb);
+            T feature = default;
+            feature = feature.Create(ref state, in common);
+
+            return new SmallCity<T> {
+                Feature = feature
+            };
+        }
+
         public static SmallCity<T> Create() {
 
             T feature = default;

@@ -35,6 +35,7 @@ namespace BitulaMod
 
         public void OnLoad(UpdateSystem updateSystem)
         {
+            log.Info($"Village Life Started");
             log.Info(nameof(OnLoad));
             HarmonyPatcher.PatchAll();
 

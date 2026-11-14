@@ -15,6 +15,7 @@ namespace BitulaMod.SmallCity {
         private const int LastMajorMilestoneIndex = 20;
         private const int MajorMilestoneInterval = 4;
         private SCCommon m_Common;
+        private bool m_VillageProgression;
         private SCInfo<SCMilestoneInfo> m_MilestoneInfo;
         private SCInfo<SCPrefabInfo> m_PrefabInfo;
         private ComponentLookup<MilestoneData> m_Milestones;
@@ -23,15 +24,64 @@ namespace BitulaMod.SmallCity {
         private EntityQuery m_InfoviewQuery;
         private ComponentLookup<ForceUnlockRequirementData> m_ForceUnlockRequirements;
         private BufferLookup<ForceUIGroupUnlockData> m_ForcedUIUnlocks;
+        private ComponentLookup<Locked> m_Locked;
+        private EntityQuery m_HealthcareSettingsQuery;
 
         public SCCommon Common {
             get => m_Common;
             set => m_Common = value;
         }
 
+        public void LogRoadMenus() {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld
+                .GetOrCreateSystemManaged<PrefabSystem>();
+
+            var prefabInfo = m_PrefabInfo.Get();
+
+            string[] menuNames = {
+        "RoadsMediumRoads",
+        "RoadsSmallRoads"
+    };
+
+            foreach (string menuName in menuNames) {
+                Entity entity;
+
+                try {
+                    entity = prefabInfo.GetEntity<UIAssetCategoryPrefab>(
+                        menuName, prefabSystem);
+                } catch (ArgumentException) {
+                    Mod.log.Warn($"Road menu not found: {menuName}");
+                    continue;
+                }
+
+                var prefab = prefabInfo.GetPrefab<PrefabBase>(
+                    entity, prefabSystem);
+
+                Mod.log.Info(
+                    $"Road menu={menuName} Entity={entity} Type={prefab?.GetType().Name}");
+
+                if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
+                    Mod.log.Warn($"Road menu={menuName} has no UnlockRequirement buffer");
+                    continue;
+                }
+
+                foreach (var requirement in requirements) {
+                    var requiredPrefab = prefabInfo.GetPrefab<PrefabBase>(
+                        requirement.m_Prefab, prefabSystem);
+
+                    Mod.log.Info(
+                        $"Road menu={menuName} " +
+                        $"Requires={requiredPrefab?.name ?? "Unknown"} " +
+                        $"Type={requiredPrefab?.GetType().Name ?? "Unknown"} " +
+                        $"Flags={requirement.m_Flags}");
+                }
+            }
+        }
+
         public SCMilestones Create(ref SystemState state, in SCCommon common) {
             return new SCMilestones {
                 m_Common = common,
+                m_VillageProgression = Mod.Settings.VillageProgression,
                 m_Milestones = state.GetComponentLookup<MilestoneData>(false),
                 m_MilestoneInfo = SCInfo<SCMilestoneInfo>.Create(ref state),
                 m_PrefabInfo = SCInfo<SCPrefabInfo>.Create(ref state),
@@ -39,19 +89,84 @@ namespace BitulaMod.SmallCity {
                 m_MenuQuery = state.GetEntityQuery(ComponentType.ReadOnly<UIAssetMenuData>(), ComponentType.ReadOnly<PrefabData>()),
                 m_InfoviewQuery = state.GetEntityQuery( ComponentType.ReadOnly<InfoviewData>(), ComponentType.ReadOnly<PrefabData>()),
                 m_ForceUnlockRequirements = state.GetComponentLookup<ForceUnlockRequirementData>(false),
-                m_ForcedUIUnlocks = state.GetBufferLookup<ForceUIGroupUnlockData>(true)
+                m_ForcedUIUnlocks = state.GetBufferLookup<ForceUIGroupUnlockData>(true),
+                m_Locked = state.GetComponentLookup<Locked>(true),
+                m_HealthcareSettingsQuery = state.GetEntityQuery(ComponentType.ReadOnly<HealthcareParameterData>()),
             };
         }
 
         public SCMilestones Create() {
             return new SCMilestones {
+                m_VillageProgression = Mod.Settings.VillageProgression
             };
         }
-        
 
-        public bool LockInfoviewTo(string requirementName, string infoviewName, PrefabSystem prefabSystem) {
+        public bool IsDeathCareEnabled() {
+            if (m_VillageProgression)
+                return IsPrefabUnlocked<FeaturePrefab>("Deathcare");
+
+            if (m_HealthcareSettingsQuery.IsEmptyIgnoreFilter)
+                return false;
+
+            Entity entity = m_HealthcareSettingsQuery
+                .GetSingleton<HealthcareParameterData>()
+                .m_HealthcareServicePrefab;
+
+            return !m_Locked.HasComponent(entity) || !m_Locked.IsComponentEnabled(entity);
+        }
+
+        public bool IsElectricityEnabled() {
+            return !m_VillageProgression ||
+                IsPrefabUnlocked<UIAssetCategoryPrefab>("Electricity");
+        }
+
+        public bool IsWaterEnabled() {
+            return !m_VillageProgression ||
+                IsPrefabUnlocked<UIAssetCategoryPrefab>("Water & Sewage");
+        }
+
+        private bool AddLockRequirement(Entity entity, Entity requirementEntity) {
+            if (entity == Entity.Null || requirementEntity == Entity.Null) {
+                Mod.log.Warn($"Cannot lock entity {entity} with requirement {requirementEntity}: Invalid entity");
+                return false;
+            }
+
+            var requirement = new UnlockRequirement {
+                m_Prefab = requirementEntity,
+                m_Flags = UnlockFlags.RequireAll
+            };
+
+            if (m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
+                foreach (var existing in requirements) {
+                    if (existing.m_Prefab == requirementEntity &&
+                        (existing.m_Flags & UnlockFlags.RequireAll) != 0)
+                        return true;
+                }
+
+                requirements.Add(requirement);
+                return true;
+            }
+
+            if (!m_Common.m_ECB.IsCreated) {
+                Mod.log.Warn($"Cannot lock entity {entity}: UnlockRequirement buffer not found and ECB unavailable");
+                return false;
+            }
+
+            var newRequirements = m_Common.m_ECB.AddBuffer<UnlockRequirement>(entity);
+            newRequirements.Add(requirement);
+
+            if (!m_Locked.HasComponent(entity))
+                m_Common.m_ECB.AddComponent<Locked>(entity);
+
+            Mod.log.Info($"Created UnlockRequirement buffer and Locked component for entity {entity}");
+            return true;
+        }
+
+        public bool LockInfoviewTo(string requirementName, string infoviewName) {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+
             Entity requirementEntity =
-                m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
+                m_PrefabInfo.Get().GetEntity<MilestonePrefab>(requirementName, prefabSystem);
 
             if (requirementEntity == Entity.Null) {
                 Mod.log.Warn($"Cannot find requirement {requirementName}");
@@ -79,10 +194,10 @@ namespace BitulaMod.SmallCity {
             return false;
         }
 
-        public bool RemoveMenuUnlock(string prefabName, string menuName,
-    PrefabSystem prefabSystem, EntityCommandBuffer ecb) {
+        public bool RemoveMenuUnlock<T>(string prefabName, string menuName) where T : PrefabBase {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
 
-            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
+            Entity entity = m_PrefabInfo.Get().GetEntity<T>(prefabName, prefabSystem);
 
             if (entity == Entity.Null) {
                 Mod.log.Warn($"Prefab {prefabName} not found");
@@ -111,7 +226,7 @@ namespace BitulaMod.SmallCity {
                 return false;
             }
 
-            var newBuffer = ecb.SetBuffer<ForceUIGroupUnlockData>(entity);
+            var newBuffer = m_Common.SetBuffer<ForceUIGroupUnlockData>(entity);
 
             foreach (var entry in forcedUnlocks) {
                 var target = m_PrefabInfo.Get().GetPrefab<PrefabBase>(
@@ -127,10 +242,9 @@ namespace BitulaMod.SmallCity {
             return true;
         }
 
-        public bool LockMenuTo(string requirementName, string menuName, PrefabSystem prefabSystem, EntityCommandBuffer ecb) {
-            Entity requirementEntity =
-                m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
-
+        public bool LockMenuTo<T>(string requirementName, string menuName) where T : PrefabBase {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            Entity requirementEntity = m_PrefabInfo.Get().GetEntity<T>(requirementName, prefabSystem);
             if (requirementEntity == Entity.Null) {
                 Mod.log.Warn($"Cannot find requirement {requirementName}");
                 return false;
@@ -160,9 +274,9 @@ namespace BitulaMod.SmallCity {
                     };
 
                     if (m_ForceUnlockRequirements.HasComponent(entity))
-                        ecb.SetComponent(entity, forced);
+                        m_Common.SetComponent(entity, forced);
                     else
-                        ecb.AddComponent(entity, forced);
+                        m_Common.AddComponent(entity, forced);
 
                     Mod.log.Info($"Menu {menuName} requirement replaced with {requirementName}");
                     return true;
@@ -172,59 +286,33 @@ namespace BitulaMod.SmallCity {
             Mod.log.Warn($"Cannot find menu {menuName}");
             return false;
         }
+       
+        public bool LockRequirementTo<TRequirement, TTarget>(string requirementName, string targetPrefabName) 
+            where TRequirement : PrefabBase where TTarget : PrefabBase {
 
-        private bool AddLockRequirement(Entity entity, Entity requirementEntity) {
-            if (entity == Entity.Null || requirementEntity == Entity.Null) {
-                Mod.log.Warn($"Cannot lock entity {entity} with requirement {requirementEntity}: Invalid entity");
-                return false;
-            }
+            var prefabSystem = World.DefaultGameObjectInjectionWorld
+                .GetOrCreateSystemManaged<PrefabSystem>();
 
-            if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
-                Mod.log.Warn($"Cannot lock entity {entity}: UnlockRequirement buffer not found");
-                return false;
-            }
+            Entity requirementEntity = m_PrefabInfo.Get()
+                .GetEntity<TRequirement>(requirementName, prefabSystem);
 
-            foreach (var requirement in requirements) {
-                if (requirement.m_Prefab == requirementEntity &&
-                    (requirement.m_Flags & UnlockFlags.RequireAll) != 0)
-                    return true;
-            }
-
-            requirements.Add(new UnlockRequirement {
-                m_Prefab = requirementEntity,
-                m_Flags = UnlockFlags.RequireAll
-            });
-
-            return true;
-        }
-
-        public bool LockRequirementTo(string requirementName, string targetPrefabName) {
-            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            Entity requirementEntity = m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
-
-            if (requirementEntity == Entity.Null) {
-                Mod.log.Warn($"Cannot lock {targetPrefabName}: Requirement {requirementName} not found");
-                return false;
-            }
-
-            Entity targetEntity = m_PrefabInfo.Get().GetEntity(targetPrefabName, prefabSystem);
-
-            if (targetEntity == Entity.Null) {
-                Mod.log.Warn($"Cannot lock {targetPrefabName}: Target prefab not found");
-                return false;
-            }
+            Entity targetEntity = m_PrefabInfo.Get()
+                .GetEntity<TTarget>(targetPrefabName, prefabSystem);
 
             return AddLockRequirement(targetEntity, requirementEntity);
         }
 
-        public bool UnlockRequirementFrom(string targetPrefabName, string requirementName) {
-            return UnlockRequirementTo(requirementName, targetPrefabName);
+        public bool UnlockRequirementFrom<TRequirement, TTarget>( string targetPrefabName, string requirementName)
+            where TRequirement : PrefabBase  where TTarget : PrefabBase {
+
+            return UnlockRequirementTo<TRequirement, TTarget>(requirementName, targetPrefabName);
         }
 
-        public bool UnlockRequirementTo( string requirementName, string targetPrefabName) {
+        public bool UnlockRequirementTo<TRequirement, TTarget>(string requirementName, string targetPrefabName)
+            where TRequirement : PrefabBase  where TTarget : PrefabBase {
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            Entity requirementEntity = m_PrefabInfo.Get().GetEntity(requirementName, prefabSystem);
-            Entity targetEntity = m_PrefabInfo.Get().GetEntity(targetPrefabName, prefabSystem);
+            Entity requirementEntity = m_PrefabInfo.Get().GetEntity<TRequirement>(requirementName, prefabSystem);
+            Entity targetEntity = m_PrefabInfo.Get().GetEntity<TTarget>(targetPrefabName, prefabSystem);
 
             if (!m_UnlockRequirements.TryGetBuffer(targetEntity, out var requirements))
                 return false;
@@ -241,28 +329,55 @@ namespace BitulaMod.SmallCity {
             return false;
         }
 
-        public bool AddUnlockRequirementToAll(string requirementName, string existingRequirementName) {
+        public bool AddUnlockRequirementToAny<TRequirement, TExisting>( string requirementName, string existingRequirementName)
+            where TRequirement : PrefabBase where TExisting : PrefabBase {
+
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             var prefabInfo = m_PrefabInfo.Get();
 
-            Entity requirementEntity = prefabInfo.GetEntity(requirementName, prefabSystem);
-            Entity existingEntity = prefabInfo.GetEntity(existingRequirementName, prefabSystem);
+            Entity requirementEntity = prefabInfo.GetEntity<TRequirement>(requirementName, prefabSystem);
+            Entity existingEntity = prefabInfo.GetEntity<TExisting>(existingRequirementName, prefabSystem);
 
-            if (requirementEntity == Entity.Null) {
-                Mod.log.Warn($"Cannot lock buildings: Requirement {requirementName} not found");
-                return false;
-            }
-
-            if (existingEntity == Entity.Null) {
-                Mod.log.Warn($"Cannot lock buildings: Existing requirement {existingRequirementName} not found");
+            if (!m_UnlockRequirements.TryGetBuffer(existingEntity, out var requirements)) {
+                Mod.log.Warn($"No unlock requirements found for GUI prefab {existingRequirementName}");
                 return false;
             }
 
             bool found = false;
             bool success = true;
 
+            foreach (var requirement in requirements) {
+                if ((requirement.m_Flags & UnlockFlags.RequireAny) == 0)
+                    continue;
+
+                Entity entity = requirement.m_Prefab;
+
+                if (entity == Entity.Null)
+                    continue;
+
+                found = true;
+                success &= AddLockRequirement(entity, requirementEntity);
+            }
+
+            if (!found)
+                Mod.log.Warn($"No prefabs found in GUI category {existingRequirementName}");
+
+            return found && success;
+        }
+
+        public bool AddUnlockRequirementToAll<TRequirement, TExisting>( string requirementName, string existingRequirementName)
+            where TRequirement : PrefabBase where TExisting : PrefabBase {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            var prefabInfo = m_PrefabInfo.Get();
+
+            Entity requirementEntity = prefabInfo.GetEntity<TRequirement>(requirementName, prefabSystem);
+            Entity existingEntity = prefabInfo.GetEntity<TExisting>(existingRequirementName, prefabSystem);
+
+            bool found = false;
+            bool success = true;
+
             foreach (var prefab in prefabInfo.GetAllPrefabs<PrefabBase>(prefabSystem)) {
-                if (!(prefab is BuildingPrefab))
+                if (prefab == null)
                     continue;
 
                 Entity entity = prefabInfo.GetEntity(prefab, prefabSystem);
@@ -284,16 +399,13 @@ namespace BitulaMod.SmallCity {
                     continue;
 
                 found = true;
-
                 success &= AddLockRequirement(entity, requirementEntity);
             }
 
-            if (!found) {
-                Mod.log.Warn($"No buildings found requiring {existingRequirementName}");
-                return false;
-            }
+            if (!found)
+                Mod.log.Warn($"No prefabs found requiring {existingRequirementName}");
 
-            return success;
+            return found && success;
         }
 
         private double CalculateXpMultiplierDecrease(double startXp, double targetXp, int milestoneCount) {
@@ -432,7 +544,8 @@ namespace BitulaMod.SmallCity {
             return milestone;
         }
 
-        public bool MoveRequirementTo(string prefabName, string milestoneName, string prerequisiteName) {
+        public bool MoveRequirementTo<TTarget, TPrerequisite>(string prefabName, string milestoneName, string prerequisiteName)
+            where TTarget : PrefabBase where TPrerequisite : PrefabBase {
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
             Entity milestoneEntity = Entity.Null;
 
@@ -451,8 +564,9 @@ namespace BitulaMod.SmallCity {
             }
 
             int changes = 0;
+            Entity prerequisiteEntity = m_PrefabInfo.Get().GetEntity<TPrerequisite>(prerequisiteName, prefabSystem);
 
-            foreach (var prefab in m_PrefabInfo.Get().GetAllPrefabs<PrefabBase>(prefabSystem)) {
+            foreach (var prefab in m_PrefabInfo.Get().GetAllPrefabs<TTarget>(prefabSystem)) {
                 if (prefab == null || prefab.name != prefabName)
                     continue;
 
@@ -467,9 +581,7 @@ namespace BitulaMod.SmallCity {
                     if ((requirement.m_Flags & UnlockFlags.RequireAll) == 0)
                         continue;
 
-                    var requiredPrefab = prefabSystem.GetPrefab<PrefabBase>(requirement.m_Prefab);
-
-                    if (requiredPrefab == null || requiredPrefab.name != prerequisiteName)
+                    if (requirement.m_Prefab != prerequisiteEntity)
                         continue;
 
                     requirement.m_Prefab = milestoneEntity;
@@ -484,10 +596,12 @@ namespace BitulaMod.SmallCity {
             return changes > 0;
         }
 
-        public bool MoveUnlockRequirementTo( string prefabName, string milestoneName, string unlockRequirementName, string moveRequirementName) {
+        public bool MoveUnlockRequirementTo<TTarget, TUnlockRequirement, TMoveRequirement>(string prefabName, string milestoneName, string unlockRequirementName, string moveRequirementName)
+            where TTarget : PrefabBase where TUnlockRequirement : PrefabBase where TMoveRequirement : PrefabBase {
+
             bool done = true;
-            done &= UnlockRequirementTo(unlockRequirementName, prefabName);
-            done &= MoveRequirementTo(prefabName, milestoneName, moveRequirementName);
+            done &= UnlockRequirementTo<TUnlockRequirement, TTarget>(unlockRequirementName, prefabName);
+            done &= MoveRequirementTo<TTarget, TMoveRequirement>(prefabName, milestoneName, moveRequirementName);
             return done;
         }
 
@@ -505,10 +619,10 @@ namespace BitulaMod.SmallCity {
             Mod.log.Info($"Milestone {milestone.name} Map tiles {milestone.m_MapTiles}");
         }
 
-        public bool RemoveUnlockRequirements(string prefabName) {
+        public bool RemoveUnlockRequirements<T>(string prefabName) where T : PrefabBase {
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
-            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
-            
+            Entity entity = m_PrefabInfo.Get().GetEntity<T>(prefabName, prefabSystem);
+
 
             if (entity == Entity.Null) {
                 Mod.log.Warn($"Cannot find prefab {prefabName}");
@@ -526,6 +640,15 @@ namespace BitulaMod.SmallCity {
             return true;
         }
 
+        public bool IsPrefabUnlocked<T>(string prefabName) where T : PrefabBase {
+            var prefabSystem = World.DefaultGameObjectInjectionWorld
+                .GetOrCreateSystemManaged<PrefabSystem>();
+
+            Entity entity = m_PrefabInfo.Get().GetEntity<T>(prefabName, prefabSystem);
+
+            return !m_Locked.HasComponent(entity) || !m_Locked.IsComponentEnabled(entity);
+        }
+
         public void Update(ref SystemState state) {
             m_Common.Update(ref state);
             m_Milestones.Update(ref state);
@@ -534,6 +657,7 @@ namespace BitulaMod.SmallCity {
             m_UnlockRequirements.Update(ref state);
             m_ForceUnlockRequirements.Update(ref state);
             m_ForcedUIUnlocks.Update(ref state);
+            m_Locked.Update(ref state);
         }
 
         public SCMilestoneInfo GetInfo() {
@@ -544,13 +668,14 @@ namespace BitulaMod.SmallCity {
             return m_PrefabInfo.Get();
         }
 
-        public void LogUnlockRequirements(string prefabName, PrefabSystem prefabSystem) {
-            Entity entity = m_PrefabInfo.Get().GetEntity(prefabName, prefabSystem);
+        public void LogUnlockRequirements<T>(string prefabName, PrefabSystem prefabSystem) where T : PrefabBase {
+            var prefabInfo = m_PrefabInfo.Get();
 
-            if (entity == Entity.Null) {
-                Mod.log.Warn($"Prefab not found: {prefabName}");
-                return;
-            }
+            Entity entity = prefabInfo.GetEntity<T>(prefabName, prefabSystem);
+            var prefab = prefabInfo.GetPrefab<PrefabBase>(entity, prefabSystem);
+
+            Mod.log.Info(
+                $"Prefab={prefabName} Type={prefab?.GetType().Name} Entity={entity}");
 
             if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements)) {
                 Mod.log.Info($"{prefabName}: No UnlockRequirement buffer");
@@ -562,14 +687,11 @@ namespace BitulaMod.SmallCity {
             for (int i = 0; i < requirements.Length; i++) {
                 var requirement = requirements[i];
 
-                var prefab = m_PrefabInfo.Get().GetPrefab<PrefabBase>(
+                var requiredPrefab = prefabInfo.GetPrefab<PrefabBase>(
                     requirement.m_Prefab, prefabSystem);
 
-                string name = prefab?.name ?? "UNKNOWN";
-
                 Mod.log.Info(
-                    $"{prefabName}: Requirement[{i}] = {name} Flags={requirement.m_Flags}");
+                    $"{prefabName}: Requirement[{i}] = {requiredPrefab?.name ?? "UNKNOWN"} Flags={requirement.m_Flags}");
             }
-        }
+        }}
     }
-}

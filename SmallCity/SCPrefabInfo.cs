@@ -1,4 +1,5 @@
 ﻿using Game.Prefabs;
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -39,13 +40,13 @@ namespace BitulaMod.SmallCity {
                 : null;
         }
 
-        public Entity GetEntity(string name, PrefabSystem prefabSystem) {
-            foreach (var prefab in GetAllPrefabs<PrefabBase>(prefabSystem)) {
+        public Entity GetEntity<T>(string name, PrefabSystem prefabSystem) where T : PrefabBase {
+            foreach (var prefab in GetAllPrefabs<T>(prefabSystem)) {
                 if (prefab != null && prefab.name == name)
                     return GetEntity(prefab, prefabSystem);
             }
 
-            throw new System.ArgumentException($"Prefab not found: {name}");
+            throw new ArgumentException($"Prefab not found: {name} Type={typeof(T).Name}");
         }
 
         public List<T> GetPrefabs<T>(EntityQuery query, PrefabSystem prefabSystem) where T : PrefabBase {
