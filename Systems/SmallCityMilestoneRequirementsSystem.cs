@@ -19,6 +19,7 @@ namespace BitulaMod.Systems {
         protected override void OnCreate() {
             base.OnCreate();
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            Mod.log.Info("SmallCityMilestoneRequirementsSystem created successfully");
         }
 
         protected override void OnUpdate() {
@@ -121,9 +122,12 @@ namespace BitulaMod.Systems {
                 } finally {
                     m_Done = true;
                 }
-
-            World.GetExistingSystemManaged<DispatchElectricitySystem>().Enabled = smilestones.Get().IsElectricityEnabled();
-            World.GetExistingSystemManaged<DispatchWaterSystem>().Enabled = smilestones.Get().IsWaterEnabled();
+            bool electricityEnable = smilestones.Get().IsElectricityEnabled();
+            bool waterEnable = smilestones.Get().IsWaterEnabled();
+            World.GetExistingSystemManaged<DispatchElectricitySystem>().Enabled = electricityEnable;
+            World.GetExistingSystemManaged<DispatchWaterSystem>().Enabled = waterEnable;
+            if (electricityEnable && waterEnable)
+                Enabled = false;
         }
 
         

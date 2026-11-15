@@ -367,21 +367,26 @@ namespace BitulaMod.SmallCity {
 
         public bool AddUnlockRequirementToAll<TRequirement, TExisting>( string requirementName, string existingRequirementName)
             where TRequirement : PrefabBase where TExisting : PrefabBase {
-            var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+
+            var prefabSystem = World.DefaultGameObjectInjectionWorld
+                .GetOrCreateSystemManaged<PrefabSystem>();
+
             var prefabInfo = m_PrefabInfo.Get();
 
             Entity requirementEntity = prefabInfo.GetEntity<TRequirement>(requirementName, prefabSystem);
             Entity existingEntity = prefabInfo.GetEntity<TExisting>(existingRequirementName, prefabSystem);
 
+            if (requirementEntity == Entity.Null || existingEntity == Entity.Null) {
+                Mod.log.Warn($"Cannot resolve requirement {requirementName} or {existingRequirementName}");
+                return false;
+            }
+
             bool found = false;
             bool success = true;
 
-            foreach (var prefab in prefabInfo.GetAllPrefabs<PrefabBase>(prefabSystem)) {
-                if (prefab == null)
-                    continue;
+            using var entities = prefabInfo.GetEntitiesWith<UnlockRequirement>(Allocator.Temp);
 
-                Entity entity = prefabInfo.GetEntity(prefab, prefabSystem);
-
+            foreach (var entity in entities) {
                 if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements))
                     continue;
 
@@ -544,14 +549,15 @@ namespace BitulaMod.SmallCity {
             return milestone;
         }
 
-        public bool MoveRequirementTo<TTarget, TPrerequisite>(string prefabName, string milestoneName, string prerequisiteName)
+        public bool MoveRequirementTo<TTarget, TPrerequisite>( string prefabName, string milestoneName, string prerequisiteName)
             where TTarget : PrefabBase where TPrerequisite : PrefabBase {
+
             var prefabSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PrefabSystem>();
+            var prefabInfo = m_PrefabInfo.Get();
+
             Entity milestoneEntity = Entity.Null;
 
-            var milestones = m_MilestoneInfo.Get().GetMilestones(prefabSystem);
-
-            foreach (var (entity, milestone) in milestones) {
+            foreach (var (entity, milestone) in m_MilestoneInfo.Get().GetMilestones(prefabSystem)) {
                 if (milestone.name == milestoneName) {
                     milestoneEntity = entity;
                     break;
@@ -563,31 +569,35 @@ namespace BitulaMod.SmallCity {
                 return false;
             }
 
+            Entity prerequisiteEntity = prefabInfo.GetEntity<TPrerequisite>(prerequisiteName, prefabSystem);
+
+            Entity targetEntity;
+            try {
+                targetEntity = prefabInfo.GetEntity<TTarget>(prefabName, prefabSystem);
+            } catch (ArgumentException) {
+                Mod.log.Warn($"Cannot move requirement: prefab {prefabName} not found");
+                return false;
+            }
+
+            if (!m_UnlockRequirements.TryGetBuffer(targetEntity, out var requirements)) {
+                Mod.log.Warn($"Cannot move requirement: prefab {prefabName} has no unlock requirements");
+                return false;
+            }
+
             int changes = 0;
-            Entity prerequisiteEntity = m_PrefabInfo.Get().GetEntity<TPrerequisite>(prerequisiteName, prefabSystem);
 
-            foreach (var prefab in m_PrefabInfo.Get().GetAllPrefabs<TTarget>(prefabSystem)) {
-                if (prefab == null || prefab.name != prefabName)
+            for (int i = 0; i < requirements.Length; i++) {
+                var requirement = requirements[i];
+
+                if ((requirement.m_Flags & UnlockFlags.RequireAll) == 0)
                     continue;
 
-                Entity entity = m_PrefabInfo.Get().GetEntity(prefab, prefabSystem);
-
-                if (!m_UnlockRequirements.TryGetBuffer(entity, out var requirements))
+                if (requirement.m_Prefab != prerequisiteEntity)
                     continue;
 
-                for (int i = 0; i < requirements.Length; i++) {
-                    var requirement = requirements[i];
-
-                    if ((requirement.m_Flags & UnlockFlags.RequireAll) == 0)
-                        continue;
-
-                    if (requirement.m_Prefab != prerequisiteEntity)
-                        continue;
-
-                    requirement.m_Prefab = milestoneEntity;
-                    requirements[i] = requirement;
-                    changes++;
-                }
+                requirement.m_Prefab = milestoneEntity;
+                requirements[i] = requirement;
+                changes++;
             }
 
             if (changes == 0)

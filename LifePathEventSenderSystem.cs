@@ -102,7 +102,7 @@ namespace BitulaMod
 
             if (!m_ProducerDependency.IsCompleted)
             {
-                log.Info("LifePath sender: producer still running");
+                Mod.log.Info("LifePath sender: producer still running");
                 return;
             }
             m_PropertyRenters.Update(this);

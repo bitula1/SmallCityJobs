@@ -43,6 +43,7 @@ namespace BitulaMod.Systems {
                     m_SmallCityMilestones.Get().UpdateMajorMilestones(allMilestones, customMilestones);
                 } finally {
                     m_Done = true;
+                    Enabled = false;
                 }
 
             }            

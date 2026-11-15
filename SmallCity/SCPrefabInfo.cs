@@ -8,17 +8,10 @@ namespace BitulaMod.SmallCity {
     public struct SCPrefabInfo : ISCInfo<SCPrefabInfo> {
         [ReadOnly]
         private ComponentLookup<PrefabData> m_Prefabs;
-        private EntityQuery m_AllPrefabsQuery;
 
         public SCPrefabInfo Create(ref SystemState state) {
             return new SCPrefabInfo {
-                m_Prefabs = state.GetComponentLookup<PrefabData>(true),
-                m_AllPrefabsQuery = state.GetEntityQuery(new EntityQueryDesc {
-                    All = new[] {
-                        ComponentType.ReadOnly<PrefabData>()
-                    },
-                    Options = EntityQueryOptions.IncludePrefab
-                }),
+                m_Prefabs = state.GetComponentLookup<PrefabData>(true)
             };
         }
 
@@ -41,28 +34,63 @@ namespace BitulaMod.SmallCity {
         }
 
         public Entity GetEntity<T>(string name, PrefabSystem prefabSystem) where T : PrefabBase {
-            foreach (var prefab in GetAllPrefabs<T>(prefabSystem)) {
-                if (prefab != null && prefab.name == name)
-                    return GetEntity(prefab, prefabSystem);
+
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+            using var query = entityManager.CreateEntityQuery(new EntityQueryDesc {
+                All = new[] {
+                    ComponentType.ReadOnly<PrefabData>()
+                },
+                Options = EntityQueryOptions.IncludePrefab
+            });
+
+            using var entities = query.ToEntityArray(Allocator.Temp);
+
+            foreach (var entity in entities) {
+                if (prefabSystem.TryGetPrefab(entity, out PrefabBase prefab) &&
+                    prefab is T &&
+                    prefab.name == name)
+                    return entity;
             }
 
             throw new ArgumentException($"Prefab not found: {name} Type={typeof(T).Name}");
         }
 
         public List<T> GetPrefabs<T>(EntityQuery query, PrefabSystem prefabSystem) where T : PrefabBase {
-            using (var prefabs = query.ToComponentDataArray<PrefabData>(Allocator.Temp)) {
-                var result = new List<T>(prefabs.Length);
 
-                foreach (var prefabData in prefabs) {
-                    result.Add(prefabSystem.GetPrefab<T>(prefabData));
+            var result = new List<T>();
+
+            using (var entities = query.ToEntityArray(Allocator.Temp)) {
+                foreach (var entity in entities) {
+
+                    if (!prefabSystem.TryGetPrefab(entity, out PrefabBase prefab))
+                        continue;
+
+                    if (prefab is T typedPrefab)
+                        result.Add(typedPrefab);
                 }
-
-                return result;
             }
+
+            return result;
         }
-        public List<T> GetAllPrefabs<T>(PrefabSystem prefabSystem) where T : PrefabBase {
+        /*public List<T> GetAllPrefabs<T>(PrefabSystem prefabSystem) where T : PrefabBase {
             return GetPrefabs<T>(m_AllPrefabsQuery, prefabSystem);
+        }*/
+        public NativeArray<Entity> GetEntitiesWith<T>(Allocator allocator) where T : struct {
+
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+            using var query = entityManager.CreateEntityQuery(new EntityQueryDesc {
+                 All = new[] {
+                    ComponentType.ReadOnly<PrefabData>(),
+                    ComponentType.ReadOnly<T>()
+                },
+                Options = EntityQueryOptions.IncludePrefab
+            });
+
+            return query.ToEntityArray(allocator);
         }
+
 
 
         public Entity GetEntity(PrefabBase prefab, PrefabSystem prefabSystem) {
