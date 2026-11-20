@@ -21,8 +21,6 @@ namespace BitulaMod.SmallCity {
         private ComponentLookup<Worker> m_Workers;
         private ComponentLookup<CompanyData> m_CompanyDatas;
         private ComponentLookup<FreeWorkplaces> m_FreeWorkplaces;
-        private ComponentLookup<TravelPurpose> m_TravelPurposes;
-        private ComponentLookup<Leisure> m_Leisure;
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         private ComponentLookup<Game.Objects.Transform> m_Transforms;
         private int m_JobSeekerMilestone;
@@ -67,8 +65,6 @@ namespace BitulaMod.SmallCity {
                 m_Workers = state.GetComponentLookup<Worker>(true),
                 m_FreeWorkplaces = state.GetComponentLookup<FreeWorkplaces>(true),
                 m_CompanyDatas = state.GetComponentLookup<CompanyData>(true),
-                m_TravelPurposes = state.GetComponentLookup<TravelPurpose>(true),
-                m_Leisure = state.GetComponentLookup<Leisure>(true),
                 m_PropertyRenters = state.GetComponentLookup<PropertyRenter>(true),
                 m_Transforms = state.GetComponentLookup<Game.Objects.Transform>(true),                
             };
@@ -108,9 +104,7 @@ namespace BitulaMod.SmallCity {
         public bool isEmployed(Entity citizen) {
             return m_Workers.HasComponent(citizen);
         }
-        public bool IsIdle(Entity citizen) {
-            return !m_TravelPurposes.HasComponent(citizen);
-        }
+
         public bool IsCompany(Entity workplace) {
             return m_CompanyDatas.HasComponent(workplace);
         }
@@ -339,6 +333,7 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool UnemployedSkippedApplication(int numJobs, Entity citizen) {
+            if (!m_Common.IsIdle(citizen)) return true;
             if (numJobs <= 0) {
                 m_Common.Send(citizen, CustomEventType.NoJobsAvailable);
                 return true;
@@ -366,7 +361,7 @@ namespace BitulaMod.SmallCity {
         public bool EmployedSkippedApplication(int numJobs, int totalAvailableJobs, int worseJobs,
             int currentJobLevel, int highestAvailableJobLevel, Entity citizen) {
 
-            if (!IsIdle(citizen) || m_Leisure.HasComponent(citizen)) return true;
+            if (!m_Common.IsIdle(citizen)) return true;
 
             if (numJobs <= 0) {
                 if (totalAvailableJobs <= 0)

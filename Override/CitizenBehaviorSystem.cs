@@ -1055,10 +1055,9 @@ namespace BitulaMod
 
                                                     {
 														HouseholdNeed householdNeed = this.m_HouseholdNeeds[entity];
-														if (householdNeed.m_Resource != Resource.NoResource && this.m_Transforms.HasComponent(currentBuilding)
-                                                            && m_SmallCityShopping.Get().CanShop(entity2, householdNeed.m_Resource))
-														{
-															this.GoShopping(unfilteredChunkIndex, entity2, flag8, entity, householdNeed, this.m_Transforms[currentBuilding].m_Position);
+                                                        if (m_SmallCityShopping.Get().CanShop(entity2, householdNeed.m_Resource) &&
+															this.m_Transforms.HasComponent(currentBuilding)) {
+                                                            this.GoShopping(unfilteredChunkIndex, entity2, flag8, entity, householdNeed, this.m_Transforms[currentBuilding].m_Position);
 															householdNeed.m_Resource = Resource.NoResource;
 															this.m_HouseholdNeeds[entity] = householdNeed;
 															if (flag2)

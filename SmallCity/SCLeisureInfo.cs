@@ -1,4 +1,5 @@
 ﻿using BitulaMod.Components;
+using Game.Citizens;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -6,10 +7,12 @@ namespace BitulaMod.SmallCity {
     public struct SCLeisureInfo : ISCInfo<SCLeisureInfo> {
         [ReadOnly]
         private ComponentLookup<CmpLeisureStart> m_LeisureStarts;
+        private ComponentLookup<Leisure> m_Leisures;
 
         public SCLeisureInfo Create(ref SystemState state) {
             return new SCLeisureInfo {
                 m_LeisureStarts = state.GetComponentLookup<CmpLeisureStart>(true),
+                m_Leisures = state.GetComponentLookup<Leisure>(true),
             };
         }
 
@@ -39,6 +42,11 @@ namespace BitulaMod.SmallCity {
 
         public void Update(ref SystemState state) {
             m_LeisureStarts.Update(ref state);
+            m_Leisures.Update(ref state);
+        }
+
+        public bool HasLeisure(Entity citizen) {
+            return m_Leisures.HasComponent(citizen);
         }
     }
 }

@@ -13,9 +13,9 @@ namespace BitulaMod.SmallCity {
         private int m_ShoppingIntervalMin;
         private int m_ShoppingIntervalMax;
         private bool m_PhysicalVirtualShopping;
+        private int m_ShoppingMaxFailedAttempts;
         private ComponentLookup<CmpShoppingStart> m_ShoppingStarts;
-        private SCInfo<SCLeisureInfo> m_Leisure;
-        private SCInfo<SCShoppingInfo> m_Shopping;
+        private ComponentLookup<CmpShoppingAttempts> m_ShoppingAttempts;
         private SCInfo<SCBuildingsInfo> m_Building;
         private SCInfo<SCTravelInfo> m_Travel;
         private SCInfo<SCResourceInfo> m_Resource;
@@ -37,13 +37,13 @@ namespace BitulaMod.SmallCity {
                 m_ShoppingIntervalMin = Mod.Settings.ShoppingIntervalMin,
                 m_ShoppingIntervalMax = Mod.Settings.ShoppingIntervalMax,
                 m_PhysicalVirtualShopping = Mod.Settings.PhysicalVirtualShopping,
-                m_Leisure = SCInfo<SCLeisureInfo>.Create(ref state),
-                m_Shopping = SCInfo<SCShoppingInfo>.Create(ref state),
+                m_ShoppingMaxFailedAttempts = Mod.Settings.ShoppingMaxFailedAttempts,
                 m_Building = SCInfo<SCBuildingsInfo>.Create(ref state),
                 m_Travel = SCInfo<SCTravelInfo>.Create(ref state),
                 m_Resource = SCInfo<SCResourceInfo>.Create(ref state),
                 m_Household = SCInfo<SCHouseholdInfo>.Create(ref state),
                 m_ShoppingStarts = state.GetComponentLookup<CmpShoppingStart>(true),
+                m_ShoppingAttempts = state.GetComponentLookup<CmpShoppingAttempts>(true),
                 m_ShopFound = state.GetComponentLookup<CmpShopFound>(true),
                 m_ShopResourceFound = state.GetComponentLookup<CmpShopResourceFound>(true),
             };
@@ -105,16 +105,34 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool CanShop(Entity citizen, Resource resource) {
-            bool canShop = !m_Common.IsSmallCityBehaviour(citizen) ||
-                   !m_NormalShopping ||
-                   (!m_Leisure.Get().IsWithinLeisureTime(citizen, m_Common.GetSimulationFrame()) &&
-                    !m_Shopping.Get().IsWithinShoppingTime(citizen, m_Common.GetSimulationFrame()));
+            if (m_NormalShopping && !m_Common.IsIdle(citizen))
+                return false;
 
-            if (canShop) {
-                m_Common.AddParameter(EconomyUtils.GetNameFixed(resource));
-                m_Common.Send(citizen, CustomEventType.StartShopResource);
+            if (EndOfAttempts(citizen))
+                return false;
+
+            if (resource == Resource.NoResource) {
+                uint day = m_Common.GetSimulationFrame() / 262144u;
+
+                bool hasFailedAttempts =
+                    m_ShoppingAttempts.TryGetComponent(citizen, out var attempts) &&
+                    attempts.m_Day == day &&
+                    attempts.m_TryCount > 0;
+
+                if (!hasFailedAttempts) {
+                    m_Common.SetHint(EventHint.SendThenWatchEvent);
+                    m_Common.SetEventToWatch(CustomEventType.StartShopResource);
+                    m_Common.Send(citizen, CustomEventType.NoShoppingNeed);
+                }
+
+                return false;
             }
-            return canShop;
+            
+            m_Common.AddParameter(EconomyUtils.GetNameFixed(resource));
+            m_Common.SetWatchHint(EventHint.WatchEvent);
+            m_Common.Send(citizen, CustomEventType.StartShopResource);
+            
+            return true;
         }
 
         public bool IsValidPayer(Entity citizen, Entity payer, out byte saleFlags) {
@@ -157,6 +175,97 @@ namespace BitulaMod.SmallCity {
             Entity destination = m_Building.Get().GetBuilding(seller);
             m_Common.Send(citizen, CustomEventType.GoToShop, destination);
         }
+
+        public void PrintOutOfAttempts(Entity citizen) {
+            m_Common.SetHint(EventHint.SendThenWatchEvent);
+            m_Common.SetEventToWatch(CustomEventType.StartShopResource);
+            m_Common.Send(citizen, CustomEventType.ShoppingTryEnd);
+        }
+
+        public void SetShoppingAttempts(Entity citizen) {
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalShopping)
+                return;
+
+            uint day = m_Common.GetSimulationFrame() / 262144u;
+
+            CmpShoppingAttempts attempts = m_ShoppingAttempts.HasComponent(citizen)
+                ? m_ShoppingAttempts[citizen]
+                : default;
+
+            if (attempts.m_Day != day) {
+                attempts.m_Day = day;
+                attempts.m_TryCount = 0;
+            }
+
+            if (attempts.m_TryCount < m_ShoppingMaxFailedAttempts) {
+                attempts.m_TryCount++;
+
+                if (attempts.m_TryCount == m_ShoppingMaxFailedAttempts)
+                    PrintOutOfAttempts(citizen);
+            }
+
+            m_Common.AddCmp(citizen, attempts);
+        }
+
+        public void SetShoppingAttempts(Entity citizen, bool isShopOnline, bool hasAffordableAmount) {
+            if (!hasAffordableAmount) {
+                m_Common.Send(citizen, CustomEventType.ShopNoMoney);
+                SetShoppingAttempts(citizen);
+            } else if (isShopOnline) {
+                m_Common.Send(citizen, CustomEventType.ShopOnline);
+            }
+        }
+
+        public void SetShoppingAttempts(Entity citizen, bool staleDestination) {
+
+            if (!IsShopFound(citizen))
+                m_Common.Send(citizen, CustomEventType.ShopDoesNotExist);
+            else if (!IsShopResourceFound(citizen))
+                m_Common.Send(citizen, CustomEventType.ShopNoResource);
+            else if (staleDestination)
+                m_Common.Send(citizen, CustomEventType.ShopDestinationUnavailable);
+            else
+                m_Common.Send(citizen, CustomEventType.ShopNoPath);
+            SetShoppingAttempts(citizen);
+        }
+
+        public void SetShoppingAttempts(Entity citizen, CustomEventType eventType) {
+            SetShoppingAttempts(citizen);
+            m_Common.Send(citizen, eventType);
+        }
+
+        public void ResetAttempts(Entity citizen) {
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalShopping)
+                return;
+
+            m_Common.AddCmp(citizen, new CmpShoppingAttempts {
+                m_Day = m_Common.GetSimulationFrame() / 262144u,
+                m_TryCount = 0
+            });
+        }
+
+        public void ResetAttempts(Entity household, Entity seller, Resource resource, int amount, int moneySpent) {
+            Entity citizen = PrintResourceBought(household, seller, resource, amount, moneySpent);
+
+            if (citizen != Entity.Null)
+                ResetAttempts(citizen);
+        }
+
+        public bool EndOfAttempts(Entity citizen) {
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalShopping)
+                return false;
+
+            if (!m_ShoppingAttempts.HasComponent(citizen))
+                return false;
+
+            CmpShoppingAttempts attempts = m_ShoppingAttempts[citizen];
+            uint day = m_Common.GetSimulationFrame() / 262144u;
+
+            return attempts.m_Day == day &&
+                   attempts.m_TryCount >= m_ShoppingMaxFailedAttempts;
+        }
+
+
 
         public uint GetShoppingStartFrame(Entity citizen) {
             if (!m_ShoppingStarts.HasComponent(citizen))
@@ -277,9 +386,9 @@ namespace BitulaMod.SmallCity {
             m_Common.Send(citizen, CustomEventType.ShopDestinationUnavailable);
         }
 
-        public void PrintResourceBought(Entity household, Entity seller, Resource resource, int amount, int moneySpent) {
+        public Entity PrintResourceBought(Entity household, Entity seller, Resource resource, int amount, int moneySpent) {
             if (!m_Household.Get().TryGetHouseholdCitizens(household, out var citizens))
-                return;
+                return Entity.Null;
 
             for (int i = 0; i < citizens.Length; i++) {
                 Entity citizen = citizens[i].m_Citizen;
@@ -306,8 +415,10 @@ namespace BitulaMod.SmallCity {
                 m_Common.AddParameter(EconomyUtils.GetNameFixed(resource));
                 m_Common.AddParameter(moneySpent);
                 m_Common.Send(citizen, CustomEventType.ResourceBought);
-                return;
+                return citizen;
             }
+
+            return Entity.Null;
         }
 
         public void PrintShoppingDebug(Entity citizen, FixedString512Bytes message) {
@@ -318,11 +429,10 @@ namespace BitulaMod.SmallCity {
         public void Update(ref SystemState state) {
             m_Common.Update(ref state);
             m_ShoppingStarts.Update(ref state);
+            m_ShoppingAttempts.Update(ref state);
             m_ShopFound.Update(ref state);
             m_ShopResourceFound.Update(ref state);
 
-            m_Leisure.Update(ref state);
-            m_Shopping.Update(ref state);
             m_Building.Update(ref state);
             m_Travel.Update(ref state);
             m_Resource.Update(ref state);

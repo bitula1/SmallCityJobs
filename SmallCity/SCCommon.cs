@@ -47,6 +47,9 @@ namespace BitulaMod.SmallCity {
         public const uint kFramesPerDay = 262144u;
         private int m_CommandBufferIndex;
         private bool m_HasCommandBufferIndex;
+        private SCInfo<SCShoppingInfo> m_ShoppingInfo;
+        private SCInfo<SCLeisureInfo> m_LeisureInfo;
+        private SCInfo<SCTravelInfo> m_TravelInfo;
 
 
         public EntityCommandBuffer.ParallelWriter CommandBuffer => m_CommandBuffer;
@@ -83,6 +86,9 @@ namespace BitulaMod.SmallCity {
                 m_Students = state.GetComponentLookup<Game.Citizens.Student>(true), m_EconomyParameters = state.GetEntityQuery(
                     ComponentType.ReadOnly<EconomyParameterData>()).GetSingleton<EconomyParameterData>(),
                 m_NormalizedTime = state.World.GetOrCreateSystemManaged<TimeSystem>().normalizedTime,
+                m_ShoppingInfo = SCInfo<SCShoppingInfo>.Create(ref state),
+                m_LeisureInfo = SCInfo<SCLeisureInfo>.Create(ref state),
+                m_TravelInfo = SCInfo<SCTravelInfo>.Create(ref state)
             };
         }
 
@@ -96,6 +102,9 @@ namespace BitulaMod.SmallCity {
             m_OutsideConnections.Update(ref state);
             m_Workers.Update(ref state);
             m_Students.Update(ref state);
+            m_ShoppingInfo.Update(ref state);
+            m_LeisureInfo.Update(ref state);
+            m_TravelInfo.Update(ref state);
 
             m_SimulationFrame =
                 state.World.GetOrCreateSystemManaged<SimulationSystem>().frameIndex;
@@ -116,6 +125,18 @@ namespace BitulaMod.SmallCity {
 
         public bool HasSmallCityBehaviour(Entity citizen) {
             return citizen != Entity.Null && m_SmallCitySearch.HasComponent(citizen);
+        }
+
+        public bool IsIdle(Entity citizen) {
+            if (!IsSmallCityBehaviour(citizen))
+                return true;
+            uint frame = GetSimulationFrame();
+            return !m_TravelInfo.Get().HasPurpose(citizen)
+                && !m_TravelInfo.Get().HasMeeting(citizen)
+                && !m_LeisureInfo.Get().HasLeisure(citizen)
+                && !m_LeisureInfo.Get().IsWithinLeisureTime(citizen, frame)
+                && !m_ShoppingInfo.Get().HasResourceBuyer(citizen)
+                && !m_ShoppingInfo.Get().IsWithinShoppingTime(citizen, frame);
         }
 
         public EconomyParameterData GetEconomyParameterData() {

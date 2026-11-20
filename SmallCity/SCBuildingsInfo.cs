@@ -19,6 +19,8 @@ namespace BitulaMod.SmallCity {
         private BufferLookup<Resources> m_Resources;
         [ReadOnly]
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
+        [ReadOnly]
+        private ComponentLookup<Building> m_Buildings;
 
         public SCBuildingsInfo Create(ref SystemState state) {
             return new SCBuildingsInfo {
@@ -28,7 +30,12 @@ namespace BitulaMod.SmallCity {
                 m_IndustrialProcesses = state.GetComponentLookup<IndustrialProcessData>(true),
                 m_Resources = state.GetBufferLookup<Resources>(true),
                 m_CurrentBuildings = state.GetComponentLookup<CurrentBuilding>(true),
+                m_Buildings = state.GetComponentLookup<Building>(true)
             };
+        }
+
+        public bool IsBuilding(Entity entity) {
+            return entity != Entity.Null && m_Buildings.HasComponent(entity);
         }
 
         public bool HasPropertyRenter(Entity entity) {
@@ -116,6 +123,7 @@ namespace BitulaMod.SmallCity {
             m_IndustrialProcesses.Update(ref state);
             m_Resources.Update(ref state);
             m_CurrentBuildings.Update(ref state);
+            m_Buildings.Update(ref state);
         }
     }
 }

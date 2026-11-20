@@ -35,7 +35,6 @@ namespace BitulaMod
         private LocalizationManager m_LocaleManager;
         private readonly Dictionary<Entity, EventInfo> m_LastEvent = new();
         private readonly Dictionary<Entity, Dictionary<CustomEventType, MessageInfo>> m_Events = new();
-        private readonly Dictionary<(Entity Citizen, CustomEventType Event), bool> m_FirstSend = new();
         private ComponentLookup<PropertyRenter> m_PropertyRenters;
         
 
@@ -145,15 +144,9 @@ namespace BitulaMod
                 message.SetEvent(cevent, lastEvent);
             }
 
-            var key = (cevent.m_Citizen, cevent.m_EventType);
-
-            if (!m_FirstSend.TryGetValue(key, out bool firstSend)) {
-                firstSend = true;
-                m_FirstSend.Add(key, true);
-            }
-
-            if (!message.canSend(firstSend))
+            if (!message.canSend()) {
                 return;
+            }
 
             if (cevent.m_EventType != CustomEventType.DebugMessage) {
                 string eventKey = message.GetEventText();
@@ -194,17 +187,32 @@ namespace BitulaMod
                 });
             }
 
+            while (HasWatcherOfFirstSend(citizenEvents, message, out CustomEventType watcherType)) {
+                citizenEvents.Remove(watcherType);
+            }
+
             foreach (MessageInfo watcher in citizenEvents.Values) {
                 watcher.StoreWatchedEvent(message);
             }
 
-            if (firstSend)
-                m_FirstSend[key] = false;
+            message.MarkSent();
 
             if (message.CanRemove())
                 citizenEvents.Remove(cevent.m_EventType);
 
             m_LastEvent[cevent.m_Citizen] = message.GetEventInfo();
+        }
+        private bool HasWatcherOfFirstSend(  Dictionary<CustomEventType, MessageInfo> citizenEvents,  MessageInfo message,  out CustomEventType watcherType) {
+
+            foreach (var entry in citizenEvents) {
+                if (entry.Value.IsSentThenWatch() && message.IsWatchedBy(entry.Value)) {
+                    watcherType = entry.Key;
+                    return true;
+                }
+            }
+
+            watcherType = default;
+            return false;
         }
     }
 }

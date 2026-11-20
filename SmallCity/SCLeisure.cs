@@ -15,8 +15,6 @@ namespace BitulaMod.SmallCity {
         private int m_LeisureIntervalMax;
         private int m_SpendingLeisureMin;
         private int m_SpendingLeisureMax;
-        private SCInfo<SCShoppingInfo> m_Shopping;
-        private SCInfo<SCLeisureInfo> m_Leisure;
         private SCInfo<SCHouseholdInfo> m_Household;
         private SCCommon m_Common;
         private ComponentLookup<CmpDesiredLeisureType> m_DesiredLeisureTypes;
@@ -46,8 +44,6 @@ namespace BitulaMod.SmallCity {
                 m_DesiredProviderFound = state.GetComponentLookup<CmpDesiredProviderFound>(true),
                 m_AvailableProviderFound = state.GetComponentLookup<CmpAvailableProviderFound>(true),
                 m_LeisureStarts = state.GetComponentLookup<CmpLeisureStart>(true),
-                m_Shopping = SCInfo<SCShoppingInfo>.Create(ref state),
-                m_Leisure = SCInfo<SCLeisureInfo>.Create(ref state),
                 m_Household = SCInfo<SCHouseholdInfo>.Create(ref state)
             };
         }
@@ -99,10 +95,7 @@ namespace BitulaMod.SmallCity {
         }
 
         public bool DoLeisure(Entity citizen, uint simulationFrame) {
-            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure)
-                return false;
-            if (m_Shopping.Get().IsWithinShoppingTime(citizen, simulationFrame) ||
-                m_Leisure.Get().IsWithinLeisureTime(citizen, simulationFrame))
+            if (!m_Common.IsSmallCityBehaviour(citizen) || !m_NormalLeisure || !m_Common.IsIdle(citizen))
                 return false;
 
             Citizen citizenData = m_Common.GetCitizenData(citizen);

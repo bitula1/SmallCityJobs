@@ -45,6 +45,8 @@ namespace BitulaMod
         ShopDestinationUnavailable = 134,
         LeisureNoPath = 135,
         ResourceBought = 136,
+        NoShoppingNeed = 137,
+        ShoppingTryEnd = 138,
         DebugMessage = 200,
     }
 }

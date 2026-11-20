@@ -15,7 +15,7 @@ namespace BitulaMod {
 
             GameManager.instance.userInterface.appBindings.ShowMessageDialog(
                 new MessageDialog(
-                    $"Small City Jobs {GetVersion()} - Changelog",
+                    $"Village Life {GetVersion()} - Changelog",
                     changelog,
                     LocalizedString.Id("Common.ERROR_ACTION[Continue]")
                 ),

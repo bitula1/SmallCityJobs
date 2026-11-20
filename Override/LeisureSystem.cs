@@ -169,7 +169,7 @@ namespace BitulaMod
             this.m_EndFrameBarrier.AddJobHandleForProducer(jobHandle4);
 			this.m_PathFindSetupSystem.AddQueueWriter(jobHandle4);
 			this.m_PersonalCarSelectData.PostUpdate(jobHandle4);
-			LeisureSystem.SpendLeisureJob spendLeisureJob = default(LeisureSystem.SpendLeisureJob);
+            LeisureSystem.SpendLeisureJob spendLeisureJob = default(LeisureSystem.SpendLeisureJob);
 			spendLeisureJob.m_ServiceAvailables = InternalCompilerInterface.GetComponentLookup<ServiceAvailable>(ref this.__TypeHandle.__Game_Companies_ServiceAvailable_RW_ComponentLookup, ref base.CheckedStateRef);
 			spendLeisureJob.m_CompanyStatisticDatas = InternalCompilerInterface.GetComponentLookup<CompanyStatisticData>(ref this.__TypeHandle.__Game_Companies_CompanyStatisticData_RW_ComponentLookup, ref base.CheckedStateRef);
 			spendLeisureJob.m_Resources = InternalCompilerInterface.GetBufferLookup<Game.Economy.Resources>(ref this.__TypeHandle.__Game_Economy_Resources_RW_BufferLookup, ref base.CheckedStateRef);

@@ -1,4 +1,5 @@
-﻿using Colossal.Entities;
+﻿using BitulaMod.SmallCity;
+using Colossal.Entities;
 using Colossal.UI.Binding;
 using Game;
 using Game.Buildings;
@@ -41,6 +42,7 @@ namespace BitulaMod {
         private WorkShiftUISystem m_WorkShiftUISystem;
         private EntityQuery m_TimeQuery;
         private TimeData m_TimeData;
+        private SCInfo<SCBuildingsInfo> m_BuildingsInfo;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
             return 64;
@@ -59,6 +61,7 @@ namespace BitulaMod {
 
             m_WorkersBinding = new RawValueBinding( "BitulaMod", "workers", BindWorkers);
             m_TimeQuery = GetEntityQuery(ComponentType.ReadOnly<Game.Common.TimeData>());
+            m_BuildingsInfo = SCInfo<SCBuildingsInfo>.Create(ref CheckedStateRef);
 
             AddBinding(m_WorkersBinding);
             RequireForUpdate(m_TimeQuery);
@@ -70,25 +73,25 @@ namespace BitulaMod {
             base.OnUpdate();
 
             ref SystemState state = ref CheckedStateRef;
+            Entity selectedEntity = m_SelectedInfoUISystem.selectedEntity;
+
+            m_BuildingsInfo.Update(ref state);
+            m_Workers.Clear();
+
+            if (!m_BuildingsInfo.Get().IsBuilding(selectedEntity)) {
+                m_WorkersBinding.Update();
+                return;
+            }
+
             m_TimeData = m_TimeQuery.GetSingleton<TimeData>();
 
             m_Renters.Update(this);
             m_Employees.Update(this);
 
-            m_Workers.Clear();
-
-            Entity selectedEntity = m_SelectedInfoUISystem.selectedEntity;
-
-            if (selectedEntity == Entity.Null ||
-                !EntityManager.Exists(selectedEntity)) {
-                m_WorkersBinding.Update();
-                return;
-            }
-
-            // selected entity itself might have employees
+            // Selected entity itself might have employees
             AddWorkers(selectedEntity);
 
-            // for a building, employees are usually on its renter/company
+            // For a building, employees are usually on its renter/company
             if (m_Renters.TryGetBuffer(
                     selectedEntity,
                     out DynamicBuffer<Renter> renters)) {

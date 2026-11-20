@@ -35,14 +35,13 @@ namespace BitulaMod.Systems {
                     //Budget
                     done &= milestones.Get().RemoveUnlockRequirements<FeaturePrefab>("City Budget");
                     done &= milestones.Get().RemoveUnlockRequirements<FeaturePrefab>("Taxation");
+                    done &= milestones.Get().MoveRequirementTo<FeaturePrefab, MilestonePrefab>("City Statistics", "Tiny Hamlet", "Milestone 1");
+                    done &= milestones.Get().MoveRequirementTo<FeaturePrefab, MilestonePrefab>("Service Budgets", "Tiny Hamlet", "Milestone 1");
 
+                    //Deatcare
                     done &= milestones.Get().MoveRequirementTo<FeaturePrefab, ServicePrefab>("Deathcare", "Hamlet", "Health & Deathcare");
                     done &= milestones.Get().MoveRequirementTo<BuildingPrefab, ServicePrefab>("Cemetery02", "Hamlet", "Health & Deathcare");
                     done &= milestones.Get().MoveRequirementTo<BuildingPrefab, DevTreeNodePrefab>("Cemetery02", "Hamlet", "BasicHealthcareNode");
-
-                    // City management
-                    done &= milestones.Get().MoveRequirementTo<FeaturePrefab, MilestonePrefab>("City Statistics", "Tiny Hamlet", "Milestone 1");
-                    done &= milestones.Get().MoveRequirementTo<FeaturePrefab, MilestonePrefab>("Service Budgets", "Tiny Hamlet", "Milestone 1");
 
                     // Residential zoning
                     //done &= milestones.Get().MoveRequirementTo("EU Residential Medium Row", "Tiny Hamlet", "Milestone 1", m_PrefabSystem);
@@ -122,12 +121,12 @@ namespace BitulaMod.Systems {
                 } finally {
                     m_Done = true;
                 }
-            bool electricityEnable = smilestones.Get().IsElectricityEnabled();
-            bool waterEnable = smilestones.Get().IsWaterEnabled();
-            World.GetExistingSystemManaged<DispatchElectricitySystem>().Enabled = electricityEnable;
-            World.GetExistingSystemManaged<DispatchWaterSystem>().Enabled = waterEnable;
-            if (electricityEnable && waterEnable)
-                Enabled = false;
+                bool electricityEnable = smilestones.Get().IsElectricityEnabled();
+                bool waterEnable = smilestones.Get().IsWaterEnabled();
+                World.GetExistingSystemManaged<DispatchElectricitySystem>().Enabled = electricityEnable;
+                World.GetExistingSystemManaged<DispatchWaterSystem>().Enabled = waterEnable;
+                if (electricityEnable && waterEnable)
+                    Enabled = false;
         }
 
         

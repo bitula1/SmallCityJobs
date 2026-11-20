@@ -112,6 +112,24 @@ namespace BitulaMod
 
         public int ShoppingIntervalMax { get; set; } = 60;
 
+        [SettingsUISection("Shopping", "Shopping")]
+        [SettingsUIDropdown(typeof(Setting), nameof(GetShoppingMaxAttemptsItems))]
+        public int ShoppingMaxFailedAttempts { get; set; } = 3;
+
+        public DropdownItem<int>[] GetShoppingMaxAttemptsItems() {
+            int[] values = { 1, 2, 3, 4, 5, 7, 10, 20, 40 };
+            DropdownItem<int>[] items = new DropdownItem<int>[values.Length];
+
+            for (int i = 0; i < values.Length; i++) {
+                items[i] = new DropdownItem<int> {
+                    value = values[i],
+                    displayName = values[i].ToString()
+                };
+            }
+
+            return items;
+        }
+
         [SettingsUISection("General", "General")]
         public bool VillageProgression { get; set; } = true;
 
@@ -142,196 +160,7 @@ namespace BitulaMod
             NormalShopping = true;
             ShoppingIntervalMin = 30;
             ShoppingIntervalMax = 60;
-        }
-    }
-
-    public class LocaleEN : IDictionarySource
-    {
-        private readonly Setting m_Setting;
-        public LocaleEN(Setting setting)
-        {
-            m_Setting = setting;
-        }
-        private void SetMilestones(Dictionary<string, string> dictionary) {
-            string[] villageMilestones = {
-                "Tiny Hamlet", "Small Hamlet", "Hamlet", "Large Hamlet",
-                "Tiny Village", "Small Village", "Large Village", "Grand Village",
-                "Tiny Town", "Boom Town", "Busy Town", "Big Town", "Great Town",
-                "Small City", "Big City", "Large City", "Huge City", "Grand City",
-                "Metropolis", "Thriving Metropolis", "Flourishing Metropolis", "Expansive Metropolis", "Massive Metropolis", "Megalopolis"
-            };
-
-            for (int i = 0; i < villageMilestones.Length; i++) {
-                dictionary[$"Progression.MILESTONE_NAME:{i + 1}"] = villageMilestones[i];
-            }
-        }
-        public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
-        {
-
-            indexCounts["BitulaMod.LIFEPATH_DebugMessage"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_StartedLookingForWork"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_DoesntLikeAnyJobs"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_NoJobsAvailable"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_StartedLookingForAnotherJob"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_TooFewBetterJobs"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_DoesntWantBetterJob"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_SwitchJobWorse"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_SwitchJobNone"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_SwitchJobNoTake"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_WorkplaceGone"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_EmployerGone"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_EmployerReturned"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_CantSwitchJob"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_NoSuitableSwitch"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_FoundCloserJob"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_PromotedJob"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_CloserJobUnemployed"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_CloserJobEmployed"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_DoLeisure"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_WantNoLeisure"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_NoLeisureProvider"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_NoCityPark"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_NoMeals"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_NoCityIndoors"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_NoEntertainment"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_NoCommercial"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_NoCityBeach"] = 3;
-            indexCounts["BitulaMod.LIFEPATH_ServiceFull"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_FoundLeisureAt"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_StartShopResource"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_StartShopResource"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_GoToShop"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopOnline"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopNoResource"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopNoMoney"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopNoPath"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_LeisureNoPath"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopDoesNotExist"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ShopDestinationUnavailable"] = 1;
-            indexCounts["BitulaMod.LIFEPATH_ResourceBought"] = 1;
-            var dictionary = new Dictionary<string, string>
-            {
-                { m_Setting.GetSettingsLocaleID(), "Village Life" },
-                { m_Setting.GetOptionTabLocaleID("General"), "General" },
-                { m_Setting.GetOptionTabLocaleID("JobSeeking"), "Job Seeking" },
-                { m_Setting.GetOptionTabLocaleID("LeisureSeeking"), "Leisure Seeking" },
-                { m_Setting.GetOptionTabLocaleID("Shopping"), "Shopping" },
-                { m_Setting.GetOptionGroupLocaleID("General"), "General" },
-                { m_Setting.GetOptionGroupLocaleID("JobSeeking"), "Job Seeking" },
-                { m_Setting.GetOptionGroupLocaleID("LeisureSeeking"), "Leisure Seeking" },
-                { m_Setting.GetOptionGroupLocaleID("Shopping"), "Shopping" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population milestone" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerMilestoneText)), "Population at which the chance of applying Village Life behaviour starts to decrease." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Behaviour reduction increment" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.JobSeekerFailureIncrement)), "Percentage points by which the chance of applying Village Life behaviour decreases at each population milestone." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.VillageProgression)), "Village progression" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.VillageProgression)), "Enables Village Life's custom milestone progression, including additional milestones and adjusted unlock requirements. Requires restarting the game to take effect." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMin)), "Minimum leisure desire" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMin)), "Sets the minimum leisure desire percentage assigned to citizens using Small City leisure behavior." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisureMax)), "Maximum leisure desire" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisureMax)), "Sets the maximum leisure desire percentage assigned to citizens using Small City leisure behavior." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.LeisureIntervalMin)), "Minimum leisure duration" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMin)), "Sets the minimum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.LeisureIntervalMax)), "Maximum leisure duration" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.LeisureIntervalMax)), "Sets the maximum percentage of the available leisure time that citizens using Small City leisure behavior will spend at a leisure provider." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SpendingLeisureMin)), "Minimum leisure spending" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SpendingLeisureMin)), "Sets the minimum percentage of household money that citizens using Small City leisure behavior may spend during a leisure visit." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SpendingLeisureMax)), "Maximum leisure spending" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SpendingLeisureMax)), "Sets the maximum percentage of household money that citizens using Small City leisure behavior may spend during a leisure visit." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FullTrafficSimulation)), "Full Traffic Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FullTrafficSimulation)), "Disables population-based traffic reduction, allowing more citizen trips to be simulated physically. May significantly increase traffic and reduce performance in larger cities." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Progressive Traffic Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ProgressiveTrafficSimulation)), "Gradually reintroduces the game's traffic reduction as the city grows. Small cities begin with no traffic reduction, allowing all simulated traffic to appear normally. At each configured population milestone, an additional percentage of the vanilla traffic reduction is restored according to the Job Seeker Failure Increment setting, until the original vanilla value is reached. Unlike Full Traffic Simulation, which keeps traffic reduction completely disabled regardless of population, this option progressively returns traffic simulation toward vanilla behavior as the city becomes larger." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritize adult employment" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PrioritizeAdultEmployment)), "Prioritizes employment over further education for adults in small cities. This effect gradually decreases as the population grows and eventually returns to the original education behavior." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptLowerJobs)), "Accept lower jobs" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptLowerJobs)), "Allows citizens to accept jobs below their education level more readily in smaller cities." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AcceptJobSwitch)), "Accept job switch" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.AcceptJobSwitch)), "Allow employed citizens to switch to better jobs more readily in small cities. The effect is based on the Job Seeker Milestone and gradually returns to vanilla behavior as the city grows, while preventing excessive job hopping between positions of the same level." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReducedDaysOff)), "Less Days Off" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReducedDaysOff)), "Reduces worker days off in small cities, gradually returning to vanilla behavior as the population grows." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.WorkplacePromotion)), "Workplace Promotion" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.WorkplacePromotion)), "Allow workers to be promoted to a higher-level position at their current workplace when a suitable position is available." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobUnemployed)), "Unemployed seek closest job" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobUnemployed)), "Allows unemployed citizens to choose the closest suitable available job." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.CloserJobEmployed)), "Employed switch to closer job" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.CloserJobEmployed)), "Allows employed citizens to switch to a suitable job that is closer to home than their current job." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalLeisure)), "Normal Leisure" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalLeisure)), "Gives citizens a more realistic individual chance to choose leisure activities during their free time. Vanilla shopping behavior is gradually restored as the city grows, according to the configured milestone increment." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.NormalShopping)), "Normal Shopping" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.NormalShopping)), "Enables more realistic individual shopping behavior for citizens. Vanilla shopping behavior is gradually restored as the city grows, according to the configured milestone increment." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ShoppingIntervalMin)), "Minimum shopping duration" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMin)), "Sets the minimum percentage of the available shopping time that citizens spend shopping." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ShoppingIntervalMax)), "Maximum shopping duration" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ShoppingIntervalMax)), "Sets the maximum percentage of the available shopping time that citizens spend shopping." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.PhysicalVirtualShopping)), "Physical shopping" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.PhysicalVirtualShopping)), "Allows citizens using Small City shopping behavior to physically visit stores when purchasing virtual goods instead of automatically buying them remotely." },
-                { "BitulaMod.LIFEPATH_DebugMessage:0", "DEBUG: {LINK_NAME_1}" },
-                { "BitulaMod.LIFEPATH_LINK_DebugMessage", "{0}" },
-                { "BitulaMod.LIFEPATH_StartedLookingForWork:0", "I Started looking for work. {LINK_NAME_1}" },
-                { "BitulaMod.LIFEPATH_LINK_StartedLookingForWork", "I found {0} suitable positions of which {1} matches my education level." },
-                { "BitulaMod.LIFEPATH_NoJobsAvailable:0", "There are no suitable open job positions in this city." },
-                { "BitulaMod.LIFEPATH_DoesntLikeAnyJobs:0", "I don't like any of the open job positions." },                
-                { "BitulaMod.LIFEPATH_StartedLookingForAnotherJob:0", "I started looking for a better job. {LINK_NAME_1}" },
-                { "BitulaMod.LIFEPATH_LINK_StartedLookingForAnotherJob", "I found {0} suitable positions." },
-                { "BitulaMod.LIFEPATH_TooFewBetterJobs:0", "{LINK_NAME_1}, but that's too few to make looking for another job worthwhile." },
-                { "BitulaMod.LIFEPATH_LINK_TooFewBetterJobs", "I found {0} suitable positions" },
-                { "BitulaMod.LIFEPATH_DoesntWantBetterJob:0", "Some of these are better jobs, but I don't want to change jobs right now." },
-                { "BitulaMod.LIFEPATH_SwitchJobWorse:0", "I looked for another job, but all the available ones are worse than my current job." },
-                { "BitulaMod.LIFEPATH_SwitchJobNone:0", "I looked for another job, but there aren't any available jobs right now." },
-                { "BitulaMod.LIFEPATH_SwitchJobNoTake:0", "I found another job, but I'm not qualified enough to take it." },
-                { "BitulaMod.LIFEPATH_WorkplaceGone:0", "Looks like my workplace is gone. I'll need to look for another job soon." },
-                { "BitulaMod.LIFEPATH_EmployerGone:0", "Looks like my employer is gone. I'll need to look for another job soon." },
-                { "BitulaMod.LIFEPATH_EmployerReturned:0", "Looks like my employer is back." },
-                { "BitulaMod.LIFEPATH_CantSwitchJob:0", "I would like a better job, but there are no suitable positions available." },
-                { "BitulaMod.LIFEPATH_NoSuitableSwitch:0", "There are other suitable positions available, but none would be a better or closer job." },
-                { "BitulaMod.LIFEPATH_FoundCloserJob:0", "I found a job closer to home than my current workplace." },
-                { "BitulaMod.LIFEPATH_PromotedJob:0", "I was promoted to a better position at my workplace." },
-                { "BitulaMod.LIFEPATH_DoLeisure:0", "I felt like spending some time on leisure." },
-                { "BitulaMod.LIFEPATH_WantNoLeisure:0", "I didn't feel like spending my free time on leisure." },
-                { "BitulaMod.LIFEPATH_NoCityPark:0", "I wanted to get some fresh air in a park, but there wasn't one nearby." },
-                { "BitulaMod.LIFEPATH_NoCityPark:1", "I felt like taking a walk through a park, but I couldn't find one." },
-                { "BitulaMod.LIFEPATH_NoCityPark:2", "A quiet park would have been nice, but there wasn't anywhere suitable to go." },
-                { "BitulaMod.LIFEPATH_NoLeisureProvider:0", "I wanted to do something for leisure, but I couldn't find a suitable place." },
-                { "BitulaMod.LIFEPATH_NoMeals:0", "I was craving a proper meal, but nowhere nearby had anything for me." },
-                { "BitulaMod.LIFEPATH_NoMeals:1", "I went out hoping to grab a bite, but I couldn't find anywhere to eat." },
-                { "BitulaMod.LIFEPATH_NoMeals:2", "My stomach had plans, but apparently the city didn't." },
-                { "BitulaMod.LIFEPATH_NoCityIndoors:0", "I was hoping for some culture or recreation, but nothing caught my interest." },
-                { "BitulaMod.LIFEPATH_NoCityIndoors:1", "I felt like doing something cultural or active, but there wasn't much on offer." },
-                { "BitulaMod.LIFEPATH_NoCityIndoors:2", "I was looking for somewhere to enjoy some culture, sport or recreation, but came up empty." },
-                { "BitulaMod.LIFEPATH_NoEntertainment:0", "I was in the mood for some entertainment, but there was nowhere interesting to go." },
-                { "BitulaMod.LIFEPATH_NoEntertainment:1", "I wanted a little fun, but the city didn't have anything that caught my attention." },
-                { "BitulaMod.LIFEPATH_NoEntertainment:2", "I went looking for something entertaining to do, but apparently tonight's show was cancelled." },
-                { "BitulaMod.LIFEPATH_NoCommercial:0", "I felt like going shopping, but there wasn't anywhere suitable to go." },
-                { "BitulaMod.LIFEPATH_NoCommercial:1", "I wanted to browse the shops, but nothing around here caught my interest." },
-                { "BitulaMod.LIFEPATH_NoCommercial:2", "I was in the mood to spend some money, but the city gave me nowhere to spend it." },
-                { "BitulaMod.LIFEPATH_NoCityBeach:0", "I wanted to spend some time by the water, but there wasn't a suitable beach to go to." },
-                { "BitulaMod.LIFEPATH_NoCityBeach:1", "I felt like relaxing at the beach, but I couldn't find anywhere to do it." },
-                { "BitulaMod.LIFEPATH_NoCityBeach:2", "I was ready for sand, sun, and a little escape, but there was nowhere to put down a towel." },
-                { "BitulaMod.LIFEPATH_ServiceFull:0", "I found a place I wanted to visit, but it was already full." },
-                { "BitulaMod.LIFEPATH_FoundLeisureAt:0", "I found a place I wanted to visit. Let's go to {LINK_1}." },
-                { "BitulaMod.LIFEPATH_StartShopResource:0", "I need to buy something. {LINK_NAME_1}" },
-                { "BitulaMod.LIFEPATH_LINK_StartShopResource", "I need to buy {0}." },
-                { "BitulaMod.LIFEPATH_GoToShop:0", "I found a store that has what I need. Let's go to {LINK_1}." },
-                { "BitulaMod.LIFEPATH_ShopOnline:0", "I ordered it online instead." },
-                { "BitulaMod.LIFEPATH_ShopNoResource:0", "The store didn't have enough in stock." },
-                { "BitulaMod.LIFEPATH_ShopNoMoney:0", "I couldn't afford it." },
-                { "BitulaMod.LIFEPATH_ShopNoPath:0", "I couldn't find a store I could reach in time." },
-                { "BitulaMod.LIFEPATH_LeisureNoPath:0", "I couldn't find a place I could reach in time." },
-                { "BitulaMod.LIFEPATH_ShopDoesNotExist:0", "I couldn't find a store selling what I wanted." },
-                { "BitulaMod.LIFEPATH_ShopDestinationUnavailable:0", "I found a store, but it's no longer available." },
-                { "BitulaMod.LIFEPATH_ResourceBought:0", "I bought something. {LINK_NAME_1}" },
-                { "BitulaMod.LIFEPATH_LINK_ResourceBought", "I bought {0} units of {1} for ₡{2}." },                
-            };
-            if (m_Setting.VillageProgression)
-                SetMilestones(dictionary);
-
-            return dictionary;
-        }
-
-        public void Unload()
-        {
-
+            ShoppingMaxFailedAttempts = 3;
         }
     }
 }

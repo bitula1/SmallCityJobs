@@ -510,7 +510,7 @@ namespace BitulaMod
 								ref NativeArray<int> ptr = ref this.m_CitizenConsumptionAccumulator;
 								int num3 = resourceIndex;
 								ptr[num3] += salesEvent.m_Amount;
-								m_SmallCityShopping.Get().PrintResourceBought(salesEvent.m_Buyer, salesEvent.m_Seller, salesEvent.m_Resource,
+                                m_SmallCityShopping.Get().ResetAttempts(salesEvent.m_Buyer, salesEvent.m_Seller, salesEvent.m_Resource,
 									salesEvent.m_Amount, Mathf.RoundToInt(num));
                             }
 							else if (this.m_BuyingCompanies.HasComponent(salesEvent.m_Buyer))
@@ -821,7 +821,8 @@ namespace BitulaMod
 									if (num <= 0 || (!flag3 && num < resourceBuyer.m_AmountNeeded / 2))
 									{
 										this.IncrementOutcome(flag ? ResourceBuyerSystem.BuyerOutcome.CitizenInsufficientStock : ResourceBuyerSystem.BuyerOutcome.CompanyInsufficientStock);
-										this.m_CommandBuffer.RemoveComponent(unfilteredChunkIndex, entity, in this.m_PathfindTypes);
+                                        if (flag) m_SmallCityShopping.Get().SetShoppingAttempts(entity, CustomEventType.ShopNoResource);
+                                        this.m_CommandBuffer.RemoveComponent(unfilteredChunkIndex, entity, in this.m_PathfindTypes);
 										goto IL_0721;
 									}
 								}
@@ -870,10 +871,10 @@ namespace BitulaMod
 								}
 								this.m_CommandBuffer.RemoveComponent(unfilteredChunkIndex, entity, in this.m_PathfindTypes);
 								this.m_CommandBuffer.RemoveComponent<ResourceBuyer>(unfilteredChunkIndex, entity);
-								
-                                if (flag) m_SmallCityShopping.Get().PrintShoppingIssue(entity, flag2, flag7, flag6);
 
-                                
+                                if (flag) m_SmallCityShopping.Get().SetShoppingAttempts(entity, (flag2 || flag7) && !physicalVirtual, flag6);
+
+
                                 if (((!flag2 && !flag7) || physicalVirtual) && flag6) {
 									this.m_CommandBuffer.AddBuffer<CurrentTrading>(unfilteredChunkIndex, entity).Add(new CurrentTrading
 									{
@@ -909,12 +910,12 @@ namespace BitulaMod
 									{
 										this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenPathfindFailed);
 										this.RecordCitizenPathfindFailure(entity, resourceBuyer.m_ResourceNeeded);
-                                        m_SmallCityShopping.Get().PrintNoShoppingPath(entity);
+                                        m_SmallCityShopping.Get().SetShoppingAttempts(entity, false);
                                     }
 									else
 									{
 										this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenStaleDestination);
-                                        m_SmallCityShopping.Get().PrintNoShoppingPath(entity, destination != Entity.Null);
+                                        m_SmallCityShopping.Get().SetShoppingAttempts(entity, destination != Entity.Null);
                                     }
 								}
 								else
@@ -978,7 +979,11 @@ namespace BitulaMod
 			// Token: 0x06006B8B RID: 27531 RVA: 0x003AE2EC File Offset: 0x003AC4EC
 			private void FindShopForCitizen(ref Unity.Mathematics.Random random, ArchetypeChunk chunk, int index, Entity buyer, Resource resource, int amount, SetupTargetFlags flags, Citizen citizenData, Household householdData, int householdCitizenCount, bool virtualGood)
 			{
-				this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenSearchStarted);
+                if (m_SmallCityShopping.Get().EndOfAttempts(buyer)) {
+                    this.m_CommandBuffer.RemoveComponent<ResourceBuyer>(index, buyer);
+                    return;
+                }
+                this.IncrementOutcome(ResourceBuyerSystem.BuyerOutcome.CitizenSearchStarted);
 				if (virtualGood && !m_SmallCityShopping.Get().BuyVirtualGoodsPhysically(buyer))
 				{
 					flags |= SetupTargetFlags.Import;

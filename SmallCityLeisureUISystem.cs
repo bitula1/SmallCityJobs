@@ -111,6 +111,7 @@ namespace BitulaMod
         private readonly Dictionary<Entity, Entity> m_LeisureVisitBuilding = new();
         private Entity m_LastSelectedEntity = Entity.Null;
         private SmallCity<SCLeisure> m_SmallCityLeisure;
+        private SCInfo<SCBuildingsInfo> m_BuildingsInfo;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
             return 128;
@@ -140,6 +141,7 @@ namespace BitulaMod
             m_Resources = GetBufferLookup<Resources>(true);
             m_ServiceAvailables = GetComponentLookup<ServiceAvailable>(true);
             m_Shopping = GetComponentLookup<ResourceBuyer>(true);
+            m_BuildingsInfo = SCInfo<SCBuildingsInfo>.Create(ref CheckedStateRef);
 
 
             AddBinding(m_CustomersBinding);
@@ -151,17 +153,18 @@ namespace BitulaMod
             base.OnUpdate();
             ref SystemState state = ref CheckedStateRef;
 
-
-            
-
-
             Entity selectedEntity = m_SelectedInfoUISystem.selectedEntity;
+            m_BuildingsInfo.Update(ref state);
 
-            if (selectedEntity == Entity.Null ||
-                !EntityManager.Exists(selectedEntity)) {
+            if (selectedEntity != m_LastSelectedEntity) {
+                m_Customers.Clear();
+                m_LeisureVisitBuilding.Clear();
+                m_LastSelectedEntity = selectedEntity;
                 m_CustomersBinding.Update();
-                return;
             }
+
+            if (!m_BuildingsInfo.Get().IsBuilding(selectedEntity))
+                return;
 
             m_SmallCityLeisure = SmallCity<SCLeisure>.Create(ref base.CheckedStateRef);
 

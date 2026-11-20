@@ -91,7 +91,7 @@ namespace BitulaMod
         private NameSystem m_NameSystem;
         private EntityQuery m_ShoppingCitizenQuery;
         private SmallCity<SCShopping> m_SmallCityShopping;
-        private SCInfo<SCBuildingsInfo> m_BuildingInfo;
+        private SCInfo<SCBuildingsInfo> m_BuildingsInfo;
         private SCInfo<SCHouseholdInfo> m_HouseholdInfo;
         private ComponentLookup<CurrentBuilding> m_CurrentBuildings;
         private ComponentLookup<Target> m_Targets;
@@ -119,7 +119,7 @@ namespace BitulaMod
             m_ShoppersBinding = new RawValueBinding("BitulaMod", "shoppers", BindShoppers);
             m_Shopping = GetComponentLookup<ResourceBuyer>(true);
             m_HappinessParameterQuery = GetEntityQuery(ComponentType.ReadOnly<CitizenHappinessParameterData>());
-            m_BuildingInfo = SCInfo<SCBuildingsInfo>.Create(ref base.CheckedStateRef);
+            m_BuildingsInfo = SCInfo<SCBuildingsInfo>.Create(ref base.CheckedStateRef);
             m_HouseholdInfo = SCInfo<SCHouseholdInfo>.Create(ref base.CheckedStateRef);
 
             AddBinding(m_ShoppersBinding);
@@ -131,26 +131,23 @@ namespace BitulaMod
             base.OnUpdate();
             ref SystemState state = ref CheckedStateRef;            
             Entity selectedEntity = m_SelectedInfoUISystem.selectedEntity;
-            
-            if (selectedEntity == Entity.Null ||
-                !EntityManager.Exists(selectedEntity)) {
-                m_ShoppersBinding.Update();
-                return;
-            }
+            m_BuildingsInfo.Update(ref state);
 
-            m_PropertyRenters.Update(ref state);
             if (selectedEntity != m_LastSelectedEntity) {
                 m_Shoppers.Clear();
                 m_ShoppingVisitBuilding.Clear();
                 m_LastSelectedEntity = selectedEntity;
+                m_ShoppersBinding.Update();
             }
 
+            if (!m_BuildingsInfo.Get().IsBuilding(selectedEntity))
+                return;
 
+            m_PropertyRenters.Update(ref state);
             m_CurrentBuildings.Update(ref state);
             m_Targets.Update(ref state);
             m_Shopping.Update(this);
             m_SmallCityShopping = SmallCity<SCShopping>.Create(ref state);
-            m_BuildingInfo.Update(ref state);
             m_HouseholdInfo.Update(ref state);
             AddShoppers(selectedEntity);
             m_ShoppersBinding.Update();
@@ -301,7 +298,7 @@ namespace BitulaMod
             shopper.Resource = -1;
 
             bool liveStatus = false;
-            bool isInSelectedBuilding = m_BuildingInfo.Get().IsInBuilding(citizen, selectedEntity);
+            bool isInSelectedBuilding = m_BuildingsInfo.Get().IsInBuilding(citizen, selectedEntity);
 
             if (m_SmallCityShopping.Get().CantBuyResourceIn(citizen, selectedEntity)) {
                 SetVisualDelay(shopper, VisualShoppingDelay.NoResource);

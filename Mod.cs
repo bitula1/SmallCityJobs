@@ -9,6 +9,7 @@ using HarmonyLib;
 using BitulaMod.Systems;
 using Game.Prefabs;
 using Game.Tutorials;
+using Game.Settings;
 
 namespace BitulaMod
 {
@@ -29,6 +30,7 @@ namespace BitulaMod
             }
         }
         private LocaleEN m_Locale;
+        private LocaleShoppingEN m_LocaleShopping;
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Setting m_Setting;
         public static Setting Settings { get; private set; }
@@ -48,8 +50,11 @@ namespace BitulaMod
             AssetDatabase.global.LoadSettings(nameof(BitulaMod), m_Setting, new Setting(this));
 
             m_Locale = new LocaleEN(m_Setting);
+            m_LocaleShopping = new LocaleShoppingEN(m_Setting);
+
             var localizationManager = GameManager.instance.localizationManager;
             localizationManager.AddSource("en-US", m_Locale);
+            localizationManager.AddSource("en-US", m_LocaleShopping);
 
             updateSystem.UpdateAt<WorkShiftUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<SmallCityJobsUISystem>(SystemUpdatePhase.UIUpdate);
@@ -63,7 +68,7 @@ namespace BitulaMod
                 updateSystem.UpdateBefore<SmallCityMilestoneSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
                 updateSystem.UpdateAfter<SmallCityMilestoneRequirementsSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
             }
-            //updateSystem.UpdateAt<ModDebugSystem>(SystemUpdatePhase.GameSimulation);
+            //updateSystem.UpdateAt<CitizenTravelDebugSystem>(SystemUpdatePhase.GameSimulation);
 
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.CitizenFindJobSystem>().Enabled = false;
             World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<Game.Simulation.FindJobSystem>().Enabled = false;
@@ -86,13 +91,19 @@ namespace BitulaMod
             updateSystem.UpdateAt<DeathCheckSystem>(SystemUpdatePhase.GameSimulation);
         }
 
-        public void OnDispose()
-        {
+        public void OnDispose() {
             log.Info(nameof(OnDispose));
 
+            var localizationManager = GameManager.instance.localizationManager;
+
             if (m_Locale != null) {
-                GameManager.instance.localizationManager.RemoveSource("en-US", m_Locale);
+                localizationManager.RemoveSource("en-US", m_Locale);
                 m_Locale = null;
+            }
+
+            if (m_LocaleShopping != null) {
+                localizationManager.RemoveSource("en-US", m_LocaleShopping);
+                m_LocaleShopping = null;
             }
 
             if (m_Setting != null) {

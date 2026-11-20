@@ -10,6 +10,7 @@ using static UnityEngine.InputSystem.InputRemoting;
 
 namespace BitulaMod {
     public class EventInfo {
+
         private CustomEventType m_Event;
         private String m_EventText;
         private String m_ParameterText;
@@ -44,6 +45,7 @@ namespace BitulaMod {
         public override int GetHashCode() {
             return m_Event.GetHashCode();
         }
+       
         public CustomEventType GetEvent() {
             return m_Event;
         }
@@ -79,9 +81,12 @@ namespace BitulaMod {
     public class MessageInfo {
         private EventInfo m_Event;
         private EventInfo m_LastEvent;
+        private bool? m_FirstSent;
         private readonly HashSet<EventInfo> m_EventsToWatch = new();
         private readonly HashSet<EventInfo> m_WatchedEvents = new();
         public MessageInfo(CustomEvent currentEvent, EventInfo lastEvent) {
+            if ((currentEvent.m_Hint & EventHint.SendThenWatchEvent) != 0)
+                m_FirstSent = false;
             SetEvent(currentEvent, lastEvent);
         }
 
@@ -93,6 +98,19 @@ namespace BitulaMod {
             m_Event.AddHint(currentEvent.m_Hint);
             m_Event.AddWatchHint(currentEvent.m_WatchHint);
         }
+        public void MarkSent() {
+            if (m_FirstSent.HasValue)
+                m_FirstSent = true;
+        }
+
+        public bool IsSentThenWatch() {
+            return m_FirstSent == true;
+        }
+
+        public bool IsWatchedBy(MessageInfo watcher) {
+            return m_Event.HasWatchHint(EventHint.WatchEvent) && watcher.HasEventsToWatch( GetEvent(), EventHint.SendThenWatchEvent | EventHint.WatchEvent);
+        }
+
 
         public void StoreWatchedEvent(MessageInfo message) {
             foreach (EventInfo eventToWatch in m_EventsToWatch) {
@@ -112,9 +130,9 @@ namespace BitulaMod {
             }
         }
 
-        public bool canSend(bool firstSend) {
-            if (!firstSend && HasHint(EventHint.SendThenWatchEvent))
-                ReplaceHint(EventHint.SendThenWatchEvent, EventHint.WatchEvent);
+        public bool canSend() {
+            if (m_FirstSent == true && HasHint(EventHint.SendThenWatchEvent))
+                    ReplaceHint(EventHint.SendThenWatchEvent, EventHint.WatchEvent); 
 
             if (HasEventsToWatch()) {
                 if (HasHint(EventHint.CounterWatchEvent)) {
@@ -135,8 +153,8 @@ namespace BitulaMod {
             return true;
         }
 
-        public bool CanRemove() { 
-            return !HasHint(EventHint.SendThenWatchEvent); 
+        public bool CanRemove() {
+            return m_FirstSent == null;
         }
 
         public CustomEventType GetEvent() {
