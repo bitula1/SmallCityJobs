@@ -32,8 +32,7 @@ using Game;
 using Game.Simulation;
 using BitulaMod.SmallCity;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x020015EA RID: 5610
 	public partial class ResourceBuyerSystem : GameSystemBase
 	{

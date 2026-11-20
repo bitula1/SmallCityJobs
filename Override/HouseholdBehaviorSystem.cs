@@ -24,8 +24,7 @@ using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x02001519 RID: 5401
 	public partial class HouseholdBehaviorSystem : GameSystemBase
 	{

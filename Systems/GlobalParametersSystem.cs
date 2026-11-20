@@ -9,7 +9,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace BitulaMod {
+namespace BitulaMod.Systems {
     
     public partial class GlobalParametersSystem : GameSystemBase {
         private EntityQuery m_EconomyParameterQuery;

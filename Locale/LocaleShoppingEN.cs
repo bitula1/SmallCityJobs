@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using System.Collections.Generic;
 
-namespace BitulaMod {
+namespace BitulaMod.Locale {
     public class LocaleShoppingEN : IDictionarySource {
         private readonly Setting m_Setting;
 

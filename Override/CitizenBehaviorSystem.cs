@@ -29,8 +29,7 @@ using Game;
 using Game.Simulation;
 using BitulaMod.SmallCity;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x02001520 RID: 5408
 	public partial class CitizenBehaviorSystem : GameSystemBase
 	{

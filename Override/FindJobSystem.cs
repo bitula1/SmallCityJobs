@@ -26,8 +26,7 @@ using Unity.Entities.Internal;
 using Unity.Jobs;
 using UnityEngine.Scripting;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x0200150D RID: 5389
 	public partial class FindJobSystem : GameSystemBase
 	{

@@ -31,8 +31,7 @@ using Game.Simulation;
 using BitulaMod.Components;
 using BitulaMod.SmallCity;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
     // Token: 0x02001533 RID: 5427
     public partial class LeisureSystem : GameSystemBase
 	{

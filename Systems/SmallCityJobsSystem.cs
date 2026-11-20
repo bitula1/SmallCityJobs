@@ -6,9 +6,8 @@ using Game.City;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace BitulaMod
-{
-    public partial class SmallCityJobsSystem : GameSystemBase {
+namespace BitulaMod.Systems {
+    public partial class SmallCitySystem : GameSystemBase {
         private Unity.Mathematics.Random m_Random;
         public override int GetUpdateInterval(SystemUpdatePhase phase) {
             return 16;

@@ -20,8 +20,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Systems.UI {
     enum LeisureStatus {
         None = 0,
         Leisuring = 1,

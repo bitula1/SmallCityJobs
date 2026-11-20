@@ -2,7 +2,7 @@
 using Game;
 using UnityEngine;
 
-namespace BitulaMod {
+namespace BitulaMod.Systems {
     public partial class ModInfoSystem : GameSystemBase {
         private const string ChangelogVersionKey = "BitulaMod.LastShownChangelogVersion";
         private string m_VersionToShow;

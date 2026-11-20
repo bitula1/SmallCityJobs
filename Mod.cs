@@ -7,9 +7,10 @@ using System.Reflection;
 using Unity.Entities;
 using HarmonyLib;
 using BitulaMod.Systems;
+using BitulaMod.Locale;
 using Game.Prefabs;
-using Game.Tutorials;
-using Game.Settings;
+using BitulaMod.Override;
+using BitulaMod.Systems.UI;
 
 namespace BitulaMod
 {
@@ -31,6 +32,7 @@ namespace BitulaMod
         }
         private LocaleEN m_Locale;
         private LocaleShoppingEN m_LocaleShopping;
+        private LocaleLeisureEN m_LocaleLeisure;
         public static ILog log = LogManager.GetLogger($"{nameof(BitulaMod)}.{nameof(Mod)}").SetShowsErrorsInUI(false);
         private Setting m_Setting;
         public static Setting Settings { get; private set; }
@@ -51,6 +53,7 @@ namespace BitulaMod
 
             m_Locale = new LocaleEN(m_Setting);
             m_LocaleShopping = new LocaleShoppingEN(m_Setting);
+            m_LocaleLeisure = new LocaleLeisureEN(m_Setting);
 
             var localizationManager = GameManager.instance.localizationManager;
             localizationManager.AddSource("en-US", m_Locale);
@@ -62,7 +65,7 @@ namespace BitulaMod
             updateSystem.UpdateAt<SmallCityShoppingUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<LifePathEventSenderSystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<GlobalParametersSystem>(SystemUpdatePhase.GameSimulation);
-            updateSystem.UpdateAt<SmallCityJobsSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<SmallCitySystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<ModInfoSystem>(SystemUpdatePhase.UIUpdate);
             if (m_Setting.VillageProgression) {
                 updateSystem.UpdateBefore<SmallCityMilestoneSystem, PrefabInitializeSystem>(SystemUpdatePhase.PrefabUpdate);
@@ -104,6 +107,11 @@ namespace BitulaMod
             if (m_LocaleShopping != null) {
                 localizationManager.RemoveSource("en-US", m_LocaleShopping);
                 m_LocaleShopping = null;
+            }
+
+            if (m_LocaleLeisure != null) {
+                localizationManager.RemoveSource("en-US", m_LocaleLeisure);
+                m_LocaleLeisure = null;
             }
 
             if (m_Setting != null) {

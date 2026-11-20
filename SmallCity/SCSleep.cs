@@ -1,5 +1,6 @@
 ﻿using Game.Citizens;
 using Game.Prefabs;
+using Game.Simulation;
 using Unity.Entities;
 using Unity.Mathematics;
 

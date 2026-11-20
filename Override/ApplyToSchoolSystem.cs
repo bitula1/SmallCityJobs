@@ -18,7 +18,7 @@ using Game;
 using Game.Simulation;
 using Game.Net;
 
-namespace BitulaMod
+namespace BitulaMod.Override
 {
 	// Token: 0x020015C2 RID: 5570
 	public partial class ApplyToSchoolSystem : GameSystemBase

@@ -8,16 +8,12 @@ using Game.Triggers;
 using Game.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Unity.Burst.CompilerServices;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace BitulaMod
+namespace BitulaMod.Systems
 {
     public partial class LifePathEventSenderSystem : GameSystemBase {
 

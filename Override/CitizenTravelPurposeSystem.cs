@@ -24,8 +24,7 @@ using Game.Simulation;
 using BitulaMod.Components;
 using BitulaMod.SmallCity;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x0200152F RID: 5423
 	public partial class CitizenTravelPurposeSystem : GameSystemBase
 	{

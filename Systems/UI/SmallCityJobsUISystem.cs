@@ -13,7 +13,7 @@ using Game.UI.InGame;
 using System.Collections.Generic;
 using Unity.Entities;
 
-namespace BitulaMod {
+namespace BitulaMod.Systems.UI {
     enum WorkerStatus {
         None = 0,
         Working = 1,

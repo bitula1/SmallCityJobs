@@ -21,8 +21,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Systems.UI {
     public partial class WorkShiftUISystem : UISystemBase
     {
         public override int GetUpdateInterval(SystemUpdatePhase phase) {

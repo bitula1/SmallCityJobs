@@ -20,8 +20,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Systems.UI {
 
     enum ShopperStatus {
         None = 0,

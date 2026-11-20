@@ -13,7 +13,7 @@ using Game.Prefabs;
 using Game.SceneFlow;
 using System.Reflection;
 
-namespace BitulaMod {
+namespace BitulaMod.Systems {
     public partial class CitizenTravelDebugSystem : GameSystemBase {
         private EntityQuery m_FollowedCitizens;
         private SimulationSystem m_SimulationSystem;

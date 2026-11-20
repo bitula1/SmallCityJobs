@@ -27,8 +27,7 @@ using UnityEngine.Scripting;
 using Game;
 using Game.Simulation;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x0200158C RID: 5516
 	public partial class ModProcessingCompanySystem : GameSystemBase, IDefaultSerializable, ISerializable, IPostDeserialize
 	{

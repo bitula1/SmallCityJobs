@@ -19,8 +19,7 @@ using System.Globalization;
 using BitulaMod.SmallCity;
 
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x020014E7 RID: 5351
 	public partial class CitizenFindJobSystem : GameSystemBase
 	{

@@ -29,8 +29,7 @@ using Game;
 using Game.Simulation;
 using BitulaMod.SmallCity;
 
-namespace BitulaMod
-{
+namespace BitulaMod.Override {
 	// Token: 0x02001544 RID: 5444
 	public partial class DeathCheckSystem : GameSystemBase, IDefaultSerializable, ISerializable
 	{
